@@ -1,0 +1,248 @@
+<h2 class="sr-only">
+  Interactive timeline and pricing for a 9-phase LLM Migration
+</h2>
+
+<style>
+  .phase-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px 90px;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .phase-row:last-child {
+    border-bottom: none;
+  }
+  .bar-wrap {
+    position: relative;
+    height: 28px;
+  }
+  .bar {
+    height: 100%;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .phase-num {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-align: right;
+  }
+  .hours-col,
+  .cost-col {
+    font-size: 13px;
+    text-align: right;
+  }
+  .cost-col {
+    font-weight: 500;
+  }
+  .section-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--color-text-primary);
+  }
+  .week-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 58px 0 58px;
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 1rem 0;
+  }
+  .stat-card {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin: 0.5rem 0 1rem;
+  }
+  .tab {
+    padding: 6px 14px;
+    border-radius: var(--border-radius-md);
+    font-size: 13px;
+    cursor: pointer;
+    border: 0.5px solid var(--color-border-tertiary);
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+  .tab.active {
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border-color: var(--color-border-secondary);
+  }
+  .note {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    line-height: 1.6;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+  }
+</style>
+
+<div id="app"></div>
+
+<script>
+  const phases = [
+    {
+      id: 1,
+      name: "Discovery & assessment",
+      weeks: [1, 1],
+      hours: 2,
+      color: "#534AB7",
+    },
+    {
+      id: 2,
+      name: "Model selection & benchmarking",
+      weeks: [1, 1],
+      hours: 1,
+      color: "#1D9E75",
+    },
+    {
+      id: 3,
+      name: "Infrastructure setup",
+      weeks: [1, 1],
+      hours: 2,
+      color: "#378ADD",
+    },
+    {
+      id: 4,
+      name: "Abstraction & refactoring",
+      weeks: [1, 1],
+      hours: 3,
+      color: "#D85A30",
+    },
+    {
+      id: 5,
+      name: "Prompt engineering & tuning",
+      weeks: [2, 2],
+      hours: 2,
+      color: "#D4537E",
+    },
+    {
+      id: 6,
+      name: "RAG & services migration",
+      weeks: [2, 2],
+      hours: 2,
+      color: "#639922",
+    },
+    {
+      id: 7,
+      name: "Testing & validation",
+      weeks: [2, 2],
+      hours: 2,
+      color: "#BA7517",
+    },
+    {
+      id: 8,
+      name: "Gradual rollout",
+      weeks: [2, 2],
+      hours: 1,
+      color: "#E24B4A",
+    },
+    {
+      id: 9,
+      name: "Ops & maintenance",
+      weeks: [2, 2],
+      hours: 1,
+      color: "#888780",
+    },
+  ];
+
+  const totalDuration = 2;
+  const timeUnit = "days";
+  const totalHours = phases.reduce((s, p) => s + p.hours, 0);
+
+  const tiers = {
+    mid: { label: "Mid-level", rate: 20, desc: "$20/hr range" },
+    senior: { label: "Senior", rate: 25, desc: "$25/hr range" },
+    specialist: { label: "LLM specialist", rate: 30, desc: "$30/hr range" },
+  };
+
+  let activeTier = "senior";
+
+  function render() {
+    const tier = tiers[activeTier];
+    const totalCost = totalHours * tier.rate;
+
+    const unitConfig = {
+      weeks: { label: "weeks", markerPrefix: "W", markerStep: 2, perLabel: "week",  monthlyDiv: 4.33 },
+      days:  { label: "days",  markerPrefix: "D", markerStep: 5, perLabel: "day",   monthlyDiv: 22   },
+      hours: { label: "hours", markerPrefix: "H", markerStep: 8, perLabel: null,    monthlyDiv: null  },
+    };
+    const uc = unitConfig[timeUnit] || unitConfig.weeks;
+
+    const monthly = uc.monthlyDiv !== null
+      ? Math.round(totalCost / (totalDuration / uc.monthlyDiv))
+      : null;
+
+    let html = "";
+
+    // Summary cards
+    html += `<div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Duration</div><div class="stat-value">~${totalDuration} ${uc.label}</div><div class="stat-sub">&#x2248; ${totalDuration} ${uc.label}</div></div>
+      <div class="stat-card"><div class="stat-label">Total hours</div><div class="stat-value">${totalHours}h</div><div class="stat-sub">${uc.perLabel ? `~${Math.round(totalHours / totalDuration)}h/${uc.perLabel} avg` : "billable effort"}</div></div>
+      <div class="stat-card"><div class="stat-label">Project cost</div><div class="stat-value">$${totalCost.toLocaleString()}</div><div class="stat-sub">at $${tier.rate}/hr (${tier.label})</div></div>
+      ${monthly !== null ? `<div class="stat-card"><div class="stat-label">Monthly avg</div><div class="stat-value">$${monthly.toLocaleString()}</div><div class="stat-sub">over ${totalDuration} ${uc.label}</div></div>` : ""}
+    </div>`;
+
+    // Tier tabs
+    html += `<div class="section-label">Rate tier</div><div class="tabs">`;
+    for (const [key, t] of Object.entries(tiers)) {
+      html += `<div class="tab ${key === activeTier ? "active" : ""}" onclick="activeTier='${key}'; render();">${t.label}<br><span style="font-size:11px;color:var(--color-text-tertiary)">${t.desc}</span></div>`;
+    }
+    html += `</div>`;
+
+    // Gantt
+    html += `<div class="section-label">Timeline (Gantt)</div>`;
+    html += `<div class="week-markers">`;
+    for (let w = 1; w <= totalDuration; w += uc.markerStep) html += `<span>${uc.markerPrefix}${w}</span>`;
+    html += `</div>`;
+
+    for (const p of phases) {
+      const left  = (((p.weeks[0] - 1) / totalDuration) * 100).toFixed(1);
+      const width = (((p.weeks[1] - p.weeks[0] + 1) / totalDuration) * 100).toFixed(1);
+      const cost  = p.hours * tier.rate;
+      html += `<div class="phase-row">
+        <div class="phase-num">P${p.id}</div>
+        <div class="bar-wrap"><div class="bar" style="margin-left:${left}%;width:${width}%;background:${p.color}22;color:${p.color};border:0.5px solid ${p.color}44;">${p.name}</div></div>
+        <div class="hours-col">${p.hours}h</div>
+        <div class="cost-col">$${cost.toLocaleString()}</div>
+      </div>`;
+    }
+
+    document.getElementById("app").innerHTML = html;
+  }
+
+  render();
+</script>

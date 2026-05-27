@@ -1,0 +1,125 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Gantt Timeline & Pricing — configuration file
+# Run:  python gantt_generator.py sample_config.yaml
+# Out:  sample_config_gantt.html  (same directory as this file)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Title shown in the page's accessible <h2> heading (optional).
+project_title: "Interactive timeline and pricing for a 9-phase LLM Migration"
+
+# ── Time unit ─────────────────────────────────────────────────────────────────
+# Controls what 'start' and 'end' in each phase represent, and how the Gantt
+# axis is labelled.
+#
+#   weeks → axis shows W1, W3, W5 …  | monthly cost = total / (duration / 4.33)
+#   days  → axis shows D1, D6, D11 … | monthly cost = total / (duration / 22)
+#   hours → axis shows H1, H9, H17 … | no monthly card shown
+#
+time_unit: days
+
+# Default rate tier selected when the page first loads.
+# Must match a key defined in the 'tiers' section below.
+active_tier: senior
+
+# ── Phases ────────────────────────────────────────────────────────────────────
+# Each phase defines one Gantt bar.
+#
+# Required fields:
+#   name   – display label on the bar
+#   start  – first time unit the phase occupies (week 1, day 1, hour 1 …)
+#   end    – last  time unit the phase occupies (inclusive); defaults to start
+#   hours  – billable effort hours (used for cost calculation)
+#
+# Optional fields:
+#   id     – integer shown as "P1", "P2" … (auto-assigned if omitted)
+#   color  – hex colour; auto-assigned from palette if omitted
+#
+phases:
+  - id: 1
+    name: "Discovery & assessment"
+    start: 1
+    end: 1
+    hours: 2
+    color: "#534AB7"
+
+  - id: 2
+    name: "Model selection & benchmarking"
+    start: 1
+    end: 1
+    hours: 1
+    color: "#1D9E75"
+
+  - id: 3
+    name: "Infrastructure setup"
+    start: 1
+    end: 1
+    hours: 2
+    color: "#378ADD"
+
+  - id: 4
+    name: "Abstraction & refactoring"
+    start: 1
+    end: 1
+    hours: 3
+    color: "#D85A30"
+
+  - id: 5
+    name: "Prompt engineering & tuning"
+    start: 2
+    end: 2
+    hours: 2
+    color: "#D4537E"
+
+  - id: 6
+    name: "RAG & services migration"
+    start: 2
+    end: 2
+    hours: 2
+    color: "#639922"
+
+  - id: 7
+    name: "Testing & validation"
+    start: 2
+    end: 2
+    hours: 2
+    color: "#BA7517"
+
+  - id: 8
+    name: "Gradual rollout"
+    start: 2
+    end: 2
+    hours: 1
+    color: "#E24B4A"
+
+  - id: 9
+    name: "Ops & maintenance"
+    start: 2
+    end: 2
+    hours: 1
+    color: "#888780"
+
+# ── Rate tiers ────────────────────────────────────────────────────────────────
+# At least one tier is required. Each key becomes a clickable tab in the UI.
+#
+# Required per tier:
+#   rate  – hourly rate in USD
+#
+# Optional per tier:
+#   label – display name (defaults to key capitalised)
+#   desc  – sub-label shown under the tab (auto-generated as "$N/hr range" if omitted)
+#
+tiers:
+  mid:
+    label: "Mid-level"
+    rate: 20
+    # desc auto-generated: "$20/hr range"
+
+  senior:
+    label: "Senior"
+    rate: 25
+    # desc auto-generated: "$25/hr range"
+
+  specialist:
+    label: "LLM specialist"
+    rate: 30
+    # desc auto-generated: "$30/hr range"
