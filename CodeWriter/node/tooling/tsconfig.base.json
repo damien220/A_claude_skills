@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  // Extend from the community-maintained Node.js 22 baseline.
+  // Install: npm i -D @tsconfig/node22
+  // Provides: target ES2022, module ESNext, lib ES2022, moduleDetection force, etc.
+  "extends": "@tsconfig/node22/tsconfig.json",
+
+  "compilerOptions": {
+    // ── Module system ────────────────────────────────────────────────────────
+    // ESNext modules — required for ESM (import/export)
+    "module": "ESNext",
+
+    // "bundler" resolution: allows .ts extensions in imports when using tsx/esbuild.
+    // Use "node16" if you run Node.js directly without a bundler.
+    "moduleResolution": "bundler",
+
+    // ── Type safety ──────────────────────────────────────────────────────────
+    // strict enables strictNullChecks, noImplicitAny, strictFunctionTypes, and more.
+    "strict": true,
+
+    // arr[0] returns T | undefined, not T — catches out-of-bounds at the type level
+    "noUncheckedIndexedAccess": true,
+
+    // Unused locals and parameters are type errors, not warnings
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // All code paths must return a value — no implicit undefined return
+    "noImplicitReturns": true,
+
+    // switch/case exhaustiveness: fall-through between non-empty cases is an error
+    "noFallthroughCasesInSwitch": true,
+
+    // ── Interop & compatibility ───────────────────────────────────────────────
+    // Required for native type stripping (Node 22+) and esbuild/swc transpilation.
+    // Forces import type for type-only imports.
+    "verbatimModuleSyntax": true,
+
+    // Each file must be independently transpilable — required for esbuild/swc.
+    "isolatedModules": true,
+
+    // Skip type-checking declaration files of dependencies (faster CI builds)
+    "skipLibCheck": true,
+
+    // Prevent case-insensitive file systems from hiding import errors
+    "forceConsistentCasingInFileNames": true,
+
+    // JSON imports work: import config from './config.json' assert { type: 'json' }
+    "resolveJsonModule": true,
+
+    // Allows importing .ts extension in source (tsx/esbuild rewrites to .js at build time)
+    "allowImportingTsExtensions": true,
+
+    // ── Emit ────────────────────────────────────────────────────────────────
+    // noEmit: tsc is type-checker only; tsx or esbuild handles the actual compilation
+    "noEmit": true,
+
+    // If you use tsc directly (not esbuild), remove noEmit and set outDir:
+    // "outDir": "./dist",
+    // "rootDir": "./src"
+
+    // ── Decorators ───────────────────────────────────────────────────────────
+    // Enable if using Fastify with decorators or NestJS
+    // "experimentalDecorators": true,
+    // "emitDecoratorMetadata": true
+  },
+
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

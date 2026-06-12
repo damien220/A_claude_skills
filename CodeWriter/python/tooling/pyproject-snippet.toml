@@ -1,0 +1,42 @@
+# pyproject-snippet.toml — drop-in [tool.*] blocks for a target repo's pyproject.toml
+#
+# Copy the blocks below into the target project's pyproject.toml. They mirror ruff.toml
+# and mypy.ini exactly, so a repo can be configured from a single file. Keep the two in
+# sync — if you change a rule here, change it in the standalone config too.
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "S", "C4", "SIM", "PERF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["S101", "S105", "S106"]
+"**/conftest.py" = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = []
+combine-as-imports = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.10"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+pretty = true

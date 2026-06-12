@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  // Frontend baseline — shares the strict core with node/tooling/tsconfig.base.json.
+  // Extend from the community-maintained strictest preset.
+  // Install: npm i -D @tsconfig/strictest
+  "extends": "@tsconfig/strictest/tsconfig.json",
+
+  "compilerOptions": {
+    // ── JSX ──────────────────────────────────────────────────────────────────
+    // Automatic JSX runtime (React 17+) — no `import React` needed in .tsx files
+    "jsx": "react-jsx",
+
+    // ── Module system ────────────────────────────────────────────────────────
+    "module": "ESNext",
+
+    // Vite / Next.js resolve modules — allows extensionless imports and
+    // package.json "exports" resolution
+    "moduleResolution": "bundler",
+
+    // ── Browser environment ─────────────────────────────────────────────────
+    // DOM + DOM.Iterable: window/document globals and for..of over NodeList
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "target": "ES2022",
+
+    // ── Type safety (restating the load-bearing flags from strictest) ───────
+    "strict": true,
+
+    // arr[0] returns T | undefined — forces empty-state handling in list UIs
+    "noUncheckedIndexedAccess": true,
+
+    // ── Interop & build ──────────────────────────────────────────────────────
+    // Forces `import type` for type-only imports; required for bundler safety
+    "verbatimModuleSyntax": true,
+
+    // Each file independently transpilable — required for Vite (esbuild/swc)
+    "isolatedModules": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // ── Emit ────────────────────────────────────────────────────────────────
+    // tsc is the type-checker only — Vite/Next.js own transpilation and emit.
+    // Run `tsc --noEmit` in CI; the bundler never type-checks.
+    "noEmit": true,
+
+    // ── Path alias ──────────────────────────────────────────────────────────
+    // Mirror this in vite.config.ts (resolve.alias) or next.config.js
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
+
+    // Next.js additions (next dev injects these automatically):
+    // "plugins": [{ "name": "next" }],
+    // "incremental": true,
+    // "allowJs": true
+  },
+
+  "include": ["src", "app"],
+  "exclude": ["node_modules", "dist", ".next"]
+}

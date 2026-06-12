@@ -1,0 +1,50 @@
+# ruff.toml — CodeWriter Python style enforcement
+#
+# This config makes the refs/ rules *enforceable*. Ruff is used as BOTH the linter
+# and the formatter, so it encodes the same conventions the skill teaches.
+#
+# Drop into a target repo as-is, or copy the equivalent [tool.ruff] block from
+# pyproject-snippet.toml. Run:
+#   ruff check --config ruff.toml .      # lint
+#   ruff format --config ruff.toml .     # format (Black-compatible)
+#
+# Source grounding: PEP 8 (style), PEP 8 naming (N), pyupgrade (UP) tracks the
+# minimum target-version syntax, flake8-bandit (S) covers OWASP secret/security rules.
+
+target-version = "py310"   # enables `X | Y` unions, `match`, modern typing under UP
+line-length = 88           # PEP 8 leans to 79; 88 is the de-facto community/Black width
+
+[lint]
+# Rule sets, in the order plan.md specifies. Each maps to a ref the skill teaches:
+#   E,F,W  pycodestyle + pyflakes  — baseline correctness/style
+#   I      isort                   — import ordering (naming-and-layout)
+#   N      pep8-naming             — idiomatic naming (THE central requirement)
+#   UP     pyupgrade               — modern idioms (typing-and-contracts)
+#   B      flake8-bugbear          — likely bugs (error-handling)
+#   S      flake8-bandit           — secrets/security (api-and-secrets, central requirement)
+#   C4     flake8-comprehensions   — efficient comprehensions (performance-efficiency)
+#   SIM    flake8-simplify         — simpler equivalents
+#   PERF   perflint                — performance anti-patterns (performance-efficiency)
+select = ["E", "F", "W", "I", "N", "UP", "B", "S", "C4", "SIM", "PERF"]
+
+# Let the formatter own line-length wrapping; E501 noise is counterproductive.
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+# Test files legitimately use `assert` (S101) and bind hardcoded test fixtures (S105/S106).
+"**/test_*.py" = ["S101", "S105", "S106"]
+"**/conftest.py" = ["S101"]
+
+[lint.isort]
+# Project-local packages sort into their own section. Override per target repo.
+known-first-party = []
+combine-as-imports = true
+
+[lint.flake8-bandit]
+# Do not relax secret detection. Leave defaults so hardcoded-key checks (S105–S107) fire.
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
