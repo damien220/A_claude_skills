@@ -1,9 +1,15 @@
-// ESLint v9 flat config — drop this file into the project root.
+// ESLint flat config (v9/v10 compatible) — drop this file into the project root.
 // Requires: npm i -D eslint typescript-eslint @eslint/js eslint-plugin-import
 //           eslint-plugin-security eslint-config-prettier
 //
 // Run:  npx eslint .
 // Fix:  npx eslint . --fix
+//
+// ⚠ Peer-dep note: eslint-plugin-jsx-a11y (React projects) declares peer support
+// for eslint ^3–^9 only. If your project uses eslint@10+ alongside jsx-a11y,
+// add an .npmrc at the project root containing:
+//   legacy-peer-deps=true
+// This affects both local installs and Vercel/CI deployments.
 
 import js from '@eslint/js';
 import ts from 'typescript-eslint';

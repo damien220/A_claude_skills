@@ -113,24 +113,72 @@ For Next.js: `@next/bundle-analyzer` for inspection; track per-route First Load 
 | Client-embedded | `NEXT_PUBLIC_*` / `VITE_*` — public by definition; build-time inlined |
 | Server-only | unprefixed; never imported by client files |
 
-Validate at startup with Zod — same discipline as `node/refs/config-and-secrets.md`:
+Validate **both** schemas at startup with Zod so the app refuses to start rather than failing
+at runtime with a confusing `undefined` error deep in a handler.
 
 ```ts
-// env.ts — import this, never process.env directly in app code
+// src/lib/env.ts — import this object everywhere; never call process.env directly
 import { z } from 'zod';
 
-const ClientEnvSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().url(),
+// Server-only vars — can reference the whole process.env object here
+const ServerEnvSchema = z.object({
+  DATABASE_URL:      z.string().min(1),
+  PADDLE_API_KEY:    z.string().min(1),
+  RESEND_API_KEY:    z.string().min(1),
+  RESEND_FROM_EMAIL: z.string().email(),
+  NODE_ENV:          z.enum(['development', 'test', 'production']).default('development'),
 });
-export const clientEnv = ClientEnvSchema.parse({
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,   // must be statically referenced
+
+// Public vars — each must appear LITERALLY (not dynamically) for Next.js/Vite to inline them
+const PublicEnvSchema = z.object({
+  NEXT_PUBLIC_SITE_URL:          z.string().url().default('http://localhost:3000'),
+  NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: z.string().min(1),
+});
+
+// parse() (not safeParse) — throw at module load if any var is missing
+export const env = ServerEnvSchema.parse(process.env);
+
+export const publicEnv = PublicEnvSchema.parse({
+  NEXT_PUBLIC_SITE_URL:            process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN,
 });
 ```
 
-Build-time inlining means `process.env[name]` (dynamic access) is `undefined` in the client —
-each public var must appear literally.
+Key rules:
+- `parse()` at module load — fail fast, never silently degrade
+- Never use `process.env.SOMETHING` directly in route handlers or components — import `env` instead
+- `process.env[name]` (dynamic access) is `undefined` in the browser bundle — each public var must appear as a **literal** static reference in the schema file
+- `.env` is gitignored; `.env.example` is committed with every key, a dummy value, and a comment
 
-`.env` is gitignored; `.env.example` is committed with every key and a dummy value.
+---
+
+## `tsconfig` `exclude` — prevent non-source dirs from polluting compilation
+
+The default `include: ["**/*.ts", "**/*.tsx"]` glob picks up **everything** — temp directories,
+scaffold output, generated files, and migration scripts all get type-checked. Add an explicit
+`exclude` list whenever the project root contains non-source subdirectories.
+
+```jsonc
+// tsconfig.json — be explicit; "node_modules" alone is not enough
+{
+  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "payment-scaffold",   // ← any temp/generated/scaffold dir
+    "scripts",            // ← one-shot migration scripts, not part of the app
+    "coverage"
+  ]
+}
+```
+
+Symptom of a missing exclusion: `tsc --noEmit` reports errors in files you don't recognise
+(missing packages, wrong types) because it compiled a directory you didn't intend to include.
+Fix: add that directory to `exclude`.
+
+Prefer `"include": ["src"]` over `"include": ["**/*.ts"]` for Next.js/Vite projects — scoping
+`include` is a cleaner guard than maintaining an `exclude` allowlist.
 
 ---
 

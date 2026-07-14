@@ -1,0 +1,18 @@
+{
+  "name": "codewriter-typescript-tooling",
+  "private": true,
+  "type": "module",
+  "description": "Dependency-resolution home for eslint.config.js and prettier.config.js. ESM bare-specifier imports in a shared config file resolve relative to the config file's own location, not the consuming project's node_modules — so the plugins these configs import must be installed here. Do not add source code here; see ../README.md. eslint is pinned to the 9.x line (not 10.x) because eslint-plugin-react@7.37.5 (latest as of 2026-07) declares peer support only up to eslint ^9.7 and crashes at runtime under eslint 10 (`contextOrFilename.getFilename is not a function`) — bump once a react-plugin release adds eslint 10 support.",
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-testing-library": "^7.16.2",
+    "prettier": "^3.8.4",
+    "typescript": "^5",
+    "typescript-eslint": "^8.62.0"
+  }
+}

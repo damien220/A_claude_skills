@@ -194,6 +194,101 @@ return <h1>{first.name}</h1>;
 
 ---
 
+## Cross-project `extends` and shared tooling configs
+
+TypeScript resolves every `extends` chain **relative to the file being extended**, not the
+project root. When a `tsconfig.json` at `/projects/my-app/` extends a file at
+`/shared/tooling/tsconfig.base.json`, and that base file in turn extends `@tsconfig/strictest`,
+TypeScript looks for `@tsconfig/strictest` in `/shared/tooling/node_modules/` — not in
+`/projects/my-app/node_modules/`. If the shared tooling directory has no `node_modules`, the
+compile fails with `Cannot find base config file` or a confusing package-not-found error.
+
+**When the base config is outside the project root, inline the flags instead of extending.**
+
+```jsonc
+// ❌ WRONG — fails if /shared/tooling/node_modules/@tsconfig/ does not exist
+{
+  "extends": "/shared/tooling/tsconfig.base.json"
+}
+```
+
+```jsonc
+// ✅ CORRECT — flags inlined; add a comment pointing to the canonical source
+// Compiler flags sourced from Dev_Skills/CodeWriter/typescript/tooling/tsconfig.base.json.
+// Cannot extend across filesystem: TypeScript resolves transitive extends relative to the
+// extended file's directory, so @tsconfig/strictest must be installed there — not here.
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+    // ... other flags copied from the base
+  }
+}
+```
+
+`extends` works correctly when the base is **inside the project** (e.g. `./tsconfig.base.json`
+or a workspace package's `tsconfig.json`) because `node_modules` resolution then starts from the
+project root where dependencies are installed.
+
+---
+
+## `Awaited<ReturnType<typeof fn>>` for async SDK methods
+
+When a third-party SDK doesn't re-export the return type of a function, use the built-in utility
+types to derive it instead of casting with `as`.
+
+```ts
+// WRONG — as cast: no compile-time safety if the SDK changes the shape
+let event: SomeEventType;
+try {
+  event = await sdk.webhooks.unmarshal(body, secret, sig) as SomeEventType;
+} catch { ... }
+```
+
+```ts
+// CORRECT — derive the type from the function signature
+let event: Awaited<ReturnType<typeof sdk.webhooks.unmarshal>>;
+try {
+  event = await sdk.webhooks.unmarshal(body, secret, sig);
+} catch { ... }
+```
+
+`Awaited<T>` unwraps `Promise<T>` — essential when `unmarshal` returns `Promise<EventEntity>`
+but the non-Promise type is internal and not exported by the SDK.
+
+Also applies to `ReturnType<typeof someClass.someMethod>` for sync methods. Use this pattern
+any time TypeScript cannot infer the type from assignment alone (e.g. a `let` that is assigned
+inside a `try` block).
+
+---
+
+## SDK enum and constant casing
+
+Always read the SDK's TypeScript declarations rather than assuming casing from documentation or
+examples written for an older version. Many SDKs shift from `SCREAMING_SNAKE` or `PascalCase`
+enum members to `camelCase` or lowercase literals across major versions.
+
+```ts
+// WRONG — casing from docs example that was written for an older SDK version
+import { Environment } from '@paddle/paddle-node-sdk';
+new Paddle(key, { environment: Environment.Production });  // error: no such member
+```
+
+```ts
+// CORRECT — verified from the SDK's types in node_modules
+import { Environment } from '@paddle/paddle-node-sdk';
+new Paddle(key, { environment: Environment.production });  // ✅ actual member name
+```
+
+Diagnostic: `Property 'X' does not exist on type '...' Did you mean 'y'?` — TypeScript gives
+the correct name in the error. Read the suggestion before googling.
+
+---
+
 ## `import type` and `satisfies`
 
 `verbatimModuleSyntax` requires `import type` for type-only imports — bundlers can then drop

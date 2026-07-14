@@ -3,6 +3,13 @@
   // Frontend baseline — shares the strict core with node/tooling/tsconfig.base.json.
   // Extend from the community-maintained strictest preset.
   // Install: npm i -D @tsconfig/strictest
+  //
+  // ⚠ CROSS-PROJECT WARNING: This file uses `extends: "@tsconfig/strictest"`.
+  // TypeScript resolves that package relative to THIS FILE's directory, not the consuming
+  // project's root. If you extend this file from a project outside this tooling directory,
+  // TypeScript will fail to find @tsconfig/strictest unless it is also installed there.
+  // Fix: inline the flags from this file into the consuming project's tsconfig.json and add
+  // a comment pointing here. See refs/typescript-strict.md §"Cross-project extends".
   "extends": "@tsconfig/strictest/tsconfig.json",
 
   "compilerOptions": {

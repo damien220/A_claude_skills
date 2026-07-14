@@ -16,7 +16,21 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   // ── Ignore build output and dependencies ──────────────────────────────────
-  { ignores: ['dist', '.next', 'node_modules', 'coverage', '*.config.js', '*.config.ts'] },
+  {
+    ignores: [
+      'dist',
+      '.next',
+      'node_modules',
+      'coverage',
+      '*.config.js',
+      '*.config.mjs',
+      '*.config.cjs',
+      '*.config.ts',
+      // Next.js-generated ambient types — not part of the type-checked program, always excluded
+      // by Next's own eslint-config-next too.
+      'next-env.d.ts',
+    ],
+  },
 
   // ── JavaScript baseline ───────────────────────────────────────────────────
   js.configs.recommended,
@@ -25,6 +39,18 @@ export default [
   // strictTypeChecked requires parserOptions.project — remove if you want
   // faster linting without type-aware rules
   ...ts.configs.strictTypeChecked,
+
+  // projectService auto-discovers the nearest tsconfig.json per linted file (relative to
+  // process.cwd(), i.e. wherever `npx eslint` is run from) instead of a hardcoded project
+  // path — required for strictTypeChecked to work at all, and portable across every project
+  // that imports this shared config since none of them share a directory with this file.
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+  },
 
   // ── React + hooks + accessibility ─────────────────────────────────────────
   react.configs.flat.recommended,
