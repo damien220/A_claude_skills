@@ -93,6 +93,30 @@ from myapp.models import User
 Module-level `__all__` declares the public surface explicitly when a module is imported with `*`
 by consumers, and documents intent regardless.
 
+### Never import a leading-`_` name from another module
+
+A leading underscore is a promise to the module's own readers that a name is an internal
+implementation detail, free to change without notice. Importing `_helper` from a sibling module
+breaks that promise for a consumer outside the module and silently couples two modules through a
+name that was never meant to be an API.
+
+```python
+# WRONG — reaches into orchestrator's internals; a rename inside orchestrator.py breaks this
+# call site with no warning, because _save_doc was never a contract
+from myapp.retriever.orchestrator import _save_doc, _content_hash
+```
+
+```python
+# CORRECT — promote the name to the module's public surface, then import it normally
+# in orchestrator.py:
+def save_doc(doc: RawDoc, path: Path) -> None: ...
+def content_hash(text: str) -> str: ...
+__all__ = ["RetrievalOrchestrator", "save_doc", "content_hash"]
+
+# in the consumer:
+from myapp.retriever.orchestrator import save_doc, content_hash
+```
+
 ## Module and package naming
 
 Modules/packages are short, all-lowercase, `snake_case` (PEP 8 prefers no underscores for

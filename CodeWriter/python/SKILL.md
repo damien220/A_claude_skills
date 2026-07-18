@@ -58,7 +58,8 @@ Use `snake_case` for variables/functions, `PascalCase` for classes, `UPPER_CASE`
 a leading `_` marks non-public API. Names describe what a thing *is*, not its type; modules are
 short and lowercase, with imports ordered stdlib → third-party → first-party.
 Read **`refs/naming-and-layout.md`** when: naming anything, ordering imports, choosing a module
-or file name, or deciding what a name should reveal.
+or file name, deciding what a name should reveal, or importing a name from another module
+(never a leading-`_` one).
 
 ### 2. Data modeling: classes, dataclasses, structs
 A class must earn its keep — prefer a function when there is no state, a `@dataclass`
@@ -97,7 +98,8 @@ Reach for builtins, the stdlib, and comprehensions/generators before hand-rolled
 data structure that makes the hot operation O(1) (`set`/`dict` membership). Measure before
 optimizing, and cache repeat work with `functools.cache` where it pays.
 Read **`refs/performance-efficiency.md`** when: a loop is hot, choosing a data structure,
-processing large/streamed data, or a profile points at an obvious inefficiency.
+processing large/streamed data, a UI/reactive script recomputes on every event, or a profile
+points at an obvious inefficiency.
 
 ### 7. Error handling & exceptions
 Catch the *specific* exception, never a bare `except:`; chain with `raise NewError(...) from err`
@@ -105,15 +107,20 @@ to preserve the cause, and never silently swallow errors. Prefer EAFP (`try`) ov
 and use context managers for cleanup. For structured error responses (HTTP status codes, machine-
 readable codes), prefer `error_handler` from `Dev_util_prj`.
 Read **`refs/error-handling.md`** when: writing `try`/`except`, defining custom exceptions,
-managing resources/cleanup, or deciding whether to catch, re-raise, or let an error propagate.
+managing resources/cleanup (including a cached/singleton resource that can't use a `with` block),
+deciding whether to catch, re-raise, or let an error propagate, or deciding whether a fallback
+path should warn.
 
 ### 8. APIs, I/O & secret management
 Never hardcode keys, tokens, or passwords — read them from environment variables or a secret
-manager, with `.env` gitignored. Every outbound call sets a timeout and retries with backoff;
-inputs are validated, and secrets never reach logs or exception messages. For building HTTP API
-clients, prefer `api_client_base` from `Dev_util_prj` (retries, auth, circuit breaker included).
+manager, with `.env` gitignored (and reserved for local dev, not production). Every outbound call
+sets a timeout, retries with backoff, and requires TLS to non-local hosts; inputs — including
+external content entering a prompt/template and file paths sourced from a DB or config — are
+validated, and secrets never reach logs or exception messages. For building HTTP API clients,
+prefer `api_client_base` from `Dev_util_prj` (retries, auth, circuit breaker included).
 Read **`refs/api-and-secrets.md`** when: calling an external API, handling credentials/config,
-making HTTP/network/file requests, or reviewing code for leaked secrets.
+making HTTP/network/file requests, injecting external or stored content into a prompt/template,
+opening a file path that came from a database or config, or reviewing code for leaked secrets.
 
 ### 9. Testing
 Write pytest tests in Arrange-Act-Assert shape; use fixtures for setup, `parametrize` for input
@@ -131,10 +138,13 @@ documenting a public API, or a comment merely restates the code.
 
 ### 11. Packaging & project structure
 Use a `src/` layout with a single `pyproject.toml` declaring metadata, dependencies, and entry
-points (PEP 517/518/621). Pin or constrain dependencies deliberately and expose console scripts
-through entry points rather than loose scripts.
+points (PEP 517/518/621). Pin or constrain dependencies deliberately, expose console scripts
+through entry points rather than loose scripts, lazy-import heavy optional SDKs so unrelated
+commands stay cheap, and extract a helper the moment a second module needs it rather than
+letting copies drift.
 Read **`refs/packaging-and-structure.md`** when: starting a project, adding a dependency or CLI
-entry point, configuring `pyproject.toml`, or organizing modules into a package.
+entry point, configuring `pyproject.toml`, organizing modules into a package, noticing an import
+that's only needed by one code path, or a module/file is growing past one responsibility.
 
 ### 12. Logging & observability
 Use one `get_logger(__name__)` call per module — never `print()` for diagnostic output. Choose

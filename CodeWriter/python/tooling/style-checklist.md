@@ -9,6 +9,7 @@ most items are also enforced by `ruff.toml` / `mypy.ini`, noted as `[ruff: CODE]
 - [ ] No single-letter names except short-lived loop/index vars; names say what they hold
 - [ ] Imports grouped stdlib → third-party → first-party, alphabetized `[ruff: I]`
 - [ ] Module/file names are short, lowercase, `snake_case`; no `utils.py` dumping ground
+- [ ] No cross-module import of a leading-`_` name; promote it to the module's public API instead
 
 ## Typing & contracts → `refs/typing-and-contracts.md`
 - [ ] Every function has parameter + return type hints `[mypy: disallow_untyped_defs]`
@@ -43,16 +44,33 @@ most items are also enforced by `ruff.toml` / `mypy.ini`, noted as `[ruff: CODE]
 - [ ] Specific exception types; no bare `except:` `[ruff: E722]`
 - [ ] `raise NewError(...) from err` preserves the cause chain
 - [ ] No silent `except: pass`; cleanup uses context managers, not `finally` juggling
+- [ ] A resource that outlives one `with` block (cache, singleton) has both `close()` and a
+  `weakref.finalize` safety net
+- [ ] A silent automatic fallback (catch-and-degrade) emits `warnings.warn`, not just a log line
+- [ ] `ruff check` is clean — this is what catches an undefined-name typo hiding in an untested
+  `except` branch, not manual testing of every error path
 
 ## APIs & secrets → `refs/api-and-secrets.md`
 - [ ] No hardcoded keys/tokens/passwords — read from env/secret manager `[ruff: S105–S107]`
-- [ ] `.env` is gitignored; only `.env.example` is committed
+- [ ] `.env` is gitignored, dev-only, and loaded once via an explicit `cwd`-relative path (no
+  parent-directory walk); only `.env.example` is committed
 - [ ] All env vars validated at startup via `pydantic-settings` `BaseSettings`; process exits if any are missing
 - [ ] Secret values wrapped in `pydantic.SecretStr` (or equivalent) so they cannot be printed accidentally
-- [ ] Every outbound network call sets a timeout; retries use backoff
+- [ ] Every outbound network call sets a timeout; retries use backoff; remote (non-local) endpoints
+  are required/warned to use TLS, not plaintext HTTP
 - [ ] Parameterized queries only — no string-formatted SQL `[ruff: S608]`
+- [ ] Untrusted content (external text, another module's stored data) is sanitized before it's
+  interpolated into a prompt template, `str.format()` call, or other structured text sink
+- [ ] A file path sourced from a DB or config is resolved and checked against its intended root
+  before opening (path traversal); stored paths are relative to a known root, not absolute
 - [ ] Secrets never appear in logs or exception messages; inputs are validated
 - [ ] `pip-audit --fail-on-cvss 7` passes in CI (no high/critical dependency CVEs)
+
+## Packaging & structure → `refs/packaging-and-structure.md`
+- [ ] Heavy optional SDKs (LLM/cloud clients) are imported inside the function/branch that uses
+  them, not at module top level — unrelated commands don't pay their import cost
+- [ ] No hand-copied helper duplicated across modules — a second call site imports the shared one
+- [ ] No module has drifted past ~500–700 lines or one function per unrelated concern without a split
 
 ## Docs & tests → `refs/docs-and-comments.md`, `refs/testing.md`
 - [ ] Public functions/classes have docstrings (PEP 257); comments explain *why*, not *what*

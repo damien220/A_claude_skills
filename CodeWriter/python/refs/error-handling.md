@@ -151,6 +151,70 @@ def acquired(lock):
         lock.release()
 ```
 
+### When a resource can't be scoped to a single `with` block
+
+A cached/singleton resource (a DB connection cached across a web framework's reload cycle, a
+connection held for the process lifetime) can't be wrapped in one `with` — it's meant to outlive
+the function that created it. Give it its own `close()` *and* register a `weakref.finalize` as a
+GC safety net, so an exception before an explicit `close()` — or the cache simply being dropped
+and garbage-collected — doesn't leak the underlying handle.
+
+```python
+import sqlite3
+import weakref
+
+class Store:
+    def __init__(self, path: str) -> None:
+        self._conn = sqlite3.connect(path, check_same_thread=False)
+        weakref.finalize(self, self._conn.close)   # closes even if close() is never called
+
+    def close(self) -> None:
+        self._conn.close()                          # idempotent: sqlite3 allows repeat close()
+
+    def __enter__(self) -> "Store":
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self.close()
+```
+
+### Untested `except` branches are where trivial bugs hide
+
+An error path that only runs when a real failure occurs is, by construction, the least-exercised
+code in the codebase — a plain typo (a missing `import json` before `except json.JSONDecodeError`)
+can sit unnoticed for months because the branch never fires in normal testing. This class of bug
+is not a testing gap to chase with more `except`-path tests one by one; it's what static analysis
+is for — `ruff check` (F821 undefined name) catches a missing import on any line, reachable or
+not. Treat "ruff check clean" as a hard gate before shipping, not an optional lint pass.
+
+### Prefer an explicit warning over a silent automatic fallback
+
+When code degrades gracefully instead of raising — falling back to a default backend, returning
+an empty result after a flaky dependency failed — that's a deliberate design choice, but it must
+be visible. A silent fallback looks identical to success until someone notices the *absence* of
+expected output much later.
+
+```python
+# WRONG — caller can't tell "no results" from "the search backend silently broke"
+def search(query: str) -> list[Result]:
+    try:
+        return backend.search(query)
+    except Exception:
+        return []
+```
+
+```python
+# CORRECT — the degraded path is loud, even though execution continues
+import warnings
+
+def search(query: str) -> list[Result]:
+    try:
+        return backend.search(query)
+    except Exception:
+        warnings.warn(f"search backend failed for {query!r}; returning no results", stacklevel=2)
+        return []
+```
+
 ## Don't use exceptions for ordinary control flow
 
 Exceptions signal the _exceptional_. Returning a value, an `Optional`, or a small result object is

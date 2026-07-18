@@ -116,6 +116,35 @@ class Report:
         return sum(r.amount for r in self._rows)
 ```
 
+## Cache expensive per-render work behind a cheap signature
+
+A UI that re-runs its whole script on every user event (Streamlit, a reactive notebook) will
+redo any unguarded expensive step — reading files, scanning a corpus — on every keystroke, not
+just when the underlying data changed. Cache the expensive step keyed by a lightweight signature
+of the data (title/path/`updated_at` per record, not the full content), so it only recomputes
+when something actually changed instead of on every re-render.
+
+```python
+# WRONG — every re-render (including one per keystroke) reads every file from disk again
+def search(query: str, pages: list[Page]) -> list[Page]:
+    corpus = [(p, Path(p.path).read_text()) for p in pages]   # full disk scan, every render
+    return [p for p, text in corpus if query.lower() in text.lower()]
+```
+
+```python
+# CORRECT — corpus is rebuilt only when the page set actually changes
+import streamlit as st
+
+@st.cache_data
+def _build_corpus(signature: tuple[tuple[str, str, float], ...]) -> dict[str, str]:
+    return {path: Path(path).read_text().lower() for path, _title, _updated_at in signature}
+
+def search(query: str, pages: list[Page]) -> list[Page]:
+    signature = tuple((p.path, p.title, p.updated_at) for p in pages)   # cheap to compute
+    corpus = _build_corpus(signature)                                   # cache hit on unchanged data
+    return [p for p in pages if query.lower() in corpus[p.path]]
+```
+
 ## Avoid premature and micro-optimization
 
 Optimize the algorithm (big-O) before the constant factor; optimize the *hot path* the profiler

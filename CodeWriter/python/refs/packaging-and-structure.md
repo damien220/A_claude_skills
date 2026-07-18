@@ -96,12 +96,79 @@ from myproject.core import Client, process
 __all__ = ["Client", "process"]
 ```
 
+### Lazy-import heavy optional dependencies
+
+When a package supports several interchangeable backends (LLM providers, DB drivers, cloud SDKs)
+and only one is active per deployment, importing all of them at module load makes every command —
+including `--help` — pay the full import cost of every SDK, whether it's used or not.
+
+```python
+# WRONG — every invocation imports all five SDKs, even `mycli --help`
+from .anthropic_provider import AnthropicProvider
+from .openai_provider import OpenAIProvider
+from .gemini_provider import GeminiProvider
+
+def get_provider(cfg: Config) -> Provider:
+    if cfg.provider == "anthropic":
+        return AnthropicProvider(cfg)
+    if cfg.provider == "openai":
+        return OpenAIProvider(cfg)
+    ...
+```
+
+```python
+# CORRECT — the chosen backend's SDK is imported only when it's actually selected
+def get_provider(cfg: Config) -> Provider:
+    if cfg.provider == "anthropic":
+        from .anthropic_provider import AnthropicProvider
+        return AnthropicProvider(cfg)
+    if cfg.provider == "openai":
+        from .openai_provider import OpenAIProvider
+        return OpenAIProvider(cfg)
+    raise ValueError(f"unknown provider: {cfg.provider}")
+```
+
+The same applies at the CLI-command level: import a subcommand's heavy dependencies (compiler,
+ML pipeline) inside that command's function body, not at the top of `cli.py`, so unrelated
+commands don't load them.
+
 ## One responsibility per module; avoid `utils.py`
 
 Group code by domain concept, not by "kind of thing." A growing `utils.py`/`helpers.py` is a smell —
 split functions into modules named for what they do (`retry.py`, `serialization.py`). Use a
 sub-package (`mypkg/api/`) when a concept grows past one file. Prefer absolute imports
 (`from myproject.core import X`); reserve relative imports for within a package.
+
+### Don't let a helper drift into duplicate copies
+
+If the same small function (a slugifier, a hash helper, a frontmatter stripper) gets pasted into
+several modules because each one "just needed one function," the copies drift — a fix or edge
+case handled in one copy silently doesn't apply to the others. The moment a second module needs
+the same logic, extract it into the shared module that already owns the concept (or a new
+single-purpose one) and have both call sites import it.
+
+```python
+# WRONG — near-identical _slug() hand-copied into three modules, each with a slightly
+# different fallback string; a bug fix in one copy doesn't reach the others
+def _slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "untitled"
+```
+
+```python
+# CORRECT — one function, parameterized for the one legitimate difference between call sites
+def slugify(text: str, *, limit: int = 60, default: str = "untitled") -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return slug[:limit] or default
+```
+
+### Split a module once it outgrows one responsibility
+
+A hard line-count rule is less useful than the underlying signal — but as a practical trigger,
+treat a module crossing roughly 500–700 lines, or a Streamlit/Flask "app" file accumulating one
+function per screen/route, as due for a split. Move each cohesive chunk (one UI view, one
+command group) into its own module under a package named for the concept (`views/browse.py`,
+`views/search.py`), and leave the original file holding only shared infrastructure and the
+router/dispatch that ties them together.
 
 ## Dev_util_prj — `config_manager_factory`
 
