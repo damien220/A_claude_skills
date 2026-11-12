@@ -1,0 +1,391 @@
+{
+  "files": {
+    "sample_bad_1.mjs": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 10,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Hardcoded JWT signing secret committed in source; anyone with repo access can forge tokens",
+          "evidence": "const JWT_SECRET = 'c0mmunity-jwt-s1gning-k3y-2024';",
+          "cwe_or_cite": "CWE-798; OWASP A07:2021",
+          "rationale": "X-SEV-04 (d): hardcoded production JWT signing secret; anyone with repo access can mint tokens for any user and role: blocker.",
+          "tier": "standard",
+          "rule_id": "NODE-SEC-02"
+        },
+        {
+          "id": "D2",
+          "line": 60,
+          "category": "performance",
+          "severity": "major",
+          "title": "Synchronous bcrypt hash (cost 12) in a request handler blocks the event loop for every sign-up; use await bcrypt.hash",
+          "evidence": "const passwordHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);",
+          "cwe_or_cite": "Node.js docs: 'Don't Block the Event Loop'",
+          "rationale": "Rubric C2 x R1: synchronous bcrypt (cost 12) blocks the event loop for every concurrent request while /signup (an open endpoint) hashes; latency and availability cost, no data loss: major.",
+          "tier": "standard",
+          "rule_id": "NODE-PERF-02"
+        },
+        {
+          "id": "D3",
+          "line": 71,
+          "category": "error-handling",
+          "severity": "major",
+          "title": "500 response leaks internal error message and stack trace to the client",
+          "evidence": "return reply.code(500).send({ error: err.message, stack: err.stack });",
+          "cwe_or_cite": "CWE-209; RFC 9457; OWASP A05:2021",
+          "rationale": "Rubric C2 x R1: any failed signup returns err.message and err.stack (CWE-209); the exposure aids an attacker but is not exploitable by itself: major.",
+          "tier": "standard",
+          "rule_id": "NODE-SEC-18"
+        },
+        {
+          "id": "D4",
+          "line": 85,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Missing await on bcrypt.compare: a Promise is always truthy, so any password logs in (authentication bypass)",
+          "evidence": "const valid = bcrypt.compare(password, user.password_hash);",
+          "cwe_or_cite": "CWE-287; typescript-eslint no-misused-promises",
+          "rationale": "X-SEV-04 (d): missing await on an auth check; the Promise is truthy, so any password logs in to any account whose email is known: blocker.",
+          "tier": "standard",
+          "rule_id": "NODE-SEC-20"
+        },
+        {
+          "id": "D5",
+          "line": 89,
+          "category": "diff-hygiene",
+          "severity": "minor",
+          "title": "Leftover console.log in a request path bypasses the structured Fastify/Pino logger",
+          "evidence": "console.log('login user', user.id, user.status);",
+          "cwe_or_cite": "ESLint no-console",
+          "rationale": "X-SEV-07 (g): console.log on the /login request path; it logs an internal id and status, not secrets or PII, so U4 does not apply: minor.",
+          "tier": "standard",
+          "rule_id": "NODE-DIFF-01"
+        },
+        {
+          "id": "D6",
+          "line": 90,
+          "category": "correctness",
+          "severity": "nit",
+          "title": "Loose equality (==) instead of strict equality (===)",
+          "evidence": "if (user.status == 'disabled') {",
+          "cwe_or_cite": "ESLint eqeqeq; ECMA-262 IsLooselyEqual",
+          "rationale": "X-SEV-08 (h): user.status is a text column (string or null) compared with a string literal; == and === give the same result for every value it can hold, so the loose equality is harmless and eqeqeq autofixes it: nit. Changed from minor.",
+          "tier": "standard",
+          "rule_id": "NODE-COR-14"
+        },
+        {
+          "id": "D7",
+          "line": 93,
+          "category": "diff-hygiene",
+          "severity": "nit",
+          "title": "Commented-out code left in the diff",
+          "evidence": "// const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });",
+          "cwe_or_cite": "Clean Code ch. 4 'Commented-Out Code'; SonarSource S125",
+          "rationale": "X-SEV-08 (h): commented-out code, reader cost only: nit.",
+          "tier": "standard",
+          "rule_id": "X-DIFF-02"
+        },
+        {
+          "id": "D8",
+          "line": 104,
+          "category": "security",
+          "severity": "blocker",
+          "title": "SQL injection: query-string q interpolated into a template-literal SQL string (schema only checks length)",
+          "evidence": "WHERE status = 'active' AND display_name ILIKE '%${q}%'",
+          "cwe_or_cite": "CWE-89; OWASP A03:2021",
+          "rationale": "X-SEV-04 (d): SQL injection through q. The route sits behind authenticate, but /signup is open, so any self-registered user passes it; open signup is not a trust gate and X-SEV-04 is never downgraded: blocker.",
+          "tier": "standard",
+          "rule_id": "NODE-SEC-01"
+        }
+      ],
+      "decoys": []
+    },
+    "sample_good_1.mjs": {
+      "defects": [],
+      "decoys": []
+    },
+    "sample_bad_2.mjs": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 123,
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "DELETE /api/documents/:id deletes by id alone with no owner or share check, so any authenticated user can delete any team's document (IDOR)",
+          "evidence": "const { rowCount } = await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);",
+          "trigger": "Any authenticated user (role member, any team) sends DELETE /api/documents/<id of a document owned by another user or team>; the row is deleted and the route returns 204. req.user.sub is available (it is logged two lines later) but never used in the WHERE clause, unlike the search query which filters on owner_id/shares.",
+          "cwe_or_cite": "CWE-639 (Authorization Bypass Through User-Controlled Key); CWE-862; OWASP API Security Top 10 2023 API1 (BOLA)",
+          "rationale": "C1 (destroys another tenant's data) x R1 (any authenticated user; authentication is not a trust gate, D1 does not apply); broken object-level authorization is an X-SEV-04 auth bypass and is never downgraded: blocker.",
+          "rule_id": "NODE-SEC-04"
+        },
+        {
+          "id": "D2",
+          "line": 49,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Lost update: subtotalCents += await ... inside Promise.all(map(async)) reads the shared total before each await, so the invoice subtotal ends up as one meter's charge instead of the sum",
+          "evidence": "subtotalCents += await meterChargeCents(teamId, meter, start, end);",
+          "trigger": "Admin issues an invoice for a team with charges on two or more meters, e.g. seats 12000 cents and storage_gb 500 cents: all three callbacks read subtotalCents = 0 before awaiting, then each writes 0 + its own charge, so the stored subtotal_cents (and amount_due) is 12000 or 500 (whichever query resolves last), never 12500.",
+          "cwe_or_cite": "CWE-362 (race condition); ESLint require-atomic-updates; ECMA-262 compound assignment evaluates the left operand before the await",
+          "rationale": "C1 (money: every multi-meter invoice is billed and stored wrong) x R2 (only reachable through POST /api/admin/..., behind requireRole('admin') registered in code on line 93): major.",
+          "rule_id": "NODE-COR-09"
+        },
+        {
+          "id": "D3",
+          "line": 84,
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "Admin usage route is registered before app.use('/api', authenticate) and requireRole('admin'), so it answers anonymous requests for any team's usage",
+          "evidence": "app.get('/api/admin/teams/:teamId/usage', asyncHandler(async (req, res) => {",
+          "trigger": "Anonymous GET /api/admin/teams/<any team uuid>/usage with no Authorization header: Express matches this route before reaching the authenticate and requireRole middleware (lines 92-93), the handler responds, and the team's per-meter usage is returned with 200.",
+          "cwe_or_cite": "CWE-306 (Missing Authentication for Critical Function); Express 4 guide 'Using middleware' (middleware runs in the order it is registered)",
+          "rationale": "C1 (unauthenticated cross-tenant data access) x R1 (anyone, no account needed); missing authentication is an X-SEV-04 auth bypass, never downgraded: blocker.",
+          "rule_id": "NODE-SEC-04"
+        },
+        {
+          "id": "D4",
+          "line": 112,
+          "span": [
+            100,
+            112
+          ],
+          "category": "error-handling",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Pooled client is released only on the success path; a timed-out or failed search leaks it, and the pool eventually blocks every query",
+          "evidence": "client.release();",
+          "trigger": "Any authenticated user runs searches that exceed the 2 s statement_timeout (error 57014, which the catch turns into a 503) or that fail for any other reason: each failure leaves one client checked out (still carrying the SET statement_timeout). After 10 such requests (pg Pool default max) pool.connect() and pool.query() wait forever (no connectionTimeoutMillis), so every DB-backed route hangs.",
+          "cwe_or_cite": "CWE-772 (Missing Release of Resource after Effective Lifetime); node-postgres docs 'Pooling: you must always return the client to the pool' (release in finally)",
+          "rationale": "C2 (availability failure under a specific condition, the error path; grows into a full stall) x R1 (any authenticated user can send slow searches); read-only path, so U1 does not apply: major.",
+          "rule_id": "NODE-ERR-06"
+        },
+        {
+          "id": "D5",
+          "line": 67,
+          "category": "error-handling",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "return mailer.sendMail(...) without await inside try: a rejected send skips the catch, so SMTP failures surface as a 500 instead of the intended logged, non-fatal {sent:false}",
+          "evidence": "return mailer.sendMail({",
+          "trigger": "Admin calls POST /api/admin/teams/<id>/quota-warning for a team over 90% while the SMTP server refuses the message (e.g. 421): the promise rejects after the try block has exited, the catch never runs (no warn log, no null), the rejection reaches asyncHandler and the admin gets a 500.",
+          "cwe_or_cite": "typescript-eslint return-await ('in-try-catch'); MDN 'async function' (return without await in try/catch)",
+          "rationale": "C2 (failure under a specific condition: mail provider rejects) x R2 (admin-only route behind requireRole('admin') on line 93); it sends a notification and writes nothing, so U1 does not apply: minor.",
+          "rule_id": "NODE-COR-10"
+        },
+        {
+          "id": "D6",
+          "line": 141,
+          "category": "correctness",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "Due date computed with setUTCMonth(month + 1) overflows at month end, so invoices issued on the 29th-31st get a due date in the following month",
+          "evidence": "dueAt.setUTCMonth(dueAt.getUTCMonth() + 1);",
+          "trigger": "Invoice issued at 2027-01-31T10:00Z: dueAt becomes 2027-03-03T10:00Z instead of 2027-02-28; issued 2026-10-31 gives 2026-12-01 instead of 2026-11-30. The wrong due_at is stored on the invoice.",
+          "cwe_or_cite": "ECMA-262 Date.prototype.setUTCMonth (MakeDay normalises day overflow into the next month); MDN Date.prototype.setMonth",
+          "rationale": "C2 (wrong stored date under a specific condition; the amount is unaffected) x R2 (admin-only invoice route, requireRole('admin') on line 93): minor.",
+          "rule_id": "NODE-COR-07"
+        },
+        {
+          "id": "D7",
+          "line": 52,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Invoice total computed in floating-point dollars with Math.round(x * 100) / 100 and stored as a float, so half-cent totals round the wrong way",
+          "evidence": "const amountDue = Math.round((subtotalCents / 100) * (1 + TAX_RATE) * 100) / 100;",
+          "trigger": "Subtotal 6200 cents: exact total is 62.00 x 1.0825 = 67.115, which rounds to 67.12, but in binary floating point (62 * 1.0825) * 100 evaluates to 6711.499999999999, so Math.round gives 6711 and amount_due is stored as 67.11 (same for 27000 -> 292.27 vs 292.28, 49000 -> 530.42 vs 530.43). The amount is persisted in dollars as a binary float rather than integer cents.",
+          "cwe_or_cite": "CWE-1339 (Insufficient Precision or Accuracy of a Real Number); IEEE 754 binary64; MDN Number (floating-point precision)",
+          "rationale": "C1 (money stored and charged wrong) x R2 (only for specific subtotals, on the admin-only invoice route behind requireRole('admin')): major.",
+          "rule_id": "NODE-COR-08"
+        },
+        {
+          "id": "D8",
+          "line": 7,
+          "category": "maintainability",
+          "severity": "nit",
+          "tier": "hard",
+          "title": "Unused import randomUUID",
+          "evidence": "import { randomUUID } from 'node:crypto';",
+          "trigger": "randomUUID is imported and never referenced anywhere in the module.",
+          "cwe_or_cite": "ESLint no-unused-vars; eslint-plugin-unused-imports (autofix)",
+          "rationale": "C4 (unused name, no runtime effect) x R1; D4 applies, the linter removes it: nit.",
+          "rule_id": "NODE-MAINT-01"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 82,
+          "evidence": "app.get('/healthz', (req, res) => res.json({ ok: true }));",
+          "why_fine": "Load-balancer health probe returning a constant; it is meant to be public and exposes no data, unlike the admin route registered next to it."
+        },
+        {
+          "line": 103,
+          "evidence": "await client.query(`SET statement_timeout = ${SEARCH_TIMEOUT_MS}`);",
+          "why_fine": "Template-literal SQL, but the only interpolated value is the numeric module constant SEARCH_TIMEOUT_MS (SET does not accept bind parameters); no user input reaches it."
+        },
+        {
+          "line": 133,
+          "evidence": "const start = new Date(`${periodStart}T00:00:00Z`);",
+          "why_fine": "Date-only string is parsed with an explicit T00:00:00Z, and the value is validated by the regex and isNaN check on the next line; billing periods are UTC by design."
+        },
+        {
+          "line": 137,
+          "evidence": "const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));",
+          "why_fine": "Month arithmetic on day 1 cannot overflow; Date.UTC rolls month 12 into January of the next year correctly."
+        },
+        {
+          "line": 162,
+          "evidence": "const ratio = Number(rows[0].storage_used_bytes) / Number(rows[0].storage_quota_bytes);",
+          "why_fine": "Float used for a usage ratio compared with 0.9 and shown as a percentage, not money; the SQL filter guarantees the quota is > 0."
+        },
+        {
+          "line": 27,
+          "evidence": "const NOTICE_SENDER = 'Docs Billing <billing@docs.example.com>';",
+          "why_fine": "Public sender address, not a credential; SMTP credentials come from the environment."
+        },
+        {
+          "line": 170,
+          "evidence": "app.use((err, req, res, _next) => {",
+          "why_fine": "Express recognises error handlers by arity 4, so the unused _next parameter is required."
+        }
+      ]
+    },
+    "sample_bad_3_tests.mjs": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 55,
+          "category": "tests",
+          "severity": "major",
+          "tier": "standard",
+          "title": "Committed it.only: Jest runs only this test in the file and silently skips the authentication, admin-role, rounding, DB-failure and SMTP tests",
+          "evidence": "it.only('adds up every meter before tax', async () => {",
+          "trigger": "Any CI run of this file: Jest reports the other six tests as skipped, not failed, so the suite stays green on the checks that would catch the open admin route and the unhandled SMTP rejection in sample_bad_2.mjs.",
+          "cwe_or_cite": "Jest docs test.only; eslint-plugin-jest no-focused-tests",
+          "rationale": "Test-quality finding, rated on the coverage it removes: C2 (logic left effectively without tests) x R1 (every CI run); D3 is not applied because the issue is lost guarding power, not a runtime cost inside test code: major.",
+          "rule_id": "NODE-TEST-06"
+        },
+        {
+          "id": "D2",
+          "line": 63,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "expect(promise).resolves is neither awaited nor returned in a synchronous test, so the rounding assertion settles after the test has passed and can never fail it",
+          "evidence": "expect(computeInvoice(TEAM_ID, ...PERIOD)).resolves.toMatchObject({ amountDue: 64.95 });",
+          "trigger": "With .only removed: computeInvoice actually resolves to amountDue 21.65 (the lost update leaves subtotalCents at 2000), but the test function returns before the assertion runs, so Jest reports the test as passed.",
+          "cwe_or_cite": "Jest docs 'Testing Asynchronous Code' (.resolves must be awaited or returned); eslint-plugin-jest valid-expect (alwaysAwait)",
+          "rationale": "Test-quality finding: C2 (the money rounding logic is effectively untested; the assertion would have caught the D2/D7 invoice bugs) x R1 (every CI run); D3 not applied as above: major.",
+          "rule_id": "NODE-TEST-02"
+        },
+        {
+          "id": "D3",
+          "line": 43,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Assertion sits in a catch that never runs: fetch resolves for 4xx responses, so the forged-token test passes whatever status the API returns",
+          "evidence": "expect(err.status).toBe(401);",
+          "trigger": "fetch only rejects on network errors; a 401 (or a 204 if authenticate wrongly accepted the forged token) resolves normally, the catch block is skipped, no assertion executes, and the test passes. No expect.assertions(1) guards it.",
+          "cwe_or_cite": "Jest docs expect.assertions; eslint-plugin-jest no-conditional-expect",
+          "rationale": "C2 (the forged-token case is the only negative auth test of changed authentication logic, and it can never fail: new logic without an effective test) x R1 (every CI run, every caller of the guarded API); D3 does not apply because an assertion that cannot fail is rated on the coverage it removes (same class as PY-TEST-02): major.",
+          "rule_id": "NODE-TEST-02"
+        },
+        {
+          "id": "D4",
+          "line": 21,
+          "category": "tests",
+          "severity": "minor",
+          "tier": "standard",
+          "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes",
+          "evidence": "server = app.listen(4100);",
+          "trigger": "Run two test files that start a server on 4100 in parallel Jest workers, or run the suite while a dev process holds port 4100: listen emits EADDRINUSE, once(server, 'listening') rejects, and beforeAll fails the whole file intermittently.",
+          "cwe_or_cite": "Node.js docs net server.listen (port 0 assigns an ephemeral port); Jest docs maxWorkers (files run in parallel)",
+          "rationale": "C2 (failure under a specific condition: port already in use) x R1 (every CI run) gives major; D3 applies (runtime issue in test code, no secret): minor.",
+          "rule_id": "NODE-TEST-05"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 22,
+          "evidence": "await once(server, 'listening');",
+          "why_fine": "Event-based wait for the listening event, not a sleep; it also rejects on 'error'."
+        },
+        {
+          "line": 39,
+          "evidence": "const headers = authHeaders({ sub: OWNER_ID, role: 'member' }, 'not-the-server-key');",
+          "why_fine": "Deliberately wrong signing key for a negative test; it is not a secret and grants nothing."
+        },
+        {
+          "line": 68,
+          "evidence": "await expect(computeInvoice(TEAM_ID, ...PERIOD)).rejects.toThrow('connection terminated');",
+          "why_fine": "The .rejects assertion is awaited, so a failure fails the test (correct counterpart of D2)."
+        },
+        {
+          "line": 75,
+          "evidence": "const owner = { id: OWNER_ID, email: 'owner@example.com' };",
+          "why_fine": "example.com is reserved for documentation (RFC 2606); test fixture data, not PII."
+        }
+      ]
+    },
+    "sample_good_2.mjs": {
+      "defects": [],
+      "decoys": [
+        {
+          "line": 21,
+          "evidence": "const MERCHANT_ID = 'mch_4Jt9QbW2xLr7';",
+          "why_fine": "Public merchant identifier sent in every event payload, not a credential; the webhook secret comes from the environment."
+        },
+        {
+          "line": 44,
+          "evidence": "return received.length === expected.length && timingSafeEqual(received, expected);",
+          "why_fine": "The early length check leaks only the length, which is public and fixed (the regex already enforces 64 hex chars); the content comparison is constant-time."
+        },
+        {
+          "line": 52,
+          "evidence": "return null;",
+          "why_fine": "JSON parse failure is not swallowed: parseEvent returns null and the route answers 400 malformed event."
+        },
+        {
+          "line": 66,
+          "evidence": "const occurredAt = new Date(event.created * 1000);",
+          "why_fine": "event.created is validated as an integer of epoch seconds; multiplying by 1000 gives the millisecond timestamp Date expects, no local-time parsing involved."
+        },
+        {
+          "line": 77,
+          "evidence": "return 'duplicate';",
+          "why_fine": "Duplicate delivery is detected by ON CONFLICT DO NOTHING on the event id, the transaction is rolled back and the event is acknowledged with 200; idempotent webhook handling, not a swallowed error."
+        },
+        {
+          "line": 80,
+          "evidence": "`UPDATE orders SET ${column} = $2 WHERE public_id = $1 RETURNING id`,",
+          "why_fine": "The interpolated column name comes from the frozen STATUS_COLUMNS allowlist, and the route checks Object.hasOwn(STATUS_COLUMNS, event.type) before applyEvent; all values are bind parameters."
+        },
+        {
+          "line": 114,
+          "evidence": "const { rowCount } = await pool.query(",
+          "why_fine": "await inside a loop on purpose: purge batches must run one after another to keep each DELETE short; the loop ends when a batch deletes fewer than PURGE_BATCH rows."
+        },
+        {
+          "line": 140,
+          "evidence": "return res.status(202).json({ ignored: event.type });",
+          "why_fine": "Unhandled event types are acknowledged so the provider stops retrying them; they are not errors."
+        },
+        {
+          "line": 149,
+          "evidence": "app.use((err, req, res, _next) => {",
+          "why_fine": "Express needs the four-parameter signature to treat this as an error handler."
+        },
+        {
+          "line": 162,
+          "evidence": "logger.error({ err }, 'webhook event purge failed');",
+          "why_fine": "Broad catch at the timer boundary: it logs the error with its stack and lets the next run be scheduled; rethrowing here would become an unhandled rejection that crashes the process."
+        }
+      ]
+    }
+  }
+}

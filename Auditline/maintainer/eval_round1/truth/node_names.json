@@ -1,0 +1,7 @@
+{
+  "module_c.mjs": "sample_bad_1.mjs",
+  "module_e.mjs": "sample_bad_2.mjs",
+  "module_e.test.mjs": "sample_bad_3_tests.mjs",
+  "module_a.mjs": "sample_good_1.mjs",
+  "module_b.mjs": "sample_good_2.mjs"
+}

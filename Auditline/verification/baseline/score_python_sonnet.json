@@ -1,0 +1,25 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 0.75,
+  "unmatched_findings": 2,
+  "precision_matched_only": 0.8,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.py",
+      "line": 141,
+      "severity": "major",
+      "title": "No idempotency key and no locking: concurrent or retried requests can charge the same unbilled orders twice, and a failure in mark_billed after a successful charge leaves customer charged but orders unbilled"
+    },
+    {
+      "file": "sample_bad_1.py",
+      "line": 115,
+      "severity": "nit",
+      "title": "File opened without explicit encoding; output depends on locale"
+    }
+  ]
+}

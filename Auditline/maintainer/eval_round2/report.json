@@ -1,0 +1,1716 @@
+[
+ {
+  "lang": "python",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 21,
+  "matched": 19,
+  "recall_all": 0.9047619047619048,
+  "recall_blocker_major": 0.9333333333333333,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 10,
+    "recall": 0.9090909090909091
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.8421052631578947,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 21,
+  "extras": 2,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.9047619047619048,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.py",
+    "id": "D5",
+    "line": 77,
+    "severity": "major",
+    "tier": "standard",
+    "title": "N+1 query: one order_items SELECT per order inside the loop instead of a JOIN"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D3",
+    "line": 55,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Connection in stock_levels is closed only on the success path; if the query raises, conn.close() is skipped and the connection leaks (the rest of the module uses get_connection/closing)"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_b.py",
+    "line": 68,
+    "severity": "minor",
+    "title": "Schedule time that does not exist on the DST spring-forward day fires late",
+    "rule_id": "PY-COR-07"
+   },
+   {
+    "file": "module_b.py",
+    "line": 175,
+    "severity": "nit",
+    "title": "print of the cron summary line",
+    "rule_id": "PY-DIFF-01"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.py",
+    "line": 68,
+    "severity": "minor",
+    "title": "Schedule time that does not exist on the DST spring-forward day fires late"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "python",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 21,
+  "matched": 18,
+  "recall_all": 0.8571428571428571,
+  "recall_blocker_major": 0.9333333333333333,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 9,
+    "recall": 0.8181818181818182
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9444444444444444,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 6,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.75,
+  "control_blocker_major": 3,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.py",
+    "id": "D1",
+    "line": 10,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import"
+   },
+   {
+    "file": "sample_bad_1.py",
+    "id": "D5",
+    "line": 77,
+    "severity": "major",
+    "tier": "standard",
+    "title": "N+1 query: one order_items SELECT per order inside the loop instead of a JOIN"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 145,
+    "severity": "major",
+    "title": "Failure to record the charge after a successful payment leaves orders unbilled in the database",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "nit",
+    "title": "File opened without an explicit encoding",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 161,
+    "severity": "major",
+    "title": "Database write failure after a successful charge leaves orders unbilled",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 164,
+    "severity": "major",
+    "title": "CSV export I/O failure after the charge is committed returns a 500 for a billed customer",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 156,
+    "severity": "minor",
+    "title": "Database connection is held open across a network call with up to a 10 second timeout",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.py",
+    "line": 150,
+    "severity": "major",
+    "title": "Only RequestException is caught, so a database or CSV error aborts the whole scheduled run",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.py",
+    "line": 150,
+    "severity": "major",
+    "title": "Only RequestException is caught, so a database or CSV error aborts the whole scheduled run"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": false,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "python",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 21,
+  "matched": 21,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 11,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.8095238095238095,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.9523809523809523,
+  "findings": 23,
+  "extras": 2,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9130434782608695,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_e.py",
+    "line": 158,
+    "severity": "major",
+    "title": "Admin-only purchase-order endpoint has no test that proves a non-admin is rejected",
+    "rule_id": "PY-TEST-07"
+   },
+   {
+    "file": "module_b.py",
+    "line": 175,
+    "severity": "nit",
+    "title": "print() in the cron entry point",
+    "rule_id": "PY-DIFF-01"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.8,
+  "n_findings": 23,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "python",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 21,
+  "matched": 19,
+  "recall_all": 0.9047619047619048,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 10,
+    "recall": 0.9090909090909091
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.8947368421052632,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 21,
+  "extras": 2,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9047619047619048,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.py",
+    "id": "D1",
+    "line": 10,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "minor",
+    "title": "File opened for text writing without an explicit encoding.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.py",
+    "line": 65,
+    "severity": "minor",
+    "title": "Cache is unbounded and never evicted, and stays stale for 30s after reservations or receipts change on_hand.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "python",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 21,
+  "matched": 21,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 11,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.8571428571428571,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 24,
+  "extras": 3,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.875,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_a.py",
+    "line": 141,
+    "severity": "minor",
+    "title": "A JSON array or string body makes payload.get raise and returns 500 instead of 400",
+    "rule_id": "PY-ERR-05"
+   },
+   {
+    "file": "module_c.py",
+    "line": 126,
+    "severity": "minor",
+    "title": "A JSON array or string body makes payload.get raise and returns 500 instead of 400",
+    "rule_id": "PY-ERR-05"
+   },
+   {
+    "file": "module_b.py",
+    "line": 175,
+    "severity": "nit",
+    "title": "print() used for the cron run summary",
+    "rule_id": "PY-DIFF-01"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 24,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "python",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 21,
+  "matched": 20,
+  "recall_all": 0.9523809523809523,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 11,
+    "matched": 11,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.8,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 21,
+  "extras": 1,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9523809523809523,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "minor",
+    "title": "CSV file opened without an explicit encoding, so output depends on the platform locale.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "node",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 17,
+  "recall_all": 0.85,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 1.0,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 17,
+  "extras": 0,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 1.0,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D7",
+    "line": 93,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Commented-out code left in the diff"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D6",
+    "line": 141,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Due date computed with setUTCMonth(month + 1) overflows at month end, so invoices issued on the 29th-31st get a due date in the following month"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 17,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "node",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 8,
+  "recall_all": 0.4,
+  "recall_blocker_major": 0.5384615384615384,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 7,
+    "recall": 0.7
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 1,
+    "recall": 0.1
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.75,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 19,
+  "extras": 11,
+  "decoy_false_positives": 2,
+  "precision_matched_only": 0.42105263157894735,
+  "control_blocker_major": 5,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D1",
+    "line": 10,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "Hardcoded JWT signing secret committed in source; anyone with repo access can forge tokens"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D2",
+    "line": 60,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Synchronous bcrypt hash (cost 12) in a request handler blocks the event loop for every sign-up; use await bcrypt.hash"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D3",
+    "line": 71,
+    "severity": "major",
+    "tier": "standard",
+    "title": "500 response leaks internal error message and stack trace to the client"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D4",
+    "line": 85,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "Missing await on bcrypt.compare: a Promise is always truthy, so any password logs in (authentication bypass)"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D5",
+    "line": 89,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Leftover console.log in a request path bypasses the structured Fastify/Pino logger"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D6",
+    "line": 90,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Loose equality (==) instead of strict equality (===)"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D7",
+    "line": 93,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Commented-out code left in the diff"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D8",
+    "line": 104,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "SQL injection: query-string q interpolated into a template-literal SQL string (schema only checks length)"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D6",
+    "line": 141,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Due date computed with setUTCMonth(month + 1) overflows at month end, so invoices issued on the 29th-31st get a due date in the following month"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D7",
+    "line": 52,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Invoice total computed in floating-point dollars with Math.round(x * 100) / 100 and stored as a float, so half-cent totals round the wrong way"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_b.mjs",
+    "line": 10,
+    "severity": "blocker",
+    "title": "JWT signing secret is hardcoded in source",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 85,
+    "severity": "blocker",
+    "title": "bcrypt.compare is not awaited, so any password passes the login check",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 104,
+    "severity": "blocker",
+    "title": "Member search interpolates the query string into SQL",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 71,
+    "severity": "major",
+    "title": "500 response leaks the error message and stack trace to the client",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 60,
+    "severity": "major",
+    "title": "Synchronous bcrypt hash blocks the event loop on every sign-up",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown email returns before any bcrypt work, which leaks account existence by timing",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 52,
+    "severity": "minor",
+    "title": "jwt.verify does not pin the accepted algorithm",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 89,
+    "severity": "minor",
+    "title": "Login logs through console.log instead of the Fastify logger",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 90,
+    "severity": "nit",
+    "title": "Loose equality on the account status",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 93,
+    "severity": "nit",
+    "title": "Commented-out token code left in the handler",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 19,
+    "severity": "minor",
+    "title": "SMTP on port 587 does not require TLS, so credentials can be sent in plaintext",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown email returns before any bcrypt work, which leaks account existence by timing"
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 52,
+    "severity": "minor",
+    "title": "jwt.verify does not pin the accepted algorithm"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": false,
+   "severity_exact": true,
+   "control_blocker_major": false,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.4,
+  "n_findings": 19,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "node",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 20,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.95,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 20,
+  "extras": 0,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 1.0,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 20,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "node",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 17,
+  "recall_all": 0.85,
+  "recall_blocker_major": 0.9230769230769231,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   }
+  },
+  "category_mismatches": 3,
+  "severity_exact": 0.8823529411764706,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 7,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.7083333333333334,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D3",
+    "line": 84,
+    "severity": "blocker",
+    "tier": "hard",
+    "title": "Admin usage route is registered before app.use('/api', authenticate) and requireRole('admin'), so it answers anonymous requests for any team's usage"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.mjs",
+    "line": 52,
+    "severity": "major",
+    "title": "jwt.verify does not pin the allowed algorithms.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 40,
+    "severity": "minor",
+    "title": "jwt.sign does not set an explicit algorithm.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown-email path returns before any hash comparison, giving a timing oracle for account enumeration.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 9,
+    "severity": "minor",
+    "title": "DATABASE_URL is not validated at startup.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 14,
+    "severity": "minor",
+    "title": "Logger has no redaction of the authorization header.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 92,
+    "severity": "blocker",
+    "title": "The admin usage route is registered before authenticate/requireRole, so it is reachable without a token.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 153,
+    "severity": "minor",
+    "title": "The quota-warning, search, delete and invoice routes have no tests.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.8,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "node",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 20,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.75,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 20,
+  "extras": 0,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 1.0,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 20,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "node",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 18,
+  "recall_all": 0.9,
+  "recall_blocker_major": 0.9230769230769231,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 3,
+  "severity_exact": 0.8888888888888888,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 25,
+  "extras": 7,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.72,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D3",
+    "line": 43,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Assertion sits in a catch that never runs: fetch resolves for 4xx responses, so the forged-token test passes whatever status the API returns"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.mjs",
+    "line": 52,
+    "severity": "major",
+    "title": "JWT verification does not pin the accepted algorithms.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown emails return before any bcrypt work, enabling account enumeration by timing.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 9,
+    "severity": "minor",
+    "title": "DATABASE_URL is used without checking it is set, so misconfiguration fails late.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 14,
+    "severity": "minor",
+    "title": "No security headers (helmet) and no log redaction of the authorization header.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 114,
+    "severity": "minor",
+    "title": "No SIGINT/SIGTERM handler to close the server and pool gracefully.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 19,
+    "severity": "minor",
+    "title": "SMTP on port 587 does not require TLS, so credentials can be sent in clear if STARTTLS is stripped.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "fetch does not throw on 401, so the assertion in catch never runs and the test always passes.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "fetch does not throw on 401, so the assertion in catch never runs and the test always passes."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 25,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "typescript",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 21,
+  "recall_all": 0.9545454545454546,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 11,
+    "recall": 0.9166666666666666
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.9523809523809523,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.8571428571428571,
+  "findings": 25,
+  "extras": 4,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.84,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_a.tsx",
+    "line": 89,
+    "severity": "minor",
+    "title": "Refetch promise passed straight to onClick",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 118,
+    "severity": "minor",
+    "title": "Refetch promise passed straight to onClick in the invoices error state",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 103,
+    "severity": "minor",
+    "title": "Translate action is a div with onClick: not reachable by keyboard",
+    "rule_id": "TS-ACC-01"
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 35,
+    "severity": "minor",
+    "title": "fetch mock returns every task for every URL, so the search filter is never exercised",
+    "rule_id": "TS-TEST-04"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 118,
+    "severity": "minor",
+    "title": "Refetch promise passed straight to onClick in the invoices error state"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 25,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "typescript",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 22,
+  "matched": 20,
+  "recall_all": 0.9090909090909091,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 10,
+    "recall": 0.8333333333333334
+   }
+  },
+  "category_mismatches": 4,
+  "severity_exact": 0.85,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 4,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.8333333333333334,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D3",
+    "line": 53,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId interpolated into the URL without encodeURIComponent",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 44,
+    "severity": "minor",
+    "title": "Intl.NumberFormat is constructed on every call, once per table row",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 56,
+    "severity": "minor",
+    "title": "findMany silently truncates the board at 500 tasks with no pagination or indication",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 17,
+    "severity": "minor",
+    "title": "toTask spreads the full database row, so any extra columns are sent to the client",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 44,
+    "severity": "minor",
+    "title": "Intl.NumberFormat is constructed on every call, once per table row"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "typescript",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 21,
+  "recall_all": 0.9545454545454546,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 11,
+    "recall": 0.9166666666666666
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9523809523809523,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.9523809523809523,
+  "findings": 24,
+  "extras": 3,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.875,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "API responses asserted with `as` instead of validated",
+    "rule_id": "TS-MAINT-08"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 70,
+    "severity": "minor",
+    "title": "Translation failure caught, not logged, and error text replaces the review body",
+    "rule_id": "TS-ERR-01"
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 60,
+    "severity": "minor",
+    "title": "Search test passes because the fetch mock ignores the query",
+    "rule_id": "TS-TEST-03"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.test.tsx",
+    "line": 60,
+    "severity": "minor",
+    "title": "Search test passes because the fetch mock ignores the query"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 24,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "typescript",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 22,
+  "matched": 18,
+  "recall_all": 0.8181818181818182,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 9,
+    "recall": 0.75
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.6666666666666666,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 22,
+  "extras": 4,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.8181818181818182,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.tsx",
+    "id": "D1",
+    "line": 1,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import useMemo"
+   },
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D8",
+    "line": 1,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import useCallback"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D3",
+    "line": 53,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId is interpolated into the URL path without encodeURIComponent.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 29,
+    "severity": "minor",
+    "title": "Server actions marked 'use server' live in the same module as client hooks and components, which Next.js does not allow for a 'use server' file and mixes server and client concerns.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before authorisation, so a non-member can distinguish existing from non-existing task ids by the error.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "No tests cover the server actions (updateTaskStatus, deleteTask) including authorization, delete flow, or error paths.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before authorisation, so a non-member can distinguish existing from non-existing task ids by the error."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": false,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 22,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ },
+ {
+  "lang": "typescript",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 21,
+  "recall_all": 0.9545454545454546,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 11,
+    "recall": 0.9166666666666666
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9047619047619048,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 22,
+  "extras": 1,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9545454545454546,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "Database client and server actions share a module with hook-based client components and no client/server boundary",
+    "rule_id": "TS-COR-74"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 22,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "typescript",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 22,
+  "matched": 20,
+  "recall_all": 0.9090909090909091,
+  "recall_blocker_major": 0.8571428571428571,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 11,
+    "recall": 0.9166666666666666
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.75,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 31,
+  "extras": 11,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.6451612903225806,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D7",
+    "line": 138,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Optimistic status update writes the cache in onMutate but keeps no snapshot and has no onError rollback (and no onSettled refetch), so a rejected move stays on screen"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D5",
+    "line": 10,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "major",
+    "title": "Response status is never checked before parsing; error bodies are treated as review lists.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "API response cast to Review[] with no runtime validation.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId (and authorId at line 55) interpolated into URL paths without encodeURIComponent, allowing path manipulation.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 70,
+    "severity": "minor",
+    "title": "Translation error swallowed and the error message replaces the review body instead of a separate alert; error is not logged.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 39,
+    "severity": "minor",
+    "title": "Third-party translation response cast without validation before being injected into the DOM.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "One module mixes server-only code (db, logger, next/cache, inline 'use server' actions) with hook-using client components and has no 'use client' boundary; it either fails in RSC or bundles server code for the client.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 142,
+    "severity": "major",
+    "title": "Optimistic status update has no rollback and refetches only on success, so a failed move stays shown as saved.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 81,
+    "severity": "minor",
+    "title": "Initial label depends on Date.now() during server render, causing hydration text mismatches.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before the membership check, so non-members can tell existing task ids from missing ones by the error.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 125,
+    "severity": "minor",
+    "title": "Hard-coded element id gives duplicate ids if the component renders more than once; use useId.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 33,
+    "severity": "major",
+    "title": "No test covers the server actions' authorization (deleteTask, membership check), delete, or failed-mutation paths.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before the membership check, so non-members can tell existing task ids from missing ones by the error."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": false,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 31,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0
+ }
+]

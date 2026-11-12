@@ -1,0 +1,12 @@
+Skill reference files read (all under skillbundle/skill/auditline). SKILL.md was read first.
+Core, read once for the whole review: refs/review-process.md, refs/severity-and-output-format.md,
+tooling/report-template.md, tooling/finding.schema.json, tooling/node-review-checklist.md (flat index),
+refs/lang/node-checklist.md (language checklist, whole file).
+
+module_a.mjs: refs/security.md, refs/error-handling.md, refs/correctness.md (+ node checklist, core refs). No findings.
+module_b.mjs: refs/security.md, refs/error-handling.md, refs/correctness.md (+ node checklist, core refs). No findings; 3 eslint results dropped with reasons.
+module_c.mjs: refs/security.md, refs/correctness.md, refs/diff-hygiene.md (+ node checklist, core refs).
+module_e.mjs: refs/security.md, refs/correctness.md, refs/error-handling.md (+ node checklist, core refs).
+module_e.test.mjs: refs/tests.md, refs/correctness.md, refs/error-handling.md (+ node checklist, core refs).
+Not read: refs/performance.md, refs/maintainability.md (performance hits came from eslint n/no-sync and no-await-in-loop mapped by run_linters.py).
+Tool run: tooling/run_linters.py --root <inputs/node> --files all five; eslint ran on the bundled fallback config, tsc skipped (no tsconfig.json).

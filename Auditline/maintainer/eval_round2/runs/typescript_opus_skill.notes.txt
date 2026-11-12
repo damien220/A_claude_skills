@@ -1,0 +1,41 @@
+Skill reference files read, per file (all paths relative to skill/auditline/).
+
+Read once for the whole run (core, outside the per-file budget):
+  SKILL.md
+  refs/review-process.md
+  refs/severity-and-output-format.md
+  tooling/typescript-review-checklist.md (flat index)
+  refs/lang/typescript-react-checklist.md (sections 1, 4-14; "How to use" and the areas the files touch)
+  tooling/report-template.md, tooling/finding.schema.json (output format)
+
+module_a.tsx
+  refs/lang/typescript-react-checklist.md
+  refs/correctness.md
+  refs/error-handling.md
+
+module_b.tsx
+  refs/lang/typescript-react-checklist.md
+  refs/correctness.md
+  refs/error-handling.md
+
+module_c.tsx
+  refs/lang/typescript-react-checklist.md
+  refs/security.md
+  refs/correctness.md
+  refs/error-handling.md
+  (refs/performance.md was also opened while triaging the N+1 at line 55; the finding is rated by X-SEV-02 in the core
+   severity ref, so performance.md is a 4th topic ref for this file, one over the three-ref budget)
+
+module_e.tsx
+  refs/lang/typescript-react-checklist.md
+  refs/security.md
+  refs/correctness.md
+  refs/error-handling.md (TS-ERR-55 itself is in the language checklist)
+
+module_e.test.tsx
+  refs/lang/typescript-react-checklist.md
+  refs/tests.md
+
+Tooling: python tooling/run_linters.py --root <inputs/typescript> --files module_a.tsx module_b.tsx module_c.tsx module_e.tsx module_e.test.tsx
+  eslint ran (bundled fallback config), tsc ran (project tsconfig.json).
+Final gate: verification/validate_report.py passed on the first attempt (22 findings checked, 0 errors).

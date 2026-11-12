@@ -1,0 +1,49 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 1.0,
+  "unmatched_findings": 6,
+  "precision_matched_only": 0.5714285714285714,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 82,
+      "severity": "minor",
+      "title": "Unknown-email path skips bcrypt, so response timing reveals which emails are registered"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 52,
+      "severity": "minor",
+      "title": "jwt.verify does not pin accepted algorithms"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 9,
+      "severity": "minor",
+      "title": "DATABASE_URL not validated at startup; a missing value fails later on the first query"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 75,
+      "severity": "minor",
+      "title": "Login endpoint has no rate limiting or brute-force protection"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 141,
+      "severity": "minor",
+      "title": "Async shutdown handler has no try/catch; a failing app.close()/pool.end() causes an unhandled rejection and the process may not exit"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 105,
+      "severity": "minor",
+      "title": "Login endpoint has no rate limiting or brute-force protection"
+    }
+  ]
+}

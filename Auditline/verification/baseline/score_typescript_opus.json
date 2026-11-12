@@ -1,0 +1,61 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 0.875,
+  "unmatched_findings": 8,
+  "precision_matched_only": 0.5,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 64,
+      "severity": "major",
+      "title": "useEffect dependency array missing productId; reviews go stale when the prop changes"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 48,
+      "severity": "major",
+      "title": "Effect has no cleanup/AbortController; race condition and state updates after unmount or prop change"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 52,
+      "severity": "minor",
+      "title": "Unvalidated API response cast with 'as'; bad data (e.g. negative rating breaks '\u2605'.repeat) not caught"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 51,
+      "severity": "minor",
+      "title": "Path segments interpolated into URLs without encodeURIComponent"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 69,
+      "severity": "minor",
+      "title": "Translation cache keyed only by review id; stale translation shown after targetLanguage changes"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 71,
+      "severity": "minor",
+      "title": "Translation failure replaces the original review body with an error string instead of a separate error state"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 92,
+      "severity": "minor",
+      "title": "aria-label on a generic span (no role) is prohibited by ARIA 1.2 and not reliably announced"
+    },
+    {
+      "file": "sample_good_1.tsx",
+      "line": 115,
+      "severity": "minor",
+      "title": "aria-label on a generic span (no role) is prohibited by ARIA 1.2 and not reliably announced"
+    }
+  ]
+}

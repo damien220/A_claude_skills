@@ -1,0 +1,193 @@
+{
+  "findings": [
+    {
+      "file": "module_c.py",
+      "line": 29,
+      "severity": "blocker",
+      "category": "security",
+      "title": "Live payment API key is hardcoded in source.",
+      "evidence": "CHARGE_API_KEY = \"pk_live_7Hq2LxW9pR4tN8vZ3mK6sJ1dQ5yB0cF\"",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 61,
+      "severity": "blocker",
+      "category": "security",
+      "title": "SQL injection: request-supplied email is interpolated into the query string.",
+      "evidence": "    query = f\"SELECT id, name, email FROM customers WHERE email = '{email}'\"",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 68,
+      "severity": "major",
+      "category": "correctness",
+      "title": "Mutable default list is shared across calls, so line items accumulate into every later invoice.",
+      "evidence": "    adjustments: list[LineItem] = [],",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 77,
+      "severity": "major",
+      "category": "performance",
+      "title": "N+1 queries: one order_items query per unbilled order instead of a single join.",
+      "evidence": "        rows = conn.execute(",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 93,
+      "severity": "major",
+      "category": "correctness",
+      "title": "Charge request has no idempotency key, so a retry after a timeout or failed mark_billed double-charges the customer.",
+      "evidence": "            headers={\"Authorization\": f\"Bearer {CHARGE_API_KEY}\"},",
+      "confidence": "medium"
+    },
+    {
+      "file": "module_c.py",
+      "line": 102,
+      "severity": "major",
+      "category": "error-handling",
+      "title": "Broad except Exception: pass swallows every charge failure with no logging and returns None implicitly.",
+      "evidence": "    except Exception:",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 115,
+      "severity": "minor",
+      "category": "correctness",
+      "title": "CSV file opened without an explicit encoding, so output depends on the platform locale.",
+      "evidence": "    with path.open(\"w\", newline=\"\") as fh:",
+      "confidence": "medium"
+    },
+    {
+      "file": "module_c.py",
+      "line": 137,
+      "severity": "minor",
+      "category": "diff-hygiene",
+      "title": "Leftover debug print dumps customer invoice data to stdout.",
+      "evidence": "        print(\"DEBUG invoice\", invoice)",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 160,
+      "severity": "blocker",
+      "category": "security",
+      "title": "Path traversal: user-supplied file name is joined to EXPORT_DIR and served with send_file (../ or an absolute path escapes the directory).",
+      "evidence": "    return send_file(os.path.join(EXPORT_DIR, name), mimetype=\"text/csv\")",
+      "confidence": "high"
+    },
+    {
+      "file": "module_c.py",
+      "line": 10,
+      "severity": "nit",
+      "category": "maintainability",
+      "title": "Unused import json.",
+      "evidence": "import json",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 52,
+      "severity": "blocker",
+      "category": "security",
+      "title": "Stock cache is keyed by sku only, so one tenant's stock levels are served to other tenants for 30 seconds.",
+      "evidence": "    cached = _stock_cache.get(sku)",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 55,
+      "severity": "minor",
+      "category": "error-handling",
+      "title": "Connection is opened without closing() or a context manager and leaks if the query raises.",
+      "evidence": "    conn = sqlite3.connect(DB_PATH, timeout=DB_TIMEOUT_SECONDS)",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 96,
+      "severity": "major",
+      "category": "correctness",
+      "title": "Race condition: on_hand is read outside the transaction and written back as an absolute value, so concurrent reservations lose updates and oversell stock.",
+      "evidence": "                \"UPDATE stock SET on_hand = ? WHERE tenant_id = ? AND warehouse_id = ? AND sku = ?\",",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 103,
+      "severity": "major",
+      "category": "correctness",
+      "title": "expires_at uses naive local time while created_at and the expiry sweep use UTC, so reservations expire hours early or late depending on the server timezone.",
+      "evidence": "                 (datetime.now() + RESERVATION_TTL).strftime(TS_FORMAT)),",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 121,
+      "severity": "major",
+      "category": "error-handling",
+      "title": "return inside finally swallows any database error and answers 200 with an empty list.",
+      "evidence": "            return jsonify({\"reservations\": [dict(row) for row in rows]})",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 128,
+      "severity": "blocker",
+      "category": "security",
+      "title": "Broken access control: cancel does not check that the reservation belongs to the caller's tenant or user, so anyone can cancel any reservation by id.",
+      "evidence": "            \"UPDATE reservations SET status = 'cancelled' WHERE id = ? AND status = 'held'\"",
+      "confidence": "high"
+    },
+    {
+      "file": "module_e.py",
+      "line": 168,
+      "severity": "major",
+      "category": "correctness",
+      "title": "Money computed with float arithmetic and truncated by int(), so totals are off by a cent (0.29 x 3 gives 86, not 87).",
+      "evidence": "    total_cents = int(unit_cost * quantity * 100)",
+      "confidence": "high"
+    },
+    {
+      "file": "test_module_e.py",
+      "line": 61,
+      "severity": "minor",
+      "category": "tests",
+      "title": "Tautological assertion: a length is always >= 0, so the test checks nothing about ownership.",
+      "evidence": "    assert len(response.get_json()[\"reservations\"]) >= 0",
+      "confidence": "high"
+    },
+    {
+      "file": "test_module_e.py",
+      "line": 67,
+      "severity": "major",
+      "category": "tests",
+      "title": "Cross-tenant cancel test only asserts the status code is truthy, so it passes while the access-control bug exists.",
+      "evidence": "    assert response.status_code",
+      "confidence": "high"
+    },
+    {
+      "file": "test_module_e.py",
+      "line": 81,
+      "severity": "major",
+      "category": "tests",
+      "title": "Tenant-scoping test mocks out stock_levels, the function under test, so the cross-tenant cache leak is never exercised.",
+      "evidence": "    with mock.patch.object(module_e, \"stock_levels\", side_effect=lambda t, _: levels if t == 10 else []):",
+      "confidence": "high"
+    },
+    {
+      "file": "test_module_e.py",
+      "line": 86,
+      "severity": "major",
+      "category": "tests",
+      "title": "Unconditional skip with no reason hides a failing test that exposes the float cents bug.",
+      "evidence": "@pytest.mark.skip",
+      "confidence": "high"
+    }
+  ]
+}

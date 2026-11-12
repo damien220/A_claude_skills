@@ -1,0 +1,14 @@
+Skill reference files read for this review (the reads were shared across the five files; each file was then reviewed against them).
+
+Core (always): refs/review-process.md, refs/severity-and-output-format.md.
+Checklist: tooling/python-review-checklist.md (index of rule IDs; used for IDs and tool mapping).
+
+Per-file topic and language refs:
+- module_a.py: refs/security.md (PY-SEC-02, PY-SEC-03, PY-SEC-04 sections); refs/correctness.md (PY-COR-01, PY-COR-02, PY-COR-08, PY-COR-09, PY-COR-16 sections); refs/error-handling.md (PY-ERR-01 section); tooling checklist for the rest. Result: no findings.
+- module_b.py: same refs as module_a.py. Result: no findings (two tool results dropped with reasons, see the JSON tools note).
+- module_c.py: refs/security.md (PY-SEC-02, PY-SEC-03, PY-SEC-04); refs/correctness.md (PY-COR-01, PY-COR-02, PY-COR-08, PY-COR-09, PY-COR-16); refs/error-handling.md (PY-ERR-01); refs/lang/python-checklist.md (PY-ERR-51 section read; PY-COR-52 cited from the checklist index only). Performance: refs/performance.md was NOT read; PY-PERF-01 was graded from severity-and-output-format.md X-SEV-02 (its anchor), which is a documented gap.
+- module_e.py: refs/security.md (PY-SEC-04 section); refs/correctness.md (PY-COR-07 and PY-COR-08 and PY-COR-09 and PY-COR-16, via the checklist index and the shared reads); refs/lang/python-checklist.md (PY-ERR-51 section). refs/error-handling.md not read for this file.
+- test_module_e.py: refs/tests.md (PY-TEST-02, PY-TEST-04, PY-TEST-06 sections).
+
+Tool runs: refs/review-process.md section 5 and tooling/run_linters.py with --tool ruff= and --tool mypy= as instructed. Output saved at runs/python_haiku_skill.linters.json.
+Validation: validate_report.py passed on the first attempt (20 findings, 0 errors).

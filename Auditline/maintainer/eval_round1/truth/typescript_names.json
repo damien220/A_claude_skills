@@ -1,0 +1,7 @@
+{
+  "module_c.tsx": "sample_bad_1.tsx",
+  "module_e.tsx": "sample_bad_2.tsx",
+  "module_e.test.tsx": "sample_bad_3_tests.tsx",
+  "module_a.tsx": "sample_good_1.tsx",
+  "module_b.tsx": "sample_good_2.tsx"
+}

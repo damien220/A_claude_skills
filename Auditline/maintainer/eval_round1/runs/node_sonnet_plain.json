@@ -1,0 +1,220 @@
+{
+ "findings": [
+  {
+   "file": "module_c.mjs",
+   "line": 10,
+   "severity": "blocker",
+   "category": "security",
+   "title": "JWT signing secret is hardcoded in source.",
+   "evidence": "const JWT_SECRET = 'c0mmunity-jwt-s1gning-k3y-2024';",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 104,
+   "severity": "blocker",
+   "category": "security",
+   "title": "User-supplied search term is interpolated into the SQL string (SQL injection).",
+   "evidence": "WHERE status = 'active' AND display_name ILIKE '%${q}%'",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 85,
+   "severity": "blocker",
+   "category": "security",
+   "title": "bcrypt.compare is not awaited, so the Promise is always truthy and any password is accepted.",
+   "evidence": "const valid = bcrypt.compare(password, user.password_hash);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 71,
+   "severity": "major",
+   "category": "security",
+   "title": "500 response leaks the error message and stack trace to the client.",
+   "evidence": "return reply.code(500).send({ error: err.message, stack: err.stack });",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 60,
+   "severity": "major",
+   "category": "performance",
+   "title": "bcrypt.hashSync blocks the event loop on every sign-up.",
+   "evidence": "const passwordHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 52,
+   "severity": "major",
+   "category": "security",
+   "title": "jwt.verify does not pin the allowed algorithms.",
+   "evidence": "request.user = jwt.verify(token, JWT_SECRET);",
+   "confidence": "medium"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 40,
+   "severity": "minor",
+   "category": "security",
+   "title": "jwt.sign does not set an explicit algorithm.",
+   "evidence": "return jwt.sign({ sub: String(user.id), role: user.role }, JWT_SECRET, {",
+   "confidence": "medium"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 82,
+   "severity": "minor",
+   "category": "security",
+   "title": "Unknown-email path returns before any hash comparison, giving a timing oracle for account enumeration.",
+   "evidence": "if (!user) {",
+   "confidence": "medium"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 89,
+   "severity": "minor",
+   "category": "maintainability",
+   "title": "console.log used instead of the structured request logger.",
+   "evidence": "console.log('login user', user.id, user.status);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 90,
+   "severity": "nit",
+   "category": "maintainability",
+   "title": "Loose equality (==) used for a string comparison.",
+   "evidence": "if (user.status == 'disabled') {",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 93,
+   "severity": "nit",
+   "category": "diff-hygiene",
+   "title": "Commented-out dead code left in the handler.",
+   "evidence": "// const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });",
+   "confidence": "high"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 9,
+   "severity": "minor",
+   "category": "error-handling",
+   "title": "DATABASE_URL is not validated at startup.",
+   "evidence": "const pool = new Pool({ connectionString: process.env.DATABASE_URL });",
+   "confidence": "low"
+  },
+  {
+   "file": "module_c.mjs",
+   "line": 14,
+   "severity": "minor",
+   "category": "security",
+   "title": "Logger has no redaction of the authorization header.",
+   "evidence": "const app = Fastify({ logger: true });",
+   "confidence": "low"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 92,
+   "severity": "blocker",
+   "category": "security",
+   "title": "The admin usage route is registered before authenticate/requireRole, so it is reachable without a token.",
+   "evidence": "app.use('/api', authenticate);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 123,
+   "severity": "blocker",
+   "category": "security",
+   "title": "Document delete has no ownership or share check, so any authenticated user can delete any document by id.",
+   "evidence": "const { rowCount } = await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 49,
+   "severity": "major",
+   "category": "correctness",
+   "title": "\"subtotalCents += await ...\" reads the old total before each await, so concurrent meters overwrite each other and the subtotal is wrong.",
+   "evidence": "subtotalCents += await meterChargeCents(teamId, meter, start, end);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 67,
+   "severity": "major",
+   "category": "error-handling",
+   "title": "sendMail promise is returned without await inside try, so the catch never runs and SMTP failures propagate.",
+   "evidence": "return mailer.sendMail({",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 112,
+   "severity": "major",
+   "category": "error-handling",
+   "title": "The pooled client is only released on success; query errors and the 57014 timeout path leak the connection (no finally).",
+   "evidence": "client.release();",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 141,
+   "severity": "minor",
+   "category": "correctness",
+   "title": "setUTCMonth(+1) overflows on month-end dates (for example 31 Jan becomes early March).",
+   "evidence": "dueAt.setUTCMonth(dueAt.getUTCMonth() + 1);",
+   "confidence": "medium"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 52,
+   "severity": "minor",
+   "category": "correctness",
+   "title": "Money computed with floating-point arithmetic and stored as a decimal amount.",
+   "evidence": "const amountDue = Math.round((subtotalCents / 100) * (1 + TAX_RATE) * 100) / 100;",
+   "confidence": "low"
+  },
+  {
+   "file": "module_e.mjs",
+   "line": 153,
+   "severity": "minor",
+   "category": "tests",
+   "title": "The quota-warning, search, delete and invoice routes have no tests.",
+   "evidence": "app.post('/api/admin/teams/:teamId/quota-warning', asyncHandler(async (req, res) => {",
+   "confidence": "low"
+  },
+  {
+   "file": "module_e.test.mjs",
+   "line": 55,
+   "severity": "major",
+   "category": "tests",
+   "title": "it.only makes Jest skip every other test in the file.",
+   "evidence": "it.only('adds up every meter before tax', async () => {",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.test.mjs",
+   "line": 43,
+   "severity": "major",
+   "category": "tests",
+   "title": "The assertion sits in a catch block; fetch does not reject on 401 so the test passes without asserting anything.",
+   "evidence": "expect(err.status).toBe(401);",
+   "confidence": "high"
+  },
+  {
+   "file": "module_e.test.mjs",
+   "line": 63,
+   "severity": "major",
+   "category": "tests",
+   "title": "expect(...).resolves is neither awaited nor returned, so the assertion can never fail the test.",
+   "evidence": "expect(computeInvoice(TEAM_ID, ...PERIOD)).resolves.toMatchObject({ amountDue: 64.95 });",
+   "confidence": "high"
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 1.0,
+  "unmatched_findings": 5,
+  "precision_matched_only": 0.6153846153846154,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 83,
+      "severity": "minor",
+      "title": "Login returns early for unknown email without hashing, enabling timing-based user enumeration"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 52,
+      "severity": "minor",
+      "title": "jwt.verify does not pin allowed algorithms (and sign does not set one explicitly)"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 14,
+      "severity": "minor",
+      "title": "No security headers plugin (helmet) registered on the app"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 85,
+      "severity": "minor",
+      "title": "Custom error handler maps every non-validation error to 500, masking 4xx errors such as malformed JSON or payload too large"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 142,
+      "severity": "nit",
+      "title": "Shutdown handler has no try/catch; a failure in app.close() or pool.end() causes an unhandled rejection instead of a non-zero exit"
+    }
+  ]
+}

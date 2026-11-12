@@ -1,0 +1,401 @@
+{
+  "files": {
+    "sample_bad_1.tsx": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 1,
+          "category": "maintainability",
+          "severity": "nit",
+          "title": "Unused import useMemo",
+          "evidence": "import { useEffect, useMemo, useState } from 'react';",
+          "cwe_or_cite": "ESLint @typescript-eslint/no-unused-vars; TS6133",
+          "rationale": "X-SEV-08 (h): unused import, no runtime effect, autofixable: nit.",
+          "tier": "standard",
+          "rule_id": "TS-MAINT-01"
+        },
+        {
+          "id": "D2",
+          "line": 25,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Live third-party API secret embedded in client-side code ships to every browser; proxy through the backend",
+          "evidence": "const TRANSLATE_API_KEY = 'tr_live_5c9e1f7a2b4d8e6f0a3c5e7b9d1f2a4c';",
+          "cwe_or_cite": "CWE-798; CWE-200; OWASP A07:2021",
+          "rationale": "X-SEV-04 (d): live third-party secret in client code ships to every visitor's browser (CWE-200 on top of CWE-798): blocker.",
+          "tier": "standard",
+          "rule_id": "TS-SEC-02"
+        },
+        {
+          "id": "D3",
+          "line": 51,
+          "span": [
+            51,
+            63
+          ],
+          "category": "error-handling",
+          "severity": "major",
+          "title": "No res.ok check and no try/catch around load(): a failed request rejects unhandled, loading stays true forever and the user sees an endless spinner",
+          "evidence": "const res = await fetch(`/api/products/${productId}/reviews`);",
+          "cwe_or_cite": "WHATWG Fetch Standard (fetch resolves on HTTP errors); typescript-eslint no-floating-promises",
+          "rationale": "Rubric C2 x R1: unhandled failure at an I/O boundary on the component's main view; any network error or non-OK response leaves the spinner forever. No data loss: major.",
+          "tier": "standard",
+          "rule_id": "TS-ERR-11"
+        },
+        {
+          "id": "D4",
+          "line": 55,
+          "category": "performance",
+          "severity": "major",
+          "title": "N+1 sequential request waterfall: one awaited author fetch per review inside a loop",
+          "evidence": "const authorRes = await fetch(`/api/users/${review.authorId}`);",
+          "cwe_or_cite": "CWE-1073; web.dev 'Avoid request chains'",
+          "rationale": "X-SEV-02 (b): one sequential remote call per review on every page view; the client requests no page size, so the count grows with the product's reviews: major.",
+          "tier": "standard",
+          "rule_id": "TS-PERF-01"
+        },
+        {
+          "id": "D5",
+          "line": 59,
+          "category": "diff-hygiene",
+          "severity": "minor",
+          "title": "Leftover console.log dumps review and author data to the browser console",
+          "evidence": "console.log('reviews loaded', withAuthors);",
+          "cwe_or_cite": "ESLint no-console",
+          "rationale": "X-SEV-07 (g): console.log runs on every page load (the frontend equivalent of a request path); it logs public display data, not secrets or PII: minor.",
+          "tier": "standard",
+          "rule_id": "TS-DIFF-01"
+        },
+        {
+          "id": "D6",
+          "line": 64,
+          "category": "correctness",
+          "severity": "major",
+          "title": "useEffect dependency array omits productId: reviews are never refetched when the product changes (stale data for the new product)",
+          "evidence": "}, []);",
+          "cwe_or_cite": "React docs: useEffect 'Specifying reactive dependencies'; eslint-plugin-react-hooks exhaustive-deps",
+          "rationale": "Rubric C2 x R1: likely bug; after client-side navigation to another product the previous product's reviews stay on screen. Wrong data shown, nothing corrupted: major.",
+          "tier": "standard",
+          "rule_id": "TS-COR-11"
+        },
+        {
+          "id": "D7",
+          "line": 101,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Stored XSS: user-written review body (and third-party translation) rendered as raw HTML",
+          "evidence": "dangerouslySetInnerHTML={{ __html: translated[review.id] ?? review.body }}",
+          "cwe_or_cite": "CWE-79; OWASP A03:2021; React docs dangerouslySetInnerHTML",
+          "rationale": "X-SEV-04 (d): stored XSS; any user's review body runs as HTML in every visitor's browser: blocker.",
+          "tier": "standard",
+          "rule_id": "TS-SEC-16"
+        },
+        {
+          "id": "D8",
+          "line": 103,
+          "category": "correctness",
+          "severity": "minor",
+          "title": "Clickable div is not focusable or keyboard-operable and has no role; use a <button type=\"button\">",
+          "evidence": "<div className=\"review__translate\" onClick={() => handleTranslate(review)}>",
+          "cwe_or_cite": "WCAG 2.2 SC 2.1.1 Keyboard; jsx-a11y click-events-have-key-events, no-static-element-interactions",
+          "rationale": "X-SEV-06 (f): 'Translate' is one secondary control; keyboard users lose translation but can still read reviews and use the page: minor.",
+          "tier": "standard",
+          "rule_id": "TS-ACC-01"
+        },
+        {
+          "id": "D9",
+          "line": 69,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "standard",
+          "title": "Translation cache is keyed by review id only, so after the target language changes the old translation is still shown",
+          "evidence": "setTranslated((prev) => ({ ...prev, [review.id]: text }));",
+          "trigger": "A user translates a review to French, then changes targetLanguage to German: the translated map already holds an entry for that review id, so the French text is shown as the German translation until the page reloads.",
+          "cwe_or_cite": "TanStack Query docs 'Query Keys' (every variable the result depends on belongs in the key); the same rule applies to a hand-rolled cache",
+          "rationale": "C2 (wrong result under a specific condition: a language change after a translation) x R1 (any visitor of a product page): major.",
+          "rule_id": "TS-COR-16"
+        }
+      ],
+      "decoys": []
+    },
+    "sample_good_1.tsx": {
+      "defects": [],
+      "decoys": []
+    },
+    "sample_bad_2.tsx": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 44,
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "deleteTask server action deletes any task by id with no session or project-membership check (updateTaskStatus does check), so anyone can delete any project's tasks",
+          "evidence": "const { projectId } = await db.task.delete({ where: { id }, select: { projectId: true } });",
+          "trigger": "Any visitor, signed in or not, POSTs the deleteTask server action (the action id ships in the client bundle; server actions are public POST endpoints) with another project's task UUID; the task is deleted.",
+          "cwe_or_cite": "CWE-862 Missing Authorization; CWE-639; OWASP A01:2021; Next.js docs 'Data Security: Server Actions' (verify authorization inside every action)",
+          "rationale": "C1 (attacker destroys other tenants' data) x R1 (public endpoint, any caller); X-SEV-04 auth bypass is never downgraded: blocker.",
+          "rule_id": "TS-SEC-04"
+        },
+        {
+          "id": "D2",
+          "line": 49,
+          "span": [
+            49,
+            59
+          ],
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "Module-level QueryClient used in a server component: its cache is shared by every request, and dehydrate(serverQueryClient) sends every project's cached tasks to whoever renders next",
+          "evidence": "const serverQueryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000 } } });",
+          "trigger": "User A (member of project P1) loads /projects/P1; then user B (member of P2 only) loads /projects/P2 on the same server instance: the dehydrated state embedded in B's HTML contains the ['tasks', P1] query with P1's tasks. Within 60 s staleTime prefetchQuery also serves cached data instead of reloading.",
+          "cwe_or_cite": "CWE-488 Exposure of Data Element to Wrong Session; CWE-668; TanStack Query docs 'Server Rendering & Hydration' (create the QueryClient per request, never at file root)",
+          "rationale": "U2 shared state across requests and users makes it C1; the leaked data is other tenants' tasks, reachable by any signed-in member of any project (R1): blocker.",
+          "rule_id": "TS-SEC-04"
+        },
+        {
+          "id": "D3",
+          "line": 83,
+          "category": "correctness",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "Stale closure: the interval is created once ([] deps) and keeps formatting the updatedAt captured at mount, so the 'Updated X ago' label never reflects a newer timestamp",
+          "evidence": "const timer = window.setInterval(() => setLabel(formatAge(updatedAt)), 30_000);",
+          "trigger": "A card stays mounted while its task's updatedAt changes (the board refetches after a teammate edits the task); the label keeps showing the age of the old timestamp, e.g. 'Updated 3 hours ago' for a task edited a minute ago, until the card remounts.",
+          "cwe_or_cite": "React docs 'useEffect: Removing unnecessary dependencies / stale closures'; eslint-plugin-react-hooks exhaustive-deps; Dan Abramov 'Making setInterval Declarative with React Hooks'",
+          "rationale": "C3 (a secondary informational label shows an outdated age; nothing acts on it) x R1 (any board after an edit): minor.",
+          "rule_id": "TS-COR-11"
+        },
+        {
+          "id": "D4",
+          "line": 118,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Search effect fetches on every keystroke with no AbortController or ignore flag, so a slow earlier response overwrites the results for the newer term",
+          "evidence": "getTasks(projectId, term)",
+          "trigger": "Type 'dep' then 'deploy' quickly; the 'dep' request resolves after the 'deploy' request and setResults shows 'dep' matches under the 'deploy' query. Clearing the box while a request is in flight also lets the late response refill the list.",
+          "cwe_or_cite": "React docs 'You Might Not Need an Effect: Fetching data' (race condition, cleanup with ignore flag); CWE-362",
+          "rationale": "C2 (wrong result under specific timing) x R1 (any user typing a search on a normal network): major.",
+          "rule_id": "TS-COR-12"
+        },
+        {
+          "id": "D5",
+          "line": 163,
+          "category": "correctness",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "Numeric && in JSX: when a column has no tasks, React renders a stray '0' in that column",
+          "evidence": "{columnTasks.length && (",
+          "trigger": "Any column with zero tasks (for example 'Done' on a new project) renders the text '0' under its heading.",
+          "cwe_or_cite": "React docs 'Conditional Rendering' pitfall: don't put numbers on the left side of &&",
+          "rationale": "C3 (visible UI glitch, no data effect) x R1 (every empty column): minor.",
+          "rule_id": "TS-COR-72"
+        },
+        {
+          "id": "D6",
+          "line": 167,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Array index used as key for TaskCards that hold local state (the armed delete confirmation) in lists that shrink and reorder, so state moves to a different task",
+          "evidence": "key={index}",
+          "trigger": "Column 'To do' has [A, B, C]. Click Delete on B (its card shows 'Confirm delete'), then move A to Done: the list becomes [B, C], the stateful card at index 1 now renders C with confirmingDelete still true, and clicking 'Confirm delete' deletes C, which the user never chose.",
+          "cwe_or_cite": "React docs 'Rendering Lists: Why does React need keys?' (index keys and state); eslint-plugin-react no-array-index-key",
+          "rationale": "C2 (component state attached to the wrong task, can lead to deleting the wrong task after a further click) x R1 (any reorder or delete on the board): major.",
+          "rule_id": "TS-COR-13"
+        },
+        {
+          "id": "D7",
+          "line": 138,
+          "category": "error-handling",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Optimistic status update writes the cache in onMutate but keeps no snapshot and has no onError rollback (and no onSettled refetch), so a rejected move stays on screen",
+          "evidence": "onMutate: async ({ taskId, status }) => {",
+          "trigger": "updateTaskStatus throws (the user was removed from the project, or the network drops): the alert says the change was not saved but the card stays in the new column, because onSuccess is the only path that refetches; the board contradicts the server until some later refetch.",
+          "cwe_or_cite": "TanStack Query docs 'Optimistic Updates' (snapshot in onMutate, roll back in onError, invalidate in onSettled)",
+          "rationale": "C2 (unhandled failure at an I/O boundary leaves wrong state displayed) x R1 (any failed move): major. Not a persistent write itself, so U1 does not apply.",
+          "rule_id": "TS-ERR-55"
+        },
+        {
+          "id": "D8",
+          "line": 1,
+          "category": "maintainability",
+          "severity": "nit",
+          "tier": "hard",
+          "title": "Unused import useCallback",
+          "evidence": "import { useCallback, useEffect, useState } from 'react';",
+          "trigger": "Run the linter or tsc with noUnusedLocals: useCallback is imported and never used.",
+          "cwe_or_cite": "ESLint @typescript-eslint/no-unused-vars; TS6133",
+          "rationale": "C4 (unused name, no runtime effect, autofixable; D4) at any reachability: nit.",
+          "rule_id": "TS-MAINT-01"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 35,
+          "evidence": "const row: TaskRow = await db.task.update({ where: { id }, data: { status: nextStatus } });",
+          "why_fine": "Updates by id alone, but the previous line runs requireProjectMember on the task's own projectId, so ownership is checked (contrast with deleteTask)."
+        },
+        {
+          "line": 74,
+          "evidence": "const relativeTime = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });",
+          "why_fine": "Module-level object, but an immutable, stateless formatter holding no per-user or per-request data; sharing it is safe (contrast with the module-level QueryClient)."
+        },
+        {
+          "line": 149,
+          "evidence": "return <div aria-busy=\"true\">{COLUMNS.map((_, i) => <div key={i} className=\"board__column--placeholder\" />)}</div>;",
+          "why_fine": "Index keys on static, stateless loading placeholders derived from a constant list that is never reordered."
+        },
+        {
+          "line": 157,
+          "evidence": "{(moveTask.isError || removeTask.isError) && <p role=\"alert\">Your last change was not saved.</p>}",
+          "why_fine": "The left side of && is a boolean, so nothing stray renders when false (contrast with columnTasks.length &&)."
+        },
+        {
+          "line": 67,
+          "evidence": "const query = term ? `?${new URLSearchParams({ q: term })}` : '';",
+          "why_fine": "User input goes into the URL through URLSearchParams, which encodes it; projectId is passed through encodeURIComponent on the next line."
+        }
+      ]
+    },
+    "sample_bad_3_tests.tsx": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 43,
+          "category": "tests",
+          "severity": "minor",
+          "tier": "standard",
+          "title": "Committed it.only: every other test in the file is skipped",
+          "evidence": "it.only('renders one column per status', async () => {",
+          "trigger": "Run vitest locally or in watch mode: only this test runs and the other four are silently skipped; in CI, Vitest's default allowOnly=false turns it into a failed run.",
+          "cwe_or_cite": "Vitest docs: test.only and the allowOnly option; eslint-plugin-vitest no-focused-tests",
+          "rationale": "C3 (contained: skipped tests locally, a red CI run that is noticed) x R1 (every run of this file): minor. Rated on its effect on the test run; D3 is not applied because the defect is in the test's own job, not production code copied into a test.",
+          "rule_id": "TS-TEST-06"
+        },
+        {
+          "id": "D2",
+          "line": 67,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "userEvent.type is not awaited, so the assertion runs before any keystroke and the test passes without exercising search",
+          "evidence": "user.type(search, 'login');",
+          "trigger": "The test body continues synchronously: queryByRole('alert') is checked before typing starts and before any search request; a regression that makes search fail (alert shown after the response) still passes, and the pending typing leaks into the next test with act() warnings.",
+          "cwe_or_cite": "Testing Library user-event v14 docs (all APIs return promises and must be awaited); eslint-plugin-testing-library await-async-events",
+          "rationale": "C2 (search error handling is effectively untested: a test that cannot fail) x R1 (deterministic on every run): major. D3 not applied: the defect is the test's own correctness.",
+          "rule_id": "TS-TEST-09"
+        },
+        {
+          "id": "D3",
+          "line": 53,
+          "category": "tests",
+          "severity": "minor",
+          "tier": "standard",
+          "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees",
+          "evidence": "expect(container.querySelectorAll('.task-card')).toHaveLength(2);",
+          "trigger": "Renaming the task-card class (or rendering cards with a different element) fails the test with no behaviour change; a card rendered with the class but without its content still passes.",
+          "cwe_or_cite": "Testing Library docs 'Guiding principles' and 'Which query should I use?' (container.querySelector is the last resort); eslint-plugin-testing-library no-container, no-node-access",
+          "rationale": "C3 (brittle test: maintenance cost, weaker signal) x R1 (every run): minor.",
+          "rule_id": "TS-TEST-09"
+        },
+        {
+          "id": "D4",
+          "line": 76,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "The only assertion checks that a vi.fn mock exists, which is always true, so the move test asserts nothing about the move",
+          "evidence": "expect(db.task.update).toBeDefined();",
+          "trigger": "In this setup the move actually fails (db.task.findUniqueOrThrow is a bare vi.fn returning undefined, so destructuring projectId throws inside updateTaskStatus) and the test still passes; it would also pass if the select did nothing at all.",
+          "cwe_or_cite": "Kent C. Dodds 'Common mistakes with React Testing Library'; Vitest expect docs (toHaveBeenCalledWith); xUnit Test Patterns 'Assertion Roulette / tests without assertions'",
+          "rationale": "C2 (the move flow, the board's main write, is untested while appearing covered) x R1 (deterministic on every run): major.",
+          "rule_id": "TS-TEST-02"
+        },
+        {
+          "id": "D5",
+          "line": 10,
+          "category": "tests",
+          "severity": "major",
+          "tier": "standard",
+          "title": "Membership lookup is mocked to always return a member, so no test proves that a non-member is rejected",
+          "evidence": "membership: { findUnique: vi.fn(async () => ({ role: 'member' })) },",
+          "trigger": "requireProjectMember is removed or inverted in the page or the actions: every test still passes because the mocked lookup grants access to everyone.",
+          "cwe_or_cite": "OWASP ASVS V4 (access control: deny by default, verify with negative tests); Vitest docs 'vi.mock'",
+          "rationale": "C2 (new authorization logic without a negative test: false confidence) x R1 (every project route depends on it); tests.md default for the only test of auth logic is major.",
+          "rule_id": "TS-TEST-07"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 60,
+          "evidence": "await waitFor(() => expect(screen.getAllByText('Write release notes')).toHaveLength(2));",
+          "why_fine": "waitFor contains only an assertion, no side effects, and is awaited."
+        },
+        {
+          "line": 18,
+          "evidence": "const PROJECT_ID = '3b1f6c2e-8d4a-4f7b-9e21-5c0d7a9b4e13';",
+          "why_fine": "A hardcoded fixture UUID, not a credential or secret."
+        },
+        {
+          "line": 46,
+          "evidence": "expect(screen.getByRole('heading', { name: 'In progress (1)' })).toBeInTheDocument();",
+          "why_fine": "Synchronous getBy* without await is correct here: the preceding awaited findByRole guarantees the board has rendered."
+        }
+      ]
+    },
+    "sample_good_2.tsx": {
+      "defects": [],
+      "decoys": [
+        {
+          "line": 66,
+          "evidence": "const timer = window.setInterval(() => setNow(Date.now()), 15_000);",
+          "why_fine": "Interval effect with [] deps, but the callback reads no props or state (only Date.now()); updatedAt is read during render, so nothing goes stale."
+        },
+        {
+          "line": 46,
+          "evidence": "return format.format(amountMinor / 10 ** digits);",
+          "why_fine": "Money is stored and transported as integer minor units; the division is only for display, uses the currency's ISO 4217 minor digits, and is rounded back to those digits by the formatter."
+        },
+        {
+          "line": 122,
+          "evidence": "const paidRatio = data.totalCount === 0 ? 0 : data.paidCount / data.totalCount;",
+          "why_fine": "A float used for a display ratio, not money; division by zero is guarded."
+        },
+        {
+          "line": 142,
+          "evidence": "{invoice.status === 'open' && invoice.dueDate < today && ' (overdue)'}",
+          "why_fine": "String comparison of zero-padded YYYY-MM-DD dates is chronological; the && chain is boolean on the left so nothing stray renders."
+        },
+        {
+          "line": 141,
+          "evidence": "{dueDateFormat.format(new Date(`${invoice.dueDate}T00:00:00Z`))}",
+          "why_fine": "Date-only value parsed as UTC midnight and formatted with timeZone 'UTC', so it never shifts to the previous day in negative-offset zones."
+        },
+        {
+          "line": 84,
+          "evidence": "queryFn: ({ signal }) => fetchInvoicePage(filters, signal),",
+          "why_fine": "Search results come from a query keyed by the (debounced) filters and pass the abort signal; TanStack Query shows data for the current key only, so out-of-order responses cannot overwrite newer results."
+        },
+        {
+          "line": 116,
+          "evidence": "results = <ul aria-busy=\"true\">{Array.from({ length: 5 }, (_, row) => <li key={row} className=\"invoices__skeleton-row\" />)}</ul>;",
+          "why_fine": "Index keys on a fixed-length, stateless skeleton list that never reorders."
+        },
+        {
+          "line": 99,
+          "evidence": "onError: (_error, _variables, context) => {",
+          "why_fine": "Optimistic update has a snapshot, rolls back to the exact key it wrote in onMutate, and invalidates in onSettled."
+        },
+        {
+          "line": 28,
+          "evidence": "const params = new URLSearchParams(Object.entries(query).filter(([, value]) => value !== ''));",
+          "why_fine": "Query string built from user input through URLSearchParams, which encodes every value."
+        }
+      ]
+    }
+  }
+}

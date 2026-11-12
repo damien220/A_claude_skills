@@ -1,0 +1,16 @@
+Skill files read for every file (core, not counted against the budget):
+  SKILL.md, refs/review-process.md, refs/severity-and-output-format.md,
+  tooling/node-review-checklist.md (index), refs/lang/node-checklist.md (How to use; sections 2-12 and NODE-OPS-04/05),
+  tooling/report-template.md, tooling/finding.schema.json
+
+Topic refs per file (at most three each):
+  module_a.mjs       refs/security.md, refs/error-handling.md
+  module_b.mjs       refs/security.md, refs/error-handling.md, refs/performance.md
+  module_c.mjs       refs/security.md, refs/correctness.md, refs/diff-hygiene.md
+  module_e.mjs       refs/security.md, refs/correctness.md, refs/error-handling.md
+  module_e.test.mjs  refs/tests.md
+
+Notes: security.md was read by section (TOC, sections 1-2, A01 IDOR, A02 password/timing/JWT, A03 SQL,
+A04, A05, A07 secrets/un-awaited check, A09, A10, do-not-flag). performance.md sections 1-4 and
+do-not-flag; correctness.md sections 1-2, 5, 6, 8, 9; diff-hygiene.md sections 1-3 (to X-DIFF-02).
+Linters: tooling/run_linters.py --files (eslint ran with the bundled fallback; tsc skipped, no tsconfig).

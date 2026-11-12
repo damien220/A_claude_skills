@@ -1,0 +1,7 @@
+{
+  "module_c.py": "sample_bad_1.py",
+  "module_e.py": "sample_bad_2.py",
+  "test_module_e.py": "sample_bad_3_tests.py",
+  "module_a.py": "sample_good_1.py",
+  "module_b.py": "sample_good_2.py"
+}

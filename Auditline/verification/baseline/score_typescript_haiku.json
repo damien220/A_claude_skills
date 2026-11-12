@@ -1,0 +1,43 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 0.875,
+  "unmatched_findings": 5,
+  "precision_matched_only": 0.6153846153846154,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 69,
+      "severity": "major",
+      "title": "Translations cached by review id only, ignoring target language"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 52,
+      "severity": "minor",
+      "title": "Unchecked type assertion on API response (no runtime validation)"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 70,
+      "severity": "minor",
+      "title": "Translation error swallowed silently with no logging or user-facing error state"
+    },
+    {
+      "file": "sample_bad_1.tsx",
+      "line": 48,
+      "severity": "minor",
+      "title": "Effect has no cleanup or abort; stale responses can overwrite state when productId changes"
+    },
+    {
+      "file": "sample_good_1.tsx",
+      "line": 122,
+      "severity": "nit",
+      "title": "Line exceeds the formatter print width"
+    }
+  ]
+}

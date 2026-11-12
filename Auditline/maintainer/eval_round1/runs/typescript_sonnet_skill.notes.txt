@@ -1,0 +1,11 @@
+Skill reference files read per file (all paths relative to the skill root).
+
+Read once for the whole run (core, not counted against the topic budget): SKILL.md; refs/review-process.md; refs/severity-and-output-format.md; tooling/report-template.md; tooling/finding.schema.json (read for field rules); tooling/typescript-review-checklist.md (index, read in full); refs/lang/typescript-react-checklist.md (read in full).
+
+module_a.tsx: refs/lang/typescript-react-checklist.md; refs/correctness.md (React state and effects, absent/falsy values); refs/error-handling.md (TS-ERR-04, TS-ERR-11 sections).
+module_b.tsx: refs/lang/typescript-react-checklist.md; refs/correctness.md (time zones, money, boundaries, cache key sections).
+module_c.tsx: refs/lang/typescript-react-checklist.md; refs/security.md (TS-SEC-02, TS-SEC-04, TS-SEC-16, TS-SEC-23 and the do-not-flag table); refs/correctness.md (TS-COR-11, TS-COR-12, TS-COR-13, TS-COR-16); refs/error-handling.md (TS-ERR-01, TS-ERR-04, TS-ERR-11). Performance was taken from the X-SEV-02 anchor in refs/severity-and-output-format.md and the checklist index, not from refs/performance.md.
+module_e.tsx: refs/lang/typescript-react-checklist.md (Next.js, data fetching and React sections); refs/security.md (TS-SEC-04 section and the do-not-flag table); refs/correctness.md (TS-COR-01 pointer, TS-COR-11, TS-COR-12, TS-COR-13, TS-COR-16, TS-COR-72 via checklist).
+module_e.test.tsx: refs/lang/typescript-react-checklist.md (testing section); refs/tests.md (read in full).
+
+Tools: tooling/run_linters.py --root <project> --files <all five files> (eslint with bundled fallback config, tsc with the project tsconfig).

@@ -1,0 +1,12 @@
+{"findings":[
+{"file":"sample_bad_1.py","line":29,"severity":"blocker","category":"security","title":"Hardcoded live payment API key in source","evidence":"CHARGE_API_KEY = \"pk_live_7Hq2LxW9pR4tN8vZ3mK6sJ1dQ5yB0cF\"","confidence":"high"},
+{"file":"sample_bad_1.py","line":61,"severity":"blocker","category":"security","title":"SQL injection: user-supplied email interpolated into query via f-string","evidence":"query = f\"SELECT id, name, email FROM customers WHERE email = '{email}'\"","confidence":"high"},
+{"file":"sample_bad_1.py","line":68,"severity":"major","category":"correctness","title":"Mutable default argument; the shared list is passed as invoice.items and appended to, so line items accumulate across calls","evidence":"adjustments: list[LineItem] = [],","confidence":"high"},
+{"file":"sample_bad_1.py","line":77,"severity":"minor","category":"performance","title":"N+1 queries: one order_items query per order inside a loop","evidence":"rows = conn.execute(","confidence":"high"},
+{"file":"sample_bad_1.py","line":91,"severity":"major","category":"correctness","title":"Charge request sent without an idempotency key; retries or concurrent runs can double-charge the customer","evidence":"response = requests.post(","confidence":"medium"},
+{"file":"sample_bad_1.py","line":102,"severity":"major","category":"error-handling","title":"Broad except Exception: pass swallows all failures (network, HTTP, missing charge_id) with no logging and an implicit None return","evidence":"except Exception:","confidence":"high"},
+{"file":"sample_bad_1.py","line":137,"severity":"minor","category":"debug","title":"Leftover debug print writes the full invoice to stdout instead of using the logger","evidence":"print(\"DEBUG invoice\", invoice)","confidence":"high"},
+{"file":"sample_bad_1.py","line":160,"severity":"major","category":"security","title":"Path traversal: unvalidated query parameter joined to EXPORT_DIR (../ or absolute path escapes the directory); use send_from_directory or safe_join","evidence":"return send_file(os.path.join(EXPORT_DIR, name), mimetype=\"text/csv\")","confidence":"high"},
+{"file":"sample_bad_1.py","line":115,"severity":"nit","category":"maintainability","title":"File opened without explicit encoding; output depends on platform locale","evidence":"with path.open(\"w\", newline=\"\") as fh:","confidence":"medium"},
+{"file":"sample_bad_1.py","line":10,"severity":"nit","category":"maintainability","title":"Unused import","evidence":"import json","confidence":"high"}
+]}

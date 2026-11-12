@@ -1,0 +1,7 @@
+Core refs (all files): SKILL.md, refs/review-process.md, refs/severity-and-output-format.md, tooling/report-template.md, tooling/finding.schema.json (final gate), tooling/typescript-review-checklist.md (rule index), refs/lang/typescript-react-checklist.md.
+
+module_a.tsx: refs/lang/typescript-react-checklist.md, refs/correctness.md, refs/error-handling.md (sections TS-ERR-04, TS-ERR-11, Do not flag), tooling/typescript-review-checklist.md
+module_b.tsx: refs/lang/typescript-react-checklist.md, refs/correctness.md, refs/error-handling.md (same sections), tooling/typescript-review-checklist.md
+module_c.tsx: refs/lang/typescript-react-checklist.md, refs/security.md (how-to-use, TS-SEC-16, TS-SEC-26, TS-SEC-02, TS-SEC-20, TS-SEC-23, Do not flag), refs/correctness.md, refs/error-handling.md (ERR-01, ERR-04, ERR-11, Do not flag), tooling/typescript-review-checklist.md
+module_e.tsx: refs/lang/typescript-react-checklist.md, refs/security.md (same sections, plus TS-SEC-04), refs/correctness.md, refs/error-handling.md, tooling/typescript-review-checklist.md
+module_e.test.tsx: refs/lang/typescript-react-checklist.md, refs/tests.md, refs/correctness.md, tooling/typescript-review-checklist.md

@@ -1,0 +1,225 @@
+[
+ {
+  "lang": "typescript",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 22,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 12,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.9090909090909091,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.9545454545454546,
+  "findings": 28,
+  "extras": 6,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.7857142857142857,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 63,
+    "severity": "major",
+    "title": "load() is called without handling its rejection",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 20,
+    "severity": "major",
+    "title": "Project membership check has no test",
+    "rule_id": "TS-TEST-01"
+   },
+   {
+    "file": "module_a.tsx",
+    "line": 89,
+    "severity": "minor",
+    "title": "Refetch promise discarded in the error-state retry button",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 118,
+    "severity": "minor",
+    "title": "Refetch promise discarded in the invoice error-state retry button",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "Network JSON cast to a type without validation",
+    "rule_id": "TS-MAINT-08"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 103,
+    "severity": "minor",
+    "title": "Translate handler promise dropped by the click handler",
+    "rule_id": "TS-COR-10"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 118,
+    "severity": "minor",
+    "title": "Refetch promise discarded in the invoice error-state retry button"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 28,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "typescript",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 21,
+  "recall_all": 0.9545454545454546,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 11,
+    "recall": 0.9166666666666666
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9047619047619048,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 23,
+  "extras": 2,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9130434782608695,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D3",
+    "line": 53,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "Database client and server actions share a module with client components",
+    "rule_id": "TS-COR-74"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "API responses cast with `as` instead of validated",
+    "rule_id": "TS-MAINT-08"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 23,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ },
+ {
+  "lang": "typescript",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 22,
+  "matched": 22,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 12,
+    "matched": 12,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9545454545454546,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.9545454545454546,
+  "findings": 23,
+  "extras": 1,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9565217391304348,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_e.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "Database client and server actions share a module with client components",
+    "rule_id": "TS-COR-74"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 23,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true
+ }
+]

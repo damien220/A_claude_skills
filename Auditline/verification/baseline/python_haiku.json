@@ -1,0 +1,12 @@
+{"findings":[
+{"file":"sample_bad_1.py","line":29,"severity":"blocker","category":"security","title":"Live payment API key hardcoded in source","evidence":"CHARGE_API_KEY = \"pk_live_7Hq2LxW9pR4tN8vZ3mK6sJ1dQ5yB0cF\"","confidence":"high"},
+{"file":"sample_bad_1.py","line":61,"severity":"blocker","category":"security","title":"SQL injection: email interpolated into query via f-string","evidence":"query = f\"SELECT id, name, email FROM customers WHERE email = '{email}'\"","confidence":"high"},
+{"file":"sample_bad_1.py","line":160,"severity":"blocker","category":"security","title":"Path traversal in export download; os.path.join lets name escape EXPORT_DIR","evidence":"return send_file(os.path.join(EXPORT_DIR, name), mimetype=\"text/csv\")","confidence":"high"},
+{"file":"sample_bad_1.py","line":68,"severity":"major","category":"correctness","title":"Mutable default argument shared across calls and aliased into Invoice.items","evidence":"adjustments: list[LineItem] = [],","confidence":"high"},
+{"file":"sample_bad_1.py","line":102,"severity":"major","category":"error-handling","title":"charge_invoice swallows all exceptions and returns None implicitly, hiding the failure cause","evidence":"except Exception:","confidence":"high"},
+{"file":"sample_bad_1.py","line":145,"severity":"major","category":"correctness","title":"Charge is made without an idempotency key; a failed mark_billed lets a retry charge the customer again","evidence":"mark_billed(conn, invoice.order_ids, charge_id)","confidence":"medium"},
+{"file":"sample_bad_1.py","line":77,"severity":"minor","category":"performance","title":"N+1 query: one SELECT per order inside the loop instead of a single join","evidence":"rows = conn.execute(","confidence":"high"},
+{"file":"sample_bad_1.py","line":137,"severity":"minor","category":"maintainability","title":"Leftover debug print in request path that dumps the whole invoice","evidence":"print(\"DEBUG invoice\", invoice)","confidence":"high"},
+{"file":"sample_bad_1.py","line":115,"severity":"nit","category":"maintainability","title":"CSV file opened without explicit encoding (platform-dependent output)","evidence":"with path.open(\"w\", newline=\"\") as fh:","confidence":"medium"},
+{"file":"sample_good_1.py","line":164,"severity":"major","category":"error-handling","title":"CSV export written after the charge and DB commit; a write failure returns 500 with no export and no retry path","evidence":"write_invoice_csv(invoice, export_path)","confidence":"medium"}
+]}

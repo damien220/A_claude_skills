@@ -1,10 +1,10 @@
 ---
 name: python-best-style
-description: Use when writing, editing, refactoring, or reviewing Python code to produce
+description: Use when writing, editing, or refactoring Python code to produce
   idiomatic, performant, and secure Python. Enforces PEP 8 / PEP 484 naming and typing,
   proper data modeling (dataclasses, Protocol/ABC), correct sync vs async choices, efficient
   algorithms/idioms, robust error handling, and safe API/secret handling. Triggers on .py
-  files, "write/refactor/review Python", "make this Pythonic", or "best practice".
+  files, "write/refactor Python", "make this Pythonic", or "best practice". Does not review existing code: review requests go to the auditline skill.
 ---
 
 # Python Best Style

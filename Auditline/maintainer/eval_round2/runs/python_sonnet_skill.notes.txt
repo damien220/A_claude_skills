@@ -1,0 +1,19 @@
+Skill reference files read (paths relative to skill/auditline). Always read first: SKILL.md,
+refs/review-process.md, refs/severity-and-output-format.md, tooling/report-template.md,
+tooling/finding.schema.json, tooling/python-review-checklist.md (index), and the
+"How to use" section of refs/lang/python-checklist.md. Tools were run once for all five files
+with tooling/run_linters.py.
+
+module_a.py      : refs/lang/python-checklist.md (how-to section), tooling/python-review-checklist.md,
+                   refs/security.md, refs/correctness.md, refs/error-handling.md
+module_b.py      : refs/lang/python-checklist.md (how-to section), tooling/python-review-checklist.md,
+                   refs/security.md, refs/correctness.md, refs/error-handling.md
+module_c.py      : refs/lang/python-checklist.md (how-to section), tooling/python-review-checklist.md,
+                   refs/security.md, refs/correctness.md, refs/error-handling.md
+                   (the N+1 and debug-print findings used the X-SEV-02 / X-SEV-07 anchors in
+                   refs/severity-and-output-format.md rather than a fourth topic ref)
+module_e.py      : refs/lang/python-checklist.md (how-to section), tooling/python-review-checklist.md,
+                   refs/security.md, refs/correctness.md, refs/error-handling.md
+test_module_e.py : refs/lang/python-checklist.md (how-to section), tooling/python-review-checklist.md,
+                   refs/tests.md (plus the already-loaded core refs; refs/correctness.md and
+                   refs/security.md were only consulted via their module_e findings)

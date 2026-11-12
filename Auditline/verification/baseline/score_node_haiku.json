@@ -1,0 +1,43 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 1.0,
+  "unmatched_findings": 5,
+  "precision_matched_only": 0.6153846153846154,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 40,
+      "severity": "minor",
+      "title": "JWT signing does not pin the algorithm"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 52,
+      "severity": "minor",
+      "title": "JWT verification does not restrict accepted algorithms"
+    },
+    {
+      "file": "sample_bad_1.mjs",
+      "line": 82,
+      "severity": "major",
+      "title": "Unknown-email path returns before bcrypt runs, enabling account enumeration by timing"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 99,
+      "severity": "minor",
+      "title": "Signup returns 409 for existing emails, allowing account enumeration"
+    },
+    {
+      "file": "sample_good_1.mjs",
+      "line": 105,
+      "severity": "minor",
+      "title": "Login route has no rate limiting, leaving it open to brute force"
+    }
+  ]
+}

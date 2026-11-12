@@ -1,0 +1,371 @@
+{
+  "verdict": "request changes",
+  "mode": "full",
+  "scope": {
+    "kind": "file",
+    "files": [
+      "module_a.tsx",
+      "module_b.tsx",
+      "module_c.tsx",
+      "module_e.tsx",
+      "module_e.test.tsx"
+    ],
+    "languages": [
+      "typescript"
+    ]
+  },
+  "tools": [
+    {
+      "name": "eslint",
+      "status": "ran",
+      "note": "bundled fallback config; discarded: no-misused-promises on onClick={() => query.refetch()} (module_a.tsx:89, module_b.tsx:118) and on module_c.tsx:103 (refetch/handleTranslate never reject; module_c.tsx:103 reported as TS-ACC-01 instead); react/jsx-no-leaked-render on boolean or object operands (module_a.tsx:104, 109; module_b.tsx:175; module_e.tsx:126, 157); module_a.tsx:126 no-unnecessary-condition (harmless redundant optional chain); no-unsafe-assignment on module_e.tsx:21-45 (the @/lib/* alias does not resolve in this project, tsc TS2307, so the values are error-typed); no-unused-vars on a type-annotation parameter name (module_e.tsx:89); react/no-array-index-key on a static placeholder list (module_e.tsx:149); n/no-unsupported-features in module_e.test.tsx (Node version config); no-floating-promises at module_c.tsx:63 merged into TS-ERR-11"
+    },
+    {
+      "name": "tsc",
+      "status": "ran",
+      "note": "project tsconfig.json; only TS2307 for the @/lib/* alias (module_e.tsx, module_e.test.tsx) and TS2339 for jest-dom matchers in module_e.test.tsx, both setup noise in this project, no code errors"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 25,
+      "rule_id": "TS-SEC-02",
+      "title": "Live translation API key hardcoded in browser code",
+      "evidence": "const TRANSLATE_API_KEY = 'tr_live_5c9e1f7a2b4d8e6f0a3c5e7b9d1f2a4c';",
+      "why": "A `tr_live_` credential is committed in a client component and sent as `Authorization: Bearer` on line 32, so it ships in the JavaScript bundle to every visitor and stays in git history. Consequence: anyone can spend the translation quota or abuse the account; reachability: every page view, no precondition.",
+      "fix": "Move the call behind an own API route that reads the key from `process.env` on the server (as module_a.tsx does with `/api/reviews/:id/translate`), and rotate the leaked key.",
+      "cite": "CWE-798; CWE-200; OWASP A07:2021 Identification and Authentication Failures; Next.js docs, \"Environment Variables\" (values in client code are inlined into the browser bundle)",
+      "source": "model"
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 101,
+      "rule_id": "TS-SEC-16",
+      "title": "Review text and translation rendered as raw HTML",
+      "evidence": "dangerouslySetInnerHTML={{ __html: translated[review.id] ?? review.body }}",
+      "why": "`review.body` is written by other customers and the translation comes from a third-party API; both are injected as HTML on every product page that lists reviews. A review containing `<img src=x onerror=...>` runs script in every visitor's session (stored XSS, open to anyone who can post a review).",
+      "fix": "Render as text: `<div className=\"review__body\">{translated[review.id] ?? review.body}</div>`; if HTML is required, sanitize with DOMPurify.",
+      "cite": "CWE-79; OWASP A03:2021 Injection; React docs, `dangerouslySetInnerHTML`; OWASP Cross Site Scripting Prevention Cheat Sheet",
+      "source": "eslint",
+      "tool_code": "react/no-danger"
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 44,
+      "rule_id": "TS-SEC-04",
+      "title": "deleteTask Server Action deletes by id with no session or membership check",
+      "evidence": "const { projectId } = await db.task.delete({ where: { id }, select: { projectId: true } });",
+      "why": "`'use server'` functions are public POST endpoints. `updateTaskStatus` calls `requireProjectMember(projectId)`, but `deleteTask` never looks at the session, so anyone who can post to the action, including a signed-out visitor, can delete any task whose UUID they have seen (IDs also leak in URLs, logs and the dehydrated page state). The test file never exercises this path.",
+      "fix": "Look up the task's `projectId` first and `await requireProjectMember(projectId)` before deleting (as `updateTaskStatus` does), or delete with `where: { id, project: { members: { some: { userId: session.userId } } } }`; add a test that a non-member is rejected.",
+      "cite": "CWE-639; CWE-862; OWASP A01:2021 Broken Access Control; Next.js docs, \"Data Security\" (Server Actions are public endpoints)",
+      "source": "model"
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 49,
+      "rule_id": "TS-SEC-04",
+      "title": "Module-level QueryClient on the server dehydrates every project's cached tasks to each visitor",
+      "evidence": "const serverQueryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000 } } });",
+      "why": "`ProjectBoardPage` is a server component (async, calls `db`), and one `serverQueryClient` is shared by every request. `prefetchQuery` fills it with `['tasks', projectId]` for each project any member opens, and `dehydrate(serverQueryClient)` serialises all queries in the cache into the HTML, so a member of project A receives project B's tasks that another user prefetched in the last minute and later (queries stay cached). Cross-tenant data exposure, open to any signed-in user.",
+      "fix": "Create the client inside the request: `const queryClient = new QueryClient(...)` in `ProjectBoardPage`, prefetch and `dehydrate(queryClient)` on that instance.",
+      "cite": "TanStack Query docs, \"Advanced Server Rendering\" (create the QueryClient per request to avoid sharing data between users); CWE-488; OWASP A01:2021 Broken Access Control",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 51,
+      "rule_id": "TS-ERR-11",
+      "title": "Loading flag never reset and failures unhandled when the review fetch fails",
+      "evidence": "const res = await fetch(`/api/products/${productId}/reviews`);",
+      "why": "`load()` has no `try/finally` and no `res.ok` check: when `fetch` or `res.json()` throws, `setLoading(false)` on line 61 never runs and the page shows \"Loading reviews…\" forever; an HTTP 500 is parsed as a review list (`list` is not iterable). The call on line 63 is also an un-awaited, un-caught promise (eslint no-floating-promises), so the rejection is unhandled and the user gets no error state. Reachable on any network or server error, on a main flow.",
+      "fix": "Wrap the body in `try { ... if (!res.ok) throw new Error(...) ... } catch { setError(...) } finally { setLoading(false); }`, render an error state with `role=\"alert\"`, and call `void load()`; or use `useQuery` and its `isError`.",
+      "cite": "React docs, \"Catching rendering errors with an error boundary\" (boundaries do not catch async errors); TanStack Query docs, \"Queries\" (`isError`); WHATWG Fetch Standard (the promise rejects only on network errors); CWE-755",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 55,
+      "rule_id": "TS-PERF-01",
+      "title": "One sequential author request per review (N+1)",
+      "evidence": "const authorRes = await fetch(`/api/users/${review.authorId}`);",
+      "why": "The loop awaits one `/api/users/:id` round trip per review, one after another, with no cap on reviews per product (eslint no-await-in-loop on lines 55 and 56). Page load time grows linearly with the review count on a product page, for every visitor. module_a.tsx batches this into one `/api/users?ids=` call.",
+      "fix": "Fetch authors in one batched request (`/api/users?ids=...`) for the unique `authorId` values, then join in memory.",
+      "cite": "CWE-1073; web.dev, \"Avoid chaining critical requests\"; eslint docs, `no-await-in-loop`",
+      "source": "eslint",
+      "tool_code": "no-await-in-loop"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 64,
+      "rule_id": "TS-COR-11",
+      "title": "Effect reads productId but its dependency array is empty",
+      "evidence": "}, []);",
+      "why": "The effect fetches reviews for `productId` (line 51) but runs only on mount, so when the product prop changes the previous product's reviews stay on screen while the heading and page show the new product. Reachable whenever the component is reused across products. Once the dependency is added, the effect also needs an `ignore` flag or `AbortController` so a slow earlier response cannot overwrite a newer one.",
+      "fix": "Use `}, [productId]);` with a cleanup (`let ignore = false; ... return () => { ignore = true; }`), or move the fetch to `useQuery` with `['product-reviews', productId]` as module_a.tsx does.",
+      "cite": "React docs, \"Synchronizing with Effects\", \"Removing Effect Dependencies\"",
+      "source": "eslint",
+      "tool_code": "react-hooks/exhaustive-deps"
+    },
+    {
+      "severity": "major",
+      "confidence": "medium",
+      "file": "module_c.tsx",
+      "line": 69,
+      "rule_id": "TS-COR-16",
+      "title": "Translations stored by review id only, ignoring the target language",
+      "evidence": "setTranslated((prev) => ({ ...prev, [review.id]: text }));",
+      "why": "The translated text is keyed by `review.id` alone and rendered back on line 101, so after the `targetLanguage` prop changes (for example fr to de) each already-translated review keeps showing the old language and the user cannot get the new one without a reload. Assumes `targetLanguage` can change while mounted, which a prop allows; module_a.tsx keys by id and target.",
+      "fix": "Key the map by id and language (`${review.id}:${targetLanguage}`) as module_a.tsx's `translationKey` does, or clear `translated` when `targetLanguage` changes.",
+      "cite": "TanStack Query docs, \"Query Keys\" (include every input the result depends on); CWE-524",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.test.tsx",
+      "line": 67,
+      "rule_id": "TS-TEST-02",
+      "title": "Un-awaited user.type: the no-error assertion runs before any typing",
+      "evidence": "user.type(search, 'login');",
+      "why": "`userEvent` calls return promises; without `await` the next line asserts `queryByRole('alert')` is absent before a single key was typed, so the test passes whatever the component does while typing. It is the only test of the search error state, so a broken or erroring search would still be green.",
+      "fix": "`await user.type(search, 'login');` and then assert, using `waitFor` or `findBy*` for async outcomes.",
+      "cite": "user-event docs, \"Introduction\" (`setup()` and awaited calls); Testing Library docs, \"Guiding Principles\"",
+      "source": "eslint",
+      "tool_code": "@typescript-eslint/no-floating-promises"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.test.tsx",
+      "line": 76,
+      "rule_id": "TS-TEST-02",
+      "title": "Assertion `toBeDefined()` on a mock that is always defined",
+      "evidence": "expect(db.task.update).toBeDefined();",
+      "why": "`db.task.update` is a `vi.fn()` created in `vi.mock`, so it is defined whether or not the move happened. The test never asserts that `update` was called with `status: 'done'` or that the card moved, and `findUniqueOrThrow` is a bare `vi.fn()` returning `undefined`, so the action throws and the test still passes. It is the only test of the move flow.",
+      "fix": "Assert the outcome: `expect(db.task.update).toHaveBeenCalledWith({ where: { id }, data: { status: 'done' } })` after configuring `findUniqueOrThrow`, and that the card appears under \"Done\".",
+      "cite": "Vitest docs, `expect` / `toHaveBeenCalledWith`; Google Testing Blog, \"Testing on the Toilet: Test Behavior, Not Implementation\"",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 85,
+      "rule_id": "TS-COR-11",
+      "title": "UpdatedAgo effect reads updatedAt but its dependency array is empty",
+      "evidence": "}, []);",
+      "why": "The interval callback captures the `updatedAt` of the first render, so after a task is edited and refetched (new `updatedAt`) the label keeps counting from the old timestamp and shows \"Updated 5 minutes ago\" for a task just changed. Also the label is only refreshed after 30 s.",
+      "fix": "Use `}, [updatedAt]);` and set the label immediately inside the effect, or compute the age in render from a ticking `now` state.",
+      "cite": "React docs, \"Synchronizing with Effects\", \"Removing Effect Dependencies\"",
+      "source": "eslint",
+      "tool_code": "react-hooks/exhaustive-deps"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 118,
+      "rule_id": "TS-COR-12",
+      "title": "Search effect fetches without abort or ignore flag",
+      "evidence": "getTasks(projectId, term)",
+      "why": "Each keystroke starts a request whose result is written with `setResults`, with no `AbortController` or `ignore` flag and no debounce, so a slow response for \"ab\" can resolve after \"abc\" and overwrite the newer results; clearing the box (line 114) can also be overwritten by an in-flight response. Reachable by anyone typing quickly.",
+      "fix": "Pass an `AbortSignal` to `getTasks` and return a cleanup that aborts (or sets `ignore`), or use `useQuery` with `['tasks', projectId, 'search', term]` and `enabled: term.trim() !== ''`.",
+      "cite": "React docs, \"Synchronizing with Effects\" (fetching data, cleanup); MDN, `AbortController`; CWE-772",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 138,
+      "rule_id": "TS-ERR-55",
+      "title": "Optimistic move writes the cache with no rollback and no settle",
+      "evidence": "onMutate: async ({ taskId, status }) => {",
+      "why": "`onMutate` moves the task in the cache with `setQueryData`, but `moveTask` has no `onError` to restore a snapshot and invalidates only in `onSuccess`. When `updateTaskStatus` rejects (for example a non-member or a deleted task), the card stays in the wrong column while only \"Your last change was not saved.\" appears, until a manual reload.",
+      "fix": "Snapshot with `getQueryData` in `onMutate` and return it as context, restore it in `onError`, and invalidate in `onSettled`.",
+      "cite": "TanStack Query docs, \"Optimistic Updates\"",
+      "source": "model"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 167,
+      "rule_id": "TS-COR-13",
+      "title": "Task cards keyed by array index in a list that moves, filters and holds per-card state",
+      "evidence": "key={index}",
+      "why": "Each `TaskCard` owns `confirmingDelete` state and an `UpdatedAgo` interval. Moving a task (optimistic update, line 140) or deleting one shifts the following cards up one index, so the next card inherits \"Confirm delete\" and one click on it deletes a different task. Raised from the tool's minor because the wrong row's state is shown and acted on.",
+      "fix": "Use `key={task.id}`.",
+      "cite": "React docs, \"Rendering Lists\" (keys); React docs, \"Preserving and Resetting State\"",
+      "source": "eslint",
+      "tool_code": "react/no-array-index-key"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 52,
+      "rule_id": "TS-MAINT-08",
+      "title": "API responses asserted with `as` instead of validated",
+      "evidence": "const list = (await res.json()) as Review[];",
+      "why": "`as Review[]` (and `as Author` on line 56, `as { translation: string }` on line 39) only silences the compiler; a changed or error payload reaches the render code unchecked (for example `review.author.avatarUrl` on a missing author). module_a.tsx parses each response with zod at the boundary.",
+      "fix": "Parse with a zod schema (`z.array(reviewSchema).parse(await res.json())`) inside the fetch function.",
+      "cite": "TypeScript handbook, \"Everyday Types: Type Assertions\" (assertions are removed at compile time); Zod docs, \"Basic usage\"",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 59,
+      "rule_id": "TS-DIFF-01",
+      "title": "console.log of every loaded review on each page load",
+      "evidence": "console.log('reviews loaded', withAuthors);",
+      "why": "Debug output runs on every mount of a customer-facing component and dumps all reviews with author names and avatar URLs into the browser console, bypassing any logger.",
+      "fix": "Delete it, or use the project logger at debug level without user data.",
+      "cite": "CWE-532; CWE-489 (active debug code)",
+      "source": "eslint",
+      "tool_code": "no-console"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 70,
+      "rule_id": "TS-ERR-01",
+      "title": "Translation failure caught, not logged, and error text replaces the review body",
+      "evidence": "} catch {",
+      "why": "The catch stores 'Translation unavailable.' in the `translated` map, which line 101 renders in place of `review.body`, so a failed translation hides the customer's original review and nothing is logged or retried. Triggered by any translation API failure.",
+      "fix": "Keep the original body, track the failure separately (`translation.isError` or an error map) and show a `role=\"alert\"` message; log the error.",
+      "cite": "CWE-390; CWE-391",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 103,
+      "rule_id": "TS-ACC-01",
+      "title": "Translate control is a div with a click handler only",
+      "evidence": "<div className=\"review__translate\" onClick={() => handleTranslate(review)}>",
+      "why": "A `div` with `onClick` has no role, no `tabIndex` and no key handler, so keyboard and screen-reader users cannot reach or activate Translate (WCAG 2.1.1, Level A). It is a secondary control on each review, so minor.",
+      "fix": "Use `<button type=\"button\" className=\"review__translate\" onClick={...}>Translate</button>`.",
+      "cite": "WCAG 2.2 SC 2.1.1 Keyboard (A); WAI-ARIA APG, \"Button pattern\"",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "medium",
+      "file": "module_e.test.tsx",
+      "line": 43,
+      "rule_id": "TS-TEST-06",
+      "title": "Focused test `it.only` narrows the suite to one test",
+      "evidence": "it.only('renders one column per status', async () => {",
+      "why": "Every other test in the file is silently skipped while `.only` is present. Vitest sets `allowOnly` to false when `CI` is set, so CI would fail rather than narrow (assuming no config override, none is shown), but local runs stay green with four tests skipped.",
+      "fix": "Remove `.only`.",
+      "cite": "Vitest docs, `test.only` and `allowOnly`",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_e.test.tsx",
+      "line": 53,
+      "rule_id": "TS-TEST-09",
+      "title": "Test queries the DOM by CSS class through container",
+      "evidence": "expect(container.querySelectorAll('.task-card')).toHaveLength(2);",
+      "why": "Selecting by a class name couples the test to markup that users never see, and breaks on a refactor that changes nothing for them.",
+      "fix": "Query by role: `expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(2)` or by the task titles.",
+      "cite": "Testing Library docs, \"Guiding Principles\" and \"About Queries\"",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "medium",
+      "file": "module_e.test.tsx",
+      "line": 60,
+      "rule_id": "TS-TEST-03",
+      "title": "Search test passes because the fetch mock ignores the query",
+      "evidence": "await waitFor(() => expect(screen.getAllByText('Write release notes')).toHaveLength(2));",
+      "why": "The `fetch` spy returns all `TASKS` for every URL, so the \"matching\" list is just the mock's fixture (it also contains the non-matching 'Fix login redirect'). The test would pass if the `q` parameter were never sent or the search were broken.",
+      "fix": "Make the mock respond by URL (return only tasks matching `q`) and assert the request contained `q=release`.",
+      "cite": "Google Testing Blog, \"Testing on the Toilet: Test Behavior, Not Implementation\"; Vitest docs, `vi.spyOn`",
+      "source": "model"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 163,
+      "rule_id": "TS-COR-72",
+      "title": "Array length on the left of && renders a stray 0",
+      "evidence": "{columnTasks.length && (",
+      "why": "An empty column renders the number `0` under its heading instead of nothing, because React renders `0`.",
+      "fix": "Use `columnTasks.length > 0 && (...)` or a ternary.",
+      "cite": "React docs, \"Conditional Rendering\" (do not put numbers on the left side of `&&`)",
+      "source": "eslint",
+      "tool_code": "react/jsx-no-leaked-render"
+    },
+    {
+      "severity": "nit",
+      "confidence": "high",
+      "file": "module_c.tsx",
+      "line": 1,
+      "rule_id": "TS-MAINT-01",
+      "title": "Unused import `useMemo`",
+      "evidence": "import { useEffect, useMemo, useState } from 'react';",
+      "why": "`useMemo` is imported and never used; reader cost only.",
+      "fix": "Remove it from the import (`eslint --fix` / editor organise imports).",
+      "cite": "ESLint docs, `no-unused-vars`; X-SEV-08",
+      "source": "eslint",
+      "tool_code": "no-unused-vars"
+    },
+    {
+      "severity": "nit",
+      "confidence": "high",
+      "file": "module_e.tsx",
+      "line": 1,
+      "rule_id": "TS-MAINT-01",
+      "title": "Unused import `useCallback`",
+      "evidence": "import { useCallback, useEffect, useState } from 'react';",
+      "why": "`useCallback` is imported and never used; reader cost only.",
+      "fix": "Remove it from the import.",
+      "cite": "ESLint docs, `no-unused-vars`; X-SEV-08",
+      "source": "eslint",
+      "tool_code": "no-unused-vars"
+    }
+  ],
+  "questions": [
+    {
+      "file": "module_e.tsx",
+      "line": 5,
+      "question": "`@/lib/auth`, `@/lib/db` and `@/lib/logger` are imported, but tsconfig.json declares no `paths` (tsc reports TS2307). Is the alias mirrored in the real bundler and test-runner config? If not, the build and the tests fail with \"Cannot find module\" (TS-COR-78)."
+    },
+    {
+      "file": "module_e.tsx",
+      "line": 6,
+      "question": "This file imports the `db` client and also exports hook-using client components (`TaskBoard`, `TaskSearch`) with no `'use client'` or `import 'server-only'`. Are the server code and the client UI split into separate modules in the real project? If the file is marked client, `db` ends up in the browser bundle (TS-COR-74)."
+    }
+  ],
+  "summary": {
+    "blocker": 4,
+    "major": 10,
+    "minor": 8,
+    "nit": 2
+  }
+}

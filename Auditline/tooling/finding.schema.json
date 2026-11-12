@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:auditline:report-schema:v1",
+  "title": "Auditline report",
+  "description": "Structured output of an Auditline review. Written on every run next to the Markdown report.",
+  "type": "object",
+  "required": ["verdict", "mode", "scope", "findings", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "verdict": {
+      "enum": ["approve", "approve with nits", "request changes"],
+      "description": "Must match summary: any blocker or major -> request changes; only minor/nit -> approve with nits; none -> approve."
+    },
+    "mode": {"enum": ["full", "security-only"]},
+    "scope": {
+      "type": "object",
+      "required": ["kind", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["diff", "file"]},
+        "base": {
+          "type": "string",
+          "description": "Base ref of the diff; required when kind is diff."
+        },
+        "files": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "languages": {"type": "array", "items": {"enum": ["python", "node", "typescript"]}}
+      },
+      "if": {"properties": {"kind": {"const": "diff"}}},
+      "then": {"required": ["base"]}
+    },
+    "tools": {
+      "type": "array",
+      "description": "Linters that were run or skipped, so the reader knows what backs the findings.",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"enum": ["ruff", "mypy", "eslint", "tsc"]},
+          "status": {"enum": ["ran", "skipped"]},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "questions": {
+      "type": "array",
+      "description": "Low-confidence blockers/majors, reported as questions rather than findings.",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "question"],
+        "additionalProperties": false,
+        "properties": {
+          "file": {"type": "string"},
+          "line": {"type": "integer", "minimum": 1},
+          "question": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["blocker", "major", "minor", "nit"],
+      "additionalProperties": false,
+      "properties": {
+        "blocker": {"type": "integer", "minimum": 0},
+        "major": {"type": "integer", "minimum": 0},
+        "minor": {"type": "integer", "minimum": 0},
+        "nit": {"type": "integer", "minimum": 0}
+      },
+      "description": "Counts of findings with pre_existing false. Questions are not counted."
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "verdict: any blocker or major -> request changes",
+      "if": {
+        "properties": {
+          "summary": {
+            "anyOf": [
+              {"properties": {"blocker": {"minimum": 1}}},
+              {"properties": {"major": {"minimum": 1}}}
+            ]
+          }
+        }
+      },
+      "then": {"properties": {"verdict": {"const": "request changes"}}}
+    },
+    {
+      "$comment": "verdict: only minor/nit -> approve with nits",
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"blocker": {"const": 0}, "major": {"const": 0}},
+            "anyOf": [
+              {"properties": {"minor": {"minimum": 1}}},
+              {"properties": {"nit": {"minimum": 1}}}
+            ]
+          }
+        }
+      },
+      "then": {"properties": {"verdict": {"const": "approve with nits"}}}
+    },
+    {
+      "$comment": "verdict: no findings -> approve",
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {
+              "blocker": {"const": 0},
+              "major": {"const": 0},
+              "minor": {"const": 0},
+              "nit": {"const": 0}
+            }
+          }
+        }
+      },
+      "then": {"properties": {"verdict": {"const": "approve"}}}
+    },
+    {
+      "$comment": "security-only mode reports security rules only",
+      "if": {"properties": {"mode": {"const": "security-only"}}},
+      "then": {
+        "properties": {"findings": {"items": {"properties": {"rule_id": {"pattern": "-SEC-"}}}}}
+      }
+    }
+  ],
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": [
+        "severity",
+        "confidence",
+        "file",
+        "line",
+        "rule_id",
+        "title",
+        "evidence",
+        "why",
+        "fix",
+        "cite",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "severity": {"enum": ["blocker", "major", "minor", "nit"]},
+        "confidence": {"enum": ["high", "medium"]},
+        "file": {"type": "string", "minLength": 1},
+        "line": {"type": "integer", "minimum": 1},
+        "rule_id": {
+          "type": "string",
+          "pattern": "^(PY|NODE|TS|X)-[A-Z]+-[0-9]{2}$",
+          "description": "Rule ID from the refs, e.g. PY-SEC-01, NODE-ERR-03, X-DIFF-02."
+        },
+        "title": {"type": "string", "minLength": 1, "maxLength": 120},
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The quoted offending line(s), copied verbatim from the file. No finding without it."
+        },
+        "why": {"type": "string", "minLength": 1},
+        "fix": {"type": "string", "minLength": 1},
+        "cite": {
+          "type": "string",
+          "minLength": 1,
+          "description": "PEP, OWASP, CWE, RFC or doc named in the rule."
+        },
+        "source": {"enum": ["model", "ruff", "mypy", "eslint", "tsc"]},
+        "tool_code": {"type": "string"},
+        "pre_existing": {"type": "boolean", "default": false}
+      }
+    }
+  }
+}

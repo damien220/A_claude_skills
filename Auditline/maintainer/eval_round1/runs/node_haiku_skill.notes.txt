@@ -1,0 +1,16 @@
+Reference files read, per file (skill: auditline, bundle EVAL/skillbundle/skill/auditline)
+
+Core, all files: SKILL.md; refs/review-process.md; refs/severity-and-output-format.md; refs/lang/node-checklist.md (section 1 "How to use", section 4 NODE-COR-65 middleware order); tooling/run_linters.py output (eslint ran, tsc skipped).
+
+module_a.mjs: refs/security.md (A01 IDOR and JWT sections, A07 SEC-20 section); refs/error-handling.md (ERR-01, ERR-03 swallowed/lost-cause sections). Result: no finding; one question (rate limit on /login).
+module_b.mjs: refs/security.md (JWT and injection sections); refs/error-handling.md (ERR-06 cleanup); refs/performance.md (PERF-02 section). Result: no finding; one question (unknown-order event); 2 eslint results and 1 nit dropped with reasons.
+module_c.mjs: refs/security.md (SEC-01, SEC-02, SEC-18, SEC-20 sections); refs/error-handling.md (ERR-01, ERR-03); refs/performance.md (PERF-02 section). Result: 3 blockers, 2 majors (one tool), 2 minors/nits (tool), 3 questions.
+module_e.mjs: refs/security.md (SEC-04 section, node checklist COR-65); refs/correctness.md (COR-08 float money, COR-09 read-modify-write, COR-10 async not awaited); refs/error-handling.md (ERR-06 cleanup). Result: 2 blockers, 3 majors (one tool), 1 minor, 1 nit (tool).
+module_e.test.mjs: refs/tests.md (TEST-02 vacuous, TEST-06 focused test). Result: 2 majors on assertions, 1 major on it.only.
+
+Dropped eslint results (kept out of findings):
+- module_b.mjs:114 NODE-PERF-01 no-await-in-loop: the loop runs sequential DELETE batches in a background purge, with a comment at line 112 saying so. It is not a per-row query on a request path.
+- module_b.mjs:139 NODE-COR-53 es-builtins (Object.hasOwn): no package.json or engines field is in the reviewed files; the bundled fallback assumes >=16.0.0. Supported Node version unknown, so not kept.
+- module_b.mjs:149 and module_e.mjs:170 no-unused-vars on _next: Express treats a four-argument middleware as the error handler. Removing the parameter would break error handling.
+
+Re-rated tool results: module_c.mjs:89 no-console eslint minor (request path, X-SEV-07); module_c.mjs:90 eqeqeq eslint minor -> nit (status is a string or null column).

@@ -1,0 +1,15 @@
+{"findings":[
+{"file":"sample_bad_1.tsx","line":25,"severity":"blocker","category":"security","title":"Hard-coded live translation API key shipped to the browser","evidence":"const TRANSLATE_API_KEY = 'tr_live_5c9e1f7a2b4d8e6f0a3c5e7b9d1f2a4c';","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":101,"severity":"blocker","category":"security","title":"dangerouslySetInnerHTML renders review text as HTML (XSS)","evidence":"dangerouslySetInnerHTML={{ __html: translated[review.id] ?? review.body }}","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":51,"severity":"major","category":"error-handling","title":"No response status check before parsing reviews; productId not encoded","evidence":"const res = await fetch(`/api/products/${productId}/reviews`);","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":63,"severity":"major","category":"error-handling","title":"Unhandled rejection from load() leaves the page stuck on loading","evidence":"load();","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":55,"severity":"major","category":"performance","title":"Sequential N+1 author fetches inside a loop","evidence":"const authorRes = await fetch(`/api/users/${review.authorId}`);","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":103,"severity":"major","category":"accessibility","title":"Clickable div is not keyboard accessible and has no button role","evidence":"<div className=\"review__translate\" onClick={() => handleTranslate(review)}>","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":69,"severity":"major","category":"correctness","title":"Translations cached by review id only, ignoring target language","evidence":"setTranslated((prev) => ({ ...prev, [review.id]: text }));","confidence":"medium"},
+{"file":"sample_bad_1.tsx","line":52,"severity":"minor","category":"correctness","title":"Unchecked type assertion on API response (no runtime validation)","evidence":"const list = (await res.json()) as Review[];","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":59,"severity":"minor","category":"debug-leftover","title":"console.log left in production code","evidence":"console.log('reviews loaded', withAuthors);","confidence":"high"},
+{"file":"sample_bad_1.tsx","line":70,"severity":"minor","category":"error-handling","title":"Translation error swallowed silently with no logging or user-facing error state","evidence":"} catch {","confidence":"medium"},
+{"file":"sample_bad_1.tsx","line":48,"severity":"minor","category":"correctness","title":"Effect has no cleanup or abort; stale responses can overwrite state when productId changes","evidence":"useEffect(() => {","confidence":"medium"},
+{"file":"sample_bad_1.tsx","line":1,"severity":"nit","category":"maintainability","title":"Unused import useMemo","evidence":"import { useEffect, useMemo, useState } from 'react';","confidence":"high"},
+{"file":"sample_good_1.tsx","line":122,"severity":"nit","category":"maintainability","title":"Line exceeds the formatter print width","evidence":"<p className=\"review__body\">{translated[translationKey(review.id, targetLanguage)] ?? review.body}</p>","confidence":"high"}
+]}

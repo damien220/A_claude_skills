@@ -1,0 +1,23 @@
+Skill reference files read, per file (typescript_haiku_skill run)
+
+Shared by all five files (core, always read):
+- refs/review-process.md (full)
+- refs/severity-and-output-format.md (full)
+- tooling/typescript-review-checklist.md (full, rule index)
+- refs/lang/typescript-react-checklist.md (full)
+- tooling/run_linters.py run once with --files over the five files
+
+Topic refs, sections read:
+- refs/security.md: §1 how to use, §3 TS-SEC-04/05 (ownership), §5 TS-SEC-16 (XSS), §9 TS-SEC-02 (secrets), §12 TS-SEC-23 (logs), §13 do-not-flag, §14
+- refs/correctness.md: §5 TS-COR-08 (money), §7 TS-COR-11 and TS-COR-13, §9 do-not-flag
+- refs/tests.md: TS-TEST-06 (.only), TS-TEST-09 (UI query coupling), §7 do-not-flag
+
+Per file:
+- module_a.tsx: shared set; security §5 TS-SEC-16 only (no raw HTML found); no topic ref for correctness beyond the checklist's React section.
+- module_b.tsx: shared set; correctness §5 TS-COR-08 (money formatting); tool results from tsc.
+- module_c.tsx: shared set; security §3, §5, §9; correctness §7 (TS-COR-11, TS-COR-13); performance ref not loaded, TS-PERF-01 level taken from severity-and-output-format.md X-SEV-02.
+- module_e.tsx: shared set; security §3 (TS-SEC-04), §9 (TS-SEC-02 check), §12 (TS-SEC-23 check); correctness §7 (TS-COR-11, TS-COR-13); TS-ERR-55 taken from the TypeScript checklist section 6.
+- module_e.test.tsx: shared set; tests TS-TEST-06 and TS-TEST-09, §7 do-not-flag; TS-TEST-02 severity from the rule index.
+
+Not read: refs/performance.md, refs/error-handling.md, refs/maintainability.md, refs/diff-hygiene.md (budget: three topic refs; the checklist index and the X-SEV anchors covered the rest).
+Report written to runs/typescript_haiku_skill.json and runs/typescript_haiku_skill.md; validate_report.py: 22 findings checked, 0 errors.

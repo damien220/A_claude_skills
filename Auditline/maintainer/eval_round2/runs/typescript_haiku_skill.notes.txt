@@ -1,0 +1,36 @@
+Skill reference files read, per file (skill: /tmp/claude-1000/-workspaces-Prj-utils-Dev-Tools-Dev-Skills-Auditline/c171a83b-8f64-41e8-9002-e9557925751a/scratchpad/EVAL/skillbundle/skill/auditline)
+
+Core (all files): SKILL.md, refs/review-process.md, refs/severity-and-output-format.md, tooling/typescript-review-checklist.md (index), refs/lang/typescript-react-checklist.md (sections 1 and the rules the files touch).
+
+module_a.tsx
+  - refs/lang/typescript-react-checklist.md: TS-COR-72, TS-COR-01, TS-ACC-01 (sections read, no finding raised from them)
+  - refs/correctness.md: sections 1-2 (how to use, rule map), 4 (TS-COR-04), 6 (TS-COR-10), 7 (TS-COR-11/12/13), 8 (rules skimmed)
+  - refs/error-handling.md: section 7 (TS-ERR-11)
+  - Security topic ref not opened for this file (no request or sink logic beyond a fetch with a server-held key); the translation key comment is server-side by design.
+
+module_b.tsx
+  - refs/lang/typescript-react-checklist.md: TS-COR-72, TS-ERR-55 (optimistic update), TS-ACC-01
+  - refs/correctness.md: sections 1-2, 5 (TS-COR-07, TS-COR-08), 6 (TS-COR-10), 7 (TS-COR-11/12/13)
+  - refs/error-handling.md: section 7 (TS-ERR-11)
+
+module_c.tsx
+  - refs/lang/typescript-react-checklist.md: TS-COR-01, TS-COR-72, TS-ACC-01
+  - refs/security.md: TS-SEC-02 (secret literal), TS-SEC-16 (dangerouslySetInnerHTML); TS-SEC-04 for context
+  - refs/correctness.md: sections 1-2, 6 (TS-COR-10), 7 (TS-COR-11, TS-COR-12, TS-COR-13), 4 (TS-COR-04 skimmed), TS-COR-16 rule map entry
+  - refs/performance.md: TS-PERF-01 detail (section 3)
+  - refs/error-handling.md: section 7 (TS-ERR-11) for the unguarded load()
+  - refs/severity-and-output-format.md: X-SEV-02, X-SEV-04, X-SEV-06, X-SEV-07 (section 5) and section 8 nit cap
+
+module_e.tsx
+  - refs/lang/typescript-react-checklist.md: TS-COR-01, TS-COR-74, TS-COR-72, TS-ERR-55, TS-ACC-01
+  - refs/security.md: TS-SEC-04 (ownership and Server Actions)
+  - refs/correctness.md: sections 6 (TS-COR-10), 7 (TS-COR-11, TS-COR-12, TS-COR-13)
+  - refs/error-handling.md: section 7 (TS-ERR-11)
+
+module_e.test.tsx
+  - refs/tests.md: section 4 (TS-TEST-02, TS-TEST-03, TS-TEST-04), section 5 (TS-TEST-06), section 6 (TS-TEST-09)
+  - refs/correctness.md: section 6 (TS-COR-10, un-awaited user.type)
+
+Tool results: tooling/run_linters.py --root <inputs/typescript> --files module_a.tsx module_b.tsx module_c.tsx module_e.tsx module_e.test.tsx (eslint fallback config, tsc project tsconfig). Raw output saved at /tmp/claude-1000/-workspaces-Prj-utils-Dev-Tools-Dev-Skills-Auditline/c171a83b-8f64-41e8-9002-e9557925751a/scratchpad/EVAL/runs/ts_haiku_linters.json.
+
+Gate: verification/validate_report.py passed on the first run (25 findings checked, 0 errors).

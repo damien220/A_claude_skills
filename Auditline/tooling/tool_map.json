@@ -1,0 +1,3599 @@
+{
+ "generated_by": "maintainer/gen_checklists.py",
+ "rules": {
+  "NODE-COR-01": {
+   "title": "Shared mutable state across calls",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python Programming FAQ, \"Why are default values shared between objects?\"; Python docs, `functools.lru_cache`",
+   "fix": "copy before mutating; keep per-request data on the request object or in `AsyncLocalStorage`; return tuples or frozen objects from caches."
+  },
+  "NODE-COR-02": {
+   "title": "Duplicable external effect without an idempotency key",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-837; IETF `draft-ietf-httpapi-idempotency-key-header`",
+   "fix": "an `Idempotency-Key` derived from the business object (not random per attempt); record the attempt before calling; a unique constraint or processed-events table; disable the button while pending."
+  },
+  "NODE-COR-03": {
+   "title": "In-place mutation and aliasing of caller-owned data",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `list.sort` (sorts in place, returns `None`); Python Programming FAQ, \"How do I create a multidimensional list?\"",
+   "fix": "`sorted()` / `toSorted()` / spread / `structuredClone` for nested data; build rows with a comprehension; filter into a new list instead of removing while iterating."
+  },
+  "NODE-COR-04": {
+   "title": "Absent value dereferenced",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `re.match` (returns `None` when no match); MDN, `Array.prototype.find` (returns `undefined`)",
+   "fix": "check and return 404/422, or `next(it, default)`; enable `noUncheckedIndexedAccess`; replace `!` with a real check."
+  },
+  "NODE-COR-05": {
+   "title": "Falsy value treated as missing",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Truth Value Testing\"; MDN, \"Nullish coalescing operator (??)\" and \"Logical OR (||)\"",
+   "fix": "compare to `None` / `undefined`; use `??`; parse flags explicitly."
+  },
+  "NODE-COR-06": {
+   "title": "Boundary and pagination off-by-one",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-193 (off-by-one error); Python docs, \"Common Sequence Operations\" (slicing)",
+   "fix": "iterate over elements, not indexes; half-open ranges; fetch `size + 1` rows to detect a next page."
+  },
+  "NODE-COR-07": {
+   "title": "Time zones and date arithmetic",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `datetime` (\"Aware and Naive Objects\") and \"What's New in Python 3.12\" (`utcnow` deprecation); PEP 615 (`zoneinfo`)",
+   "fix": "store and compare aware UTC instants; convert to the user's zone only for display (`zoneinfo`, `Intl.DateTimeFormat`); add calendar units with a library; `monotonic()` for durations."
+  },
+  "NODE-COR-08": {
+   "title": "Floating point money",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Floating Point Arithmetic: Issues and Limitations\" and `decimal`; ECMA-262, Number type (IEEE 754 binary64)",
+   "fix": "integer minor units end to end, or `Decimal` built from strings with an explicit quantize and rounding mode; a decimal column in the database."
+  },
+  "NODE-COR-09": {
+   "title": "Read-modify-write race",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-362; CWE-367",
+   "fix": "one atomic `UPDATE … SET x = x - $1 WHERE x >= $1`, `SELECT … FOR UPDATE`, a unique constraint with an upsert, Redis `INCR`; collect results then combine; a lock only as a last resort."
+  },
+  "NODE-COR-10": {
+   "title": "Async work not awaited",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `asyncio.create_task` (save a reference to avoid a task disappearing mid-execution); Python docs, \"Coroutines and Tasks\"",
+   "fix": "`await` it, `Promise.all` it, or keep the task reference and attach a done callback that logs; `for … of` with `await` when order matters."
+  },
+  "NODE-COR-14": {
+   "title": "Comparison semantics",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "MDN, `Array.prototype.sort` (default order is by UTF-16 string); ECMA-262, `IsLooselyEqual`",
+   "fix": "numeric comparator; test membership in a collection; `==` for values, `is` only for `None` and singletons."
+  },
+  "NODE-COR-15": {
+   "title": "Unanchored or stateful regex",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `re` (`$`, `fullmatch`); MDN, `RegExp.prototype.test` (`lastIndex` with `g`/`y`)",
+   "fix": "`re.fullmatch` or `\\Z`; anchors on both ends; no `g`/`y` on shared regexes."
+  },
+  "NODE-COR-16": {
+   "title": "Cache key missing a dimension",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "TanStack Query docs, \"Query Keys\"; RFC 9111 §4.1 (`Vary`) and §5.2.2.7 (`private`)",
+   "fix": "include every input in the key; do not cache per-user responses in shared caches; `Cache-Control: private` plus `Vary` for HTTP; call `invalidateQueries` after mutations."
+  },
+  "NODE-COR-53": {
+   "title": "Syntax or API newer than the supported Node version",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, per-API \"History\" tables; MDN, browser and runtime compatibility tables",
+   "fix": "raise `engines` and the CI matrix together, or use the compatible form."
+  },
+  "NODE-COR-60": {
+   "title": "Process-local cache invalidated only in the process that wrote",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, `cluster` (workers are separate processes); `lru-cache` README",
+   "fix": "a shared cache (Redis) with a version key or short TTL, or no cache on mutable data."
+  },
+  "NODE-COR-61": {
+   "title": "Check-then-use on the filesystem",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "CWE-367; Node.js docs, `fs.access` (\"Using `fs.access()` to check for the accessibility of a file before calling `fs.open()`... is not recommended\") and file system flags (`wx`)",
+   "fix": "attempt the operation and handle the error; the `wx` flag for exclusive creation; `fs.mkdtemp` for temporary directories."
+  },
+  "NODE-COR-62": {
+   "title": "Relative ESM import without a file extension",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, \"ECMAScript modules: Mandatory file extensions\"; TypeScript handbook, \"Modules - Theory\" (`moduleResolution: nodenext`)",
+   "fix": "write the extension (`.js` even for `.ts` sources), or compile with a tool that rewrites specifiers."
+  },
+  "NODE-COR-63": {
+   "title": "CommonJS globals used in an ES module",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, \"ECMAScript modules: Differences between ES modules and CommonJS\"",
+   "fix": "`import`; `import.meta.dirname` / `import.meta.filename` (20.11+) or `fileURLToPath`; `createRequire(import.meta.url)` for a CommonJS-only package."
+  },
+  "NODE-COR-64": {
+   "title": "Implicit numeric enum values that are stored or sent",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "TypeScript handbook, \"Enums\" (numeric enums, auto-incremented members); typescript-eslint, `prefer-enum-initializers`",
+   "fix": "string values (`as const` object or a string enum), or explicit initializers that are never renumbered."
+  },
+  "NODE-COR-65": {
+   "title": "Middleware registered after the routes it must guard",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Express docs, \"Using middleware\" (order of middleware loading is important); Fastify docs, \"Hooks\" and \"Encapsulation\"",
+   "fix": "register parsers and security first, routes next, the error handler last; in Fastify, scope hooks to a plugin that contains the routes."
+  },
+  "NODE-COR-66": {
+   "title": "Logger called with the fields in the wrong position",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Pino docs, \"API: logger\" (`logger.info([mergingObject], [message], [...interpolationValues])`); Pino docs, \"Pino standard serializers\" (`err`)",
+   "fix": "object first, message second; the error under the `err` key."
+  },
+  "NODE-COR-67": {
+   "title": "Environment value used without parsing",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "MDN, `Number()` (`Number(undefined)` is `NaN`, `Number('')` is `0`); Twelve-Factor App, III Config",
+   "fix": "parse and validate all variables once at start-up and fail fast."
+  },
+  "NODE-COR-68": {
+   "title": "Query on a soft-deleted model without the `deletedAt` filter",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Prisma docs, \"Client extensions\" (query component); CWE-212 (improper removal of sensitive information)",
+   "fix": "add the filter, or enforce it in one place (a Prisma client extension or a view)."
+  },
+  "NODE-COR-69": {
+   "title": "\"First\" row taken without a deterministic order",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "PostgreSQL docs, \"Sorting Rows\" (`ORDER BY`; without it the order is unspecified)",
+   "fix": "add an `orderBy` that defines the intended row, or `findUnique` on a unique key."
+  },
+  "NODE-COR-70": {
+   "title": "Repeatable job registered on every start without a stable id",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "BullMQ docs, \"Job Schedulers\" and \"Repeatable jobs\"",
+   "fix": "an idempotent registration (`upsertJobScheduler`, or a stable `jobId`), done by one process."
+  },
+  "NODE-COR-71": {
+   "title": "Breaking change to an existing public route",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "RFC 9745 (the `Deprecation` HTTP response header field); RFC 8594 (the `Sunset` header field)",
+   "fix": "add fields instead of changing them; version the route for a breaking change; announce deprecation."
+  },
+  "NODE-DIFF-01": {
+   "title": "Debug output or debugger left in",
+   "levels": [
+    "major",
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "CWE-532; CWE-489 (active debug code)",
+   "fix": "delete it, or use the project logger at `debug` level with no secrets."
+  },
+  "NODE-ERR-01": {
+   "title": "Swallowed exception",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "CWE-390; CWE-396",
+   "fix": "catch the specific error; log with context; re-raise or return an explicit failure type the caller must handle."
+  },
+  "NODE-ERR-02": {
+   "title": "Over-broad catch or try body",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PEP 8, \"Programming Recommendations\" (limit the `try` clause; avoid bare `except`)",
+   "fix": "one risky call per `try`; catch the specific class; re-raise the rest; never catch `BaseException` without re-raising `CancelledError`."
+  },
+  "NODE-ERR-03": {
+   "title": "Lost cause and stack",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PEP 3134 (exception chaining); Python docs, `logging.exception`",
+   "fix": "`logging.exception` / `exc_info=True`; `raise … from err`; `new Error(msg, { cause })`; log the error object under the logger's `err` key."
+  },
+  "NODE-ERR-04": {
+   "title": "Unchecked I/O result, no timeout",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "WHATWG Fetch Standard (the promise rejects only on network errors); MDN, `Response.ok` and `AbortSignal.timeout()`",
+   "fix": "a timeout on every outbound call; check the status; validate the body at the boundary; decide what the caller sees on each failure."
+  },
+  "NODE-ERR-05": {
+   "title": "Wrong status code or error shape",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "RFC 9457 (problem details); RFC 9110 §15 (4xx client errors, 5xx server errors)",
+   "fix": "validate at the boundary and return 400/422; map domain errors to 4xx in one handler; use one problem shape across routes."
+  },
+  "NODE-ERR-06": {
+   "title": "Cleanup missing on the error path",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "Python docs, \"The with statement\" and `contextlib`; node-postgres docs, \"Pooling\" (a checked-out client must be released)",
+   "fix": "`with` / `try … finally`; `pipeline()` for streams; `contextlib.closing` for objects without a context manager; roll back in the error path."
+  },
+  "NODE-ERR-07": {
+   "title": "Multi-step write with no transaction",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PostgreSQL docs, \"Transactions\"; SQLAlchemy docs, \"Session Basics\" (transactions)",
+   "fix": "one transaction for the writes; record intent before the external call and the result after; an outbox for events; make the sequence resumable and idempotent."
+  },
+  "NODE-ERR-08": {
+   "title": "Background failure never observed",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "Python docs, `asyncio.create_task` and \"Developing with asyncio\" (task exceptions never retrieved); Node.js docs, `process` \"unhandledRejection\" (default `throw` since v15)",
+   "fix": "keep the task reference and log failures in a done callback; wrap async handlers (or use Express 5 / Fastify, which handle them); attach `.catch` at every event-emitter boundary."
+  },
+  "NODE-ERR-10": {
+   "title": "Retry without bound, backoff or filter",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "AWS Builders' Library, \"Timeouts, retries, and backoff with jitter\"; Google SRE Book, \"Addressing Cascading Failures\"",
+   "fix": "a maximum attempt count, exponential backoff with jitter, retry only transient errors, raise after the last attempt; use the library's retry policy (tenacity, p-retry) once."
+  },
+  "NODE-ERR-52": {
+   "title": "`schema.parse()` of client input with the error left unmapped",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Zod docs, \"Basic usage\" (`parse` throws, `safeParse` returns); RFC 9457",
+   "fix": "`safeParse` and return 400/422, or register one error handler that maps `ZodError`."
+  },
+  "NODE-ERR-53": {
+   "title": "EventEmitter listener added per call and never removed",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, `events` (\"Possible EventEmitter memory leak\", `emitter.off`); CWE-401",
+   "fix": "remove the listener when the request or connection ends; `once` where it fires once."
+  },
+  "NODE-ERR-54": {
+   "title": "`uncaughtException` or `unhandledRejection` handler that keeps running",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, `process` event `'uncaughtException'` (it is not safe to resume normal operation after it)",
+   "fix": "log, close the server with a deadline and exit non-zero."
+  },
+  "NODE-ERR-56": {
+   "title": "Job added without attempts or backoff",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "BullMQ docs, \"Retrying failing jobs\"; AWS Builders' Library, \"Timeouts, retries and backoff with jitter\"",
+   "fix": "set `attempts` and exponential `backoff` (in `defaultJobOptions` for the whole queue) and make the handler idempotent."
+  },
+  "NODE-MAINT-01": {
+   "title": "Unused import, variable or parameter",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 8, \"Imports\"; ruff docs, `F401`",
+   "fix": "`ruff check --fix`; remove the parameter and update the callers."
+  },
+  "NODE-MAINT-02": {
+   "title": "Name that misleads",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Naming\" (a name should say what the thing is or does); Martin, *Clean Code* ch. 2 (names)",
+   "fix": "rename (or split) so the name states the effect and the unit; a rename is cheap now and costly after merge."
+  },
+  "NODE-MAINT-03": {
+   "title": "Dead or unreachable code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "CWE-561 (dead code); CWE-570 and CWE-571 (always false, always true)",
+   "fix": "delete it; version control keeps the history."
+  },
+  "NODE-MAINT-04": {
+   "title": "Duplicated rule that will drift",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Hunt and Thomas, *The Pragmatic Programmer* (DRY: every piece of knowledge has a single authoritative representation); Metz, \"The Wrong Abstraction\"",
+   "fix": "call the existing function or extract one; leave similar-looking but unrelated code alone. Do not merge incidental duplicates: the wrong abstraction costs more than the copy."
+  },
+  "NODE-MAINT-05": {
+   "title": "Layering leak",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Design\"; import-linter docs, \"Contract types\"",
+   "fix": "pass values in, not the request; move the query to the repository or the data hook; enforce the boundary with a lint rule rather than a review comment."
+  },
+  "NODE-MAINT-06": {
+   "title": "Magic value",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Martin, *Clean Code* G25 (replace magic numbers with named constants); CWE-1106 (insufficient use of symbolic constants)",
+   "fix": "named constants (or an enum) with the unit in the name; config for values that change per environment."
+  },
+  "NODE-MAINT-07": {
+   "title": "Over-complex changed function",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "McCabe, \"A Complexity Measure\" (IEEE Trans. Software Eng., 1976); Google Engineering Practices, \"Complexity\"",
+   "fix": "extract named steps; replace flag arguments with an options object or separate functions; use a lookup table for branching on a value."
+  },
+  "NODE-MAINT-08": {
+   "title": "Types erased at a boundary",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 484; mypy docs, \"Error codes\" (`ignore-without-code`)",
+   "fix": "annotate the public surface; replace ignores with fixes; parse external data into a type at the boundary instead of asserting it."
+  },
+  "NODE-MAINT-09": {
+   "title": "Comment or docstring contradicts the code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 257 (docstring conventions); Google Engineering Practices, \"Comments\"",
+   "fix": "change the code or the comment so they agree; prefer deleting a comment that restates the code."
+  },
+  "NODE-MAINT-52": {
+   "title": "Autofixable style (nit bucket)",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "TypeScript docs, `verbatimModuleSyntax`; typescript-eslint, `consistent-type-imports`",
+   "fix": "`eslint --fix`, `prettier --write`."
+  },
+  "NODE-MAINT-53": {
+   "title": "Compiler or linter strictness weakened",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "TypeScript docs, \"TSConfig Reference: strict\"; typescript-eslint, `ban-ts-comment`",
+   "fix": "keep the flag on and fix the errors; scope a necessary exception to one file with a comment that explains why."
+  },
+  "NODE-MAINT-58": {
+   "title": "Log message built by interpolation",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Pino docs, \"Child loggers\" and \"API: logger\"; OWASP Logging Cheat Sheet",
+   "fix": "bindings first."
+  },
+  "NODE-MAINT-59": {
+   "title": "Library code creates or configures a logger",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, `diagnostics_channel` (library-neutral diagnostics); OpenTelemetry docs, \"Libraries\" (instrumentation for libraries must not own the exporter)",
+   "fix": "accept an optional `logger` parameter with a no-op default."
+  },
+  "NODE-OPS-01": {
+   "title": "Container runs as root",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Docker docs, \"Dockerfile best practices\" (`USER`); OWASP Docker Security Cheat Sheet, Rule #2",
+   "fix": "`USER node` before `CMD`."
+  },
+  "NODE-OPS-02": {
+   "title": "Mutable base image or non-reproducible install",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Docker docs, \"Dockerfile best practices\"; npm docs, `npm ci`",
+   "fix": "pin the image tag or digest; `npm ci` with the lockfile."
+  },
+  "NODE-OPS-03": {
+   "title": "Build leftovers in the runtime image",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Docker docs, \"Multi-stage builds\" and \"Dockerfile best practices\"",
+   "fix": "multi-stage build; copy manifests first."
+  },
+  "NODE-OPS-04": {
+   "title": "Health endpoint that lies",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Kubernetes docs, \"Configure Liveness, Readiness and Startup Probes\"",
+   "fix": "liveness checks the process; readiness checks required dependencies and returns 503."
+  },
+  "NODE-OPS-05": {
+   "title": "SIGTERM handler exits without draining",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Kubernetes docs, \"Pod Lifecycle\" (termination); Fastify docs, `fastify.close()`",
+   "fix": "stop accepting connections, finish in-flight work, close pools, then exit."
+  },
+  "NODE-OPS-06": {
+   "title": "Unsafe schema change in the deploy path",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Prisma docs, \"Deploying database changes with Prisma Migrate\" (`migrate deploy` in production, `migrate dev` in development) and \"Prototyping with db push\"",
+   "fix": "`prisma migrate deploy` once per release before the new version starts; split destructive changes into a later release."
+  },
+  "NODE-OPS-07": {
+   "title": "Development log transport enabled in production",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Pino docs, \"Pretty Printing\" (for development; use JSON in production)",
+   "fix": "pretty output only when explicitly enabled for local development."
+  },
+  "NODE-OPS-08": {
+   "title": "`keepAliveTimeout` shorter than the load balancer's idle timeout",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Node.js docs, `server.keepAliveTimeout` (default 5000 ms); AWS docs, \"Application Load Balancer: idle timeout\" (default 60 s)",
+   "fix": "set `keepAliveTimeout` above the proxy idle timeout and `headersTimeout` above that."
+  },
+  "NODE-PERF-01": {
+   "title": "Query or remote call per item (N+1)",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-1073; Django docs, \"Database access optimization\"",
+   "fix": "`select_related` (to-one) / `prefetch_related` (to-many) / `selectinload` / `include`; `WHERE id IN (…)`; a DataLoader per request in GraphQL; a batch endpoint for the browser."
+  },
+  "NODE-PERF-02": {
+   "title": "Blocking call in async or request code",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "Node.js docs, \"Don't Block the Event Loop (or the Worker Pool)\"; Python docs, `asyncio` \"Running blocking code\" and `asyncio.to_thread`",
+   "fix": "the async API of the same library; `asyncio.to_thread` / `run_in_executor`; worker threads for CPU work in Node."
+  },
+  "NODE-PERF-03": {
+   "title": "Sequential awaits of independent calls",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "MDN, `Promise.all`; Python docs, `asyncio.TaskGroup`",
+   "fix": "`Promise.all` / `Promise.allSettled`; `asyncio.gather` / `TaskGroup` (3.11+)."
+  },
+  "NODE-PERF-04": {
+   "title": "Unbounded concurrency",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-770 (allocation of resources without limits); CWE-400",
+   "fix": "a concurrency limit (`p-limit`, `Semaphore`), batches, a queue; cap the input size."
+  },
+  "NODE-PERF-05": {
+   "title": "Unbounded memory",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-770; CWE-400",
+   "fix": "stream; paginate with a hard cap; `maxsize` and TTL on caches; limit body size at the framework."
+  },
+  "NODE-PERF-06": {
+   "title": "Quadratic loops",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-407 (inefficient algorithmic complexity); Python Wiki, \"TimeComplexity\"",
+   "fix": "build a `set` / `dict` / `Map` once; `collections.deque` for queues; push into one accumulator instead of copying."
+  },
+  "NODE-PERF-07": {
+   "title": "Query shape: scan, deep offset, over-fetch",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "PostgreSQL docs, \"Indexes\" (Index Types, Indexes on Expressions, Indexes and ORDER BY); Django docs, `QuerySet.exists()`",
+   "fix": "add the index in the same change; `.exists()` / `EXISTS`; keyset pagination; select only the columns the view uses; `pg_trgm` for substring search."
+  },
+  "NODE-PERF-08": {
+   "title": "Client or connection created per request",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "node-postgres docs, \"Pooling\"; SQLAlchemy docs, \"Engine Configuration\" (one engine per database URL per process)",
+   "fix": "build the client at module or application scope and inject it; close it on shutdown."
+  },
+  "NODE-PERF-11": {
+   "title": "Catastrophic regex backtracking",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-1333; OWASP, \"Regular expression Denial of Service (ReDoS)\"",
+   "fix": "rewrite so each character can match one way; cap the input length first; use RE2 (`google-re2`, `re2`) for user-supplied patterns or when the pattern cannot be simplified."
+  },
+  "NODE-PERF-54": {
+   "title": "Response serialized by hand in Fastify",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Fastify docs, \"Validation and Serialization\" (response schema serialization)",
+   "fix": "return the object and declare a response schema."
+  },
+  "NODE-PERF-55": {
+   "title": "Unbounded metric label cardinality",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Prometheus docs, \"Instrumentation\" and \"Metric and label naming\"; prom-client README",
+   "fix": "route template and status only; ids go to logs and traces."
+  },
+  "NODE-SEC-01": {
+   "title": "SQL text built from request input",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-89; OWASP A03:2021 Injection",
+   "fix": "bound parameters (`?`, `%s`, `$1`, `:name`) or the ORM query builder; allowlist identifiers."
+  },
+  "NODE-SEC-02": {
+   "title": "Secret literal in source or in the client bundle",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-798; CWE-200 (client bundle)",
+   "fix": "environment or secret manager, fail fast when missing; browser calls go through an own backend route; **rotate** the leaked value (removing it from the code does not un-leak it)."
+  },
+  "NODE-SEC-03": {
+   "title": "Request-controlled path reaches the filesystem",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-22; OWASP A01:2021 Broken Access Control",
+   "fix": "Flask `send_from_directory`, Werkzeug `secure_filename`; `resolve()` plus `is_relative_to` / `startsWith(base + path.sep)`; `tarfile` extraction filters; server-generated storage names."
+  },
+  "NODE-SEC-04": {
+   "title": "Object read or changed by a client-supplied ID without an ownership check",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-639; CWE-862",
+   "fix": "scope every query by the owner or tenant taken from the session; return 404 on a miss; keep the rule in one policy helper."
+  },
+  "NODE-SEC-05": {
+   "title": "Redirect target taken from the request",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-601; OWASP A01:2021 Broken Access Control",
+   "fix": "allowlist, or parse with a real URL parser against the own origin and compare origins; Django `url_has_allowed_host_and_scheme`; the same in Node with `new URL(next, base)`."
+  },
+  "NODE-SEC-06": {
+   "title": "State change reachable cross-site with cookie authentication (CSRF)",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-352; OWASP A01:2021 Broken Access Control",
+   "fix": "state changes only on unsafe methods; a synchronizer or signed double-submit token (Flask-WTF `CSRFProtect`, Django `CsrfViewMiddleware`, `@fastify/csrf-protection`); `SameSite` as defense in depth, n"
+  },
+  "NODE-SEC-07": {
+   "title": "Non-cryptographic random used for a security value",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-338; CWE-330",
+   "fix": "Python `secrets`; Node `crypto.randomBytes` / `randomUUID`; browser `crypto.getRandomValues` / `crypto.randomUUID`."
+  },
+  "NODE-SEC-08": {
+   "title": "Password stored with a fast, unsalted or reversible hash",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-916; CWE-759",
+   "fix": "Argon2id, scrypt, bcrypt or PBKDF2 with the parameters in the OWASP Password Storage Cheat Sheet; rehash on next login."
+  },
+  "NODE-SEC-09": {
+   "title": "CORS reflects any origin with credentials",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-942; OWASP A05:2021 Security Misconfiguration",
+   "fix": "exact-match allowlist of origins; credentials only for those."
+  },
+  "NODE-SEC-10": {
+   "title": "Secret or MAC compared with a non-constant-time operator",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-208; OWASP A02:2021 Cryptographic Failures",
+   "fix": "`hmac.compare_digest`; `crypto.timingSafeEqual` on equal-length buffers (hash both sides first, since it throws on a length mismatch)."
+  },
+  "NODE-SEC-11": {
+   "title": "JWT accepted without signature, algorithm or expiry verification",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-347; CWE-613 (no expiry)",
+   "fix": "verify with a fixed algorithm allowlist, issuer and audience; require `exp`; never branch on decoded-but-unverified claims on the server."
+  },
+  "NODE-SEC-12": {
+   "title": "TLS certificate verification disabled",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-295; CWE-297",
+   "fix": "trust the private CA explicitly instead of disabling verification."
+  },
+  "NODE-SEC-13": {
+   "title": "NoSQL operator injection",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-943; OWASP A03:2021 Injection",
+   "fix": "schema-validate scalar types; `$eq` for user values; Mongoose `sanitizeFilter`."
+  },
+  "NODE-SEC-14": {
+   "title": "Shell command built from input",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-78; CWE-88",
+   "fix": "argument list without a shell; `--` before user operands; validate scheme and format (`https://` only)."
+  },
+  "NODE-SEC-15": {
+   "title": "Input evaluated as code",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-95; CWE-94",
+   "fix": "`ast.literal_eval`, a parser with an operator allowlist, or a `Map` of permitted operations; never `vm` for untrusted code."
+  },
+  "NODE-SEC-16": {
+   "title": "User-controlled text rendered as HTML",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-79; CWE-1336 (template injection)",
+   "fix": "render as text; sanitize with DOMPurify when HTML is required; autoescaping templates with user data as context, never as template source."
+  },
+  "NODE-SEC-17": {
+   "title": "Price, amount or entitlement taken from the client",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-602; CWE-472",
+   "fix": "take only identifiers and quantities from the client; look up prices and entitlements on the server; bound quantities."
+  },
+  "NODE-SEC-18": {
+   "title": "Debug mode or internal error detail exposed",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-209; CWE-489",
+   "fix": "log the detail server-side with a request ID; return a generic problem response."
+  },
+  "NODE-SEC-19": {
+   "title": "Auth cookie set without `HttpOnly` or `Secure`",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-1004; CWE-614",
+   "fix": "`HttpOnly`, `Secure`, `SameSite=Lax` (or `Strict`) on every auth cookie; scope the path of refresh cookies."
+  },
+  "NODE-SEC-20": {
+   "title": "Authentication or authorization check not awaited",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-287; CWE-285",
+   "fix": "`await` the check; enable `no-misused-promises` (type-aware) and mypy `truthy-bool`; treat \"coroutine … was never awaited\" warnings as errors in tests."
+  },
+  "NODE-SEC-21": {
+   "title": "Untrusted data deserialized into objects or code",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-502; OWASP A08:2021 Software and Data Integrity Failures",
+   "fix": "JSON plus schema validation; `yaml.safe_load`; `weights_only=True`; sign data that must round-trip and still avoid pickle."
+  },
+  "NODE-SEC-22": {
+   "title": "Request body written to a model wholesale (mass assignment)",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-915; CWE-1321 (prototype pollution)",
+   "fix": "an input schema that lists writable fields; copy fields explicitly; no deep merge of request data into shared objects (use `Object.create(null)` or `Map` when merging is needed)."
+  },
+  "NODE-SEC-23": {
+   "title": "Secrets or personal data written to logs or telemetry",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-532; OWASP A09:2021 Security Logging and Monitoring Failures",
+   "fix": "log identifiers, not values; configure redaction (Pino `redact`); allowlist the properties sent to telemetry."
+  },
+  "NODE-SEC-24": {
+   "title": "Security check fails open or its failure leaves no record",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-636 (failing open); CWE-778",
+   "fix": "deny inside the handler of a failed check; log security failures at `warning` with the event name and source, never the secret."
+  },
+  "NODE-SEC-25": {
+   "title": "Server fetches a URL the caller controls",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-918; OWASP A10:2021 Server-Side Request Forgery",
+   "fix": "host allowlist; when arbitrary hosts are a feature (webhooks), resolve and block private ranges at connect time or use an egress proxy; disable redirects; do not return the raw response."
+  },
+  "NODE-SEC-53": {
+   "title": "Refresh token not rotated, not revocable, or stored in clear",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "RFC 9700 (OAuth 2.0 Security BCP) §4.14 (refresh token protection); OWASP Session Management Cheat Sheet",
+   "fix": "rotate on every use; store only a hash; revoke the whole family when an old token is presented again."
+  },
+  "NODE-SEC-54": {
+   "title": "Login or reset reveals whether an account exists",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "OWASP Authentication Cheat Sheet, \"Authentication and error messages\"; CWE-204",
+   "fix": "one message and one status for both cases; equalize the work (hash a dummy password when the user is missing)."
+  },
+  "NODE-TEST-01": {
+   "title": "New or changed logic with no test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Engineering Practices, \"Code Review Developer Guide\" (\"Tests\": tests should be included in the same change); pytest docs, \"How to parametrize fixtures and test functions\"",
+   "fix": "name the cases the test must cover (each branch, one boundary, one failure); suggest the test, do not write the whole suite."
+  },
+  "NODE-TEST-02": {
+   "title": "Vacuous test: asserts nothing real",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"Asserting with the `assert` statement\" and \"Assertions about expected exceptions\"; Jest docs, `.resolves` / `.rejects` (return or await the assertion)",
+   "fix": "assert the specific value, status or message; await promise matchers; assert on the outcome the user cares about."
+  },
+  "NODE-TEST-03": {
+   "title": "Self-confirming expected value",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Test Behavior, Not Implementation\"; Jest docs, \"Snapshot Testing\" (snapshots are reviewed as code)",
+   "fix": "hard-code expected values taken from the spec or a worked example; review snapshots line by line."
+  },
+  "NODE-TEST-04": {
+   "title": "Over-mocking",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Don't Overuse Mocks\"; Martin Fowler, \"Mocks Aren't Stubs\"",
+   "fix": "mock at the system boundary (network, clock, third-party SDK), use fakes or an in-memory database for your own layers, add `autospec` / typed mocks, and patch where the name is looked up."
+  },
+  "NODE-TEST-05": {
+   "title": "Flaky patterns",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Martin Fowler, \"Eradicating Non-Determinism in Tests\"; Google Testing Blog, \"Flaky Tests at Google and How We Mitigate Them\"",
+   "fix": "wait on a condition (`findBy*`, events), inject or freeze the clock, seed randomness, sort before comparing, fake the network."
+  },
+  "NODE-TEST-06": {
+   "title": "Disabled, focused or weakened test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Jest docs, `test.only` and `test.skip`; Vitest docs, `allowOnly`",
+   "fix": "remove `.only`; give each skip a reason and an owner; restore or replace deleted assertions."
+  },
+  "NODE-TEST-07": {
+   "title": "Missing edge, negative or regression case",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "ISTQB Foundation syllabus, boundary value analysis; Jest docs, `test.each`",
+   "fix": "add the boundary values (0, 1, max, empty, duplicate), the denied role and the failing input as table rows; for a bug fix, a test that fails on the old code; for a fixed-grant mock, `vi.mocked(db.memb"
+  },
+  "NODE-TEST-08": {
+   "title": "Shared state and leaked side effects",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"How to monkeypatch/mock modules and environments\" and `tmp_path`; Jest docs, `restoreMocks` and `jest.restoreAllMocks`",
+   "fix": "fixtures with teardown, `tmp_path`, `monkeypatch`, per-test transactions rolled back, `afterEach(() => jest.restoreAllMocks())`."
+  },
+  "NODE-TEST-52": {
+   "title": "Async test mixing a `done` callback and a promise",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/node-checklist.md",
+   "cite": "Jest docs, \"Testing Asynchronous Code\"; Node.js docs, `events.once`",
+   "fix": "use `async`/`await` (and `events.once`); no `done` in new tests."
+  },
+  "PY-COR-01": {
+   "title": "Shared mutable state across calls",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python Programming FAQ, \"Why are default values shared between objects?\"; Python docs, `functools.lru_cache`",
+   "fix": "copy before mutating; keep per-request data on the request object or in `AsyncLocalStorage`; return tuples or frozen objects from caches."
+  },
+  "PY-COR-02": {
+   "title": "Duplicable external effect without an idempotency key",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-837; IETF `draft-ietf-httpapi-idempotency-key-header`",
+   "fix": "an `Idempotency-Key` derived from the business object (not random per attempt); record the attempt before calling; a unique constraint or processed-events table; disable the button while pending."
+  },
+  "PY-COR-03": {
+   "title": "In-place mutation and aliasing of caller-owned data",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `list.sort` (sorts in place, returns `None`); Python Programming FAQ, \"How do I create a multidimensional list?\"",
+   "fix": "`sorted()` / `toSorted()` / spread / `structuredClone` for nested data; build rows with a comprehension; filter into a new list instead of removing while iterating."
+  },
+  "PY-COR-04": {
+   "title": "Absent value dereferenced",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `re.match` (returns `None` when no match); MDN, `Array.prototype.find` (returns `undefined`)",
+   "fix": "check and return 404/422, or `next(it, default)`; enable `noUncheckedIndexedAccess`; replace `!` with a real check."
+  },
+  "PY-COR-05": {
+   "title": "Falsy value treated as missing",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Truth Value Testing\"; MDN, \"Nullish coalescing operator (??)\" and \"Logical OR (||)\"",
+   "fix": "compare to `None` / `undefined`; use `??`; parse flags explicitly."
+  },
+  "PY-COR-06": {
+   "title": "Boundary and pagination off-by-one",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-193 (off-by-one error); Python docs, \"Common Sequence Operations\" (slicing)",
+   "fix": "iterate over elements, not indexes; half-open ranges; fetch `size + 1` rows to detect a next page."
+  },
+  "PY-COR-07": {
+   "title": "Time zones and date arithmetic",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `datetime` (\"Aware and Naive Objects\") and \"What's New in Python 3.12\" (`utcnow` deprecation); PEP 615 (`zoneinfo`)",
+   "fix": "store and compare aware UTC instants; convert to the user's zone only for display (`zoneinfo`, `Intl.DateTimeFormat`); add calendar units with a library; `monotonic()` for durations."
+  },
+  "PY-COR-08": {
+   "title": "Floating point money",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Floating Point Arithmetic: Issues and Limitations\" and `decimal`; ECMA-262, Number type (IEEE 754 binary64)",
+   "fix": "integer minor units end to end, or `Decimal` built from strings with an explicit quantize and rounding mode; a decimal column in the database."
+  },
+  "PY-COR-09": {
+   "title": "Read-modify-write race",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-362; CWE-367",
+   "fix": "one atomic `UPDATE … SET x = x - $1 WHERE x >= $1`, `SELECT … FOR UPDATE`, a unique constraint with an upsert, Redis `INCR`; collect results then combine; a lock only as a last resort."
+  },
+  "PY-COR-10": {
+   "title": "Async work not awaited",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `asyncio.create_task` (save a reference to avoid a task disappearing mid-execution); Python docs, \"Coroutines and Tasks\"",
+   "fix": "`await` it, `Promise.all` it, or keep the task reference and attach a done callback that logs; `for … of` with `await` when order matters."
+  },
+  "PY-COR-14": {
+   "title": "Comparison semantics",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "MDN, `Array.prototype.sort` (default order is by UTF-16 string); ECMA-262, `IsLooselyEqual`",
+   "fix": "numeric comparator; test membership in a collection; `==` for values, `is` only for `None` and singletons."
+  },
+  "PY-COR-15": {
+   "title": "Unanchored or stateful regex",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `re` (`$`, `fullmatch`); MDN, `RegExp.prototype.test` (`lastIndex` with `g`/`y`)",
+   "fix": "`re.fullmatch` or `\\Z`; anchors on both ends; no `g`/`y` on shared regexes."
+  },
+  "PY-COR-16": {
+   "title": "Cache key missing a dimension",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "TanStack Query docs, \"Query Keys\"; RFC 9111 §4.1 (`Vary`) and §5.2.2.7 (`private`)",
+   "fix": "include every input in the key; do not cache per-user responses in shared caches; `Cache-Control: private` plus `Vary` for HTTP; call `invalidateQueries` after mutations."
+  },
+  "PY-COR-51": {
+   "title": "Name shadows a builtin that the scope uses later",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 8, \"Descriptive: Naming Styles\" (trailing underscore to avoid a clash); ruff docs, `A001`, `A002`",
+   "fix": "rename; a trailing underscore (`id_`) when the domain word is the builtin."
+  },
+  "PY-COR-52": {
+   "title": "Annotation contradicts behavior",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 484, \"Union types\" (implicit Optional is discouraged); mypy docs, `no_implicit_optional`",
+   "fix": "widen the annotation or make every path return the declared type."
+  },
+  "PY-COR-53": {
+   "title": "Syntax or stdlib newer than the supported Python",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 621 (`requires-python`); Python docs, \"What's New\" for the version that added the feature",
+   "fix": "raise `requires-python` and the CI matrix together, or use the compatible form (`tomli`, `if/elif`)."
+  },
+  "PY-COR-54": {
+   "title": "Shared object as a dataclass or model field default",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `dataclasses` (\"Mutable default values\"); ruff docs, `RUF008`, `RUF009`",
+   "fix": "`field(default_factory=...)`."
+  },
+  "PY-COR-55": {
+   "title": "`str`-mixin enum interpolated or formatted",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `enum.StrEnum`; \"What's New in Python 3.12\" (enum formatting)",
+   "fix": "`StrEnum` (3.11+), or use `.value` explicitly."
+  },
+  "PY-COR-56": {
+   "title": "Subclass `__init__` does not call the base `__init__`",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python Data Model, `object.__init__` (a derived class must call the base `__init__` explicitly); pylint `W0231`",
+   "fix": "call `super().__init__()` first."
+  },
+  "PY-COR-57": {
+   "title": "`isinstance` against a runtime-checkable `Protocol` used as validation",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `typing.runtime_checkable` (checks presence of members, not signatures)",
+   "fix": "rely on static typing, or validate the object at the boundary."
+  },
+  "PY-COR-58": {
+   "title": "`asyncio.run()` or `run_until_complete()` inside a running loop",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `asyncio.run` (cannot be called while another loop is running in the same thread)",
+   "fix": "`await` the coroutine; call `asyncio.run` only at the program entry point."
+  },
+  "PY-COR-59": {
+   "title": "Blocking lock held across an `await`",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `asyncio` \"Synchronization Primitives\" (not thread-safe, for tasks)",
+   "fix": "`asyncio.Lock` inside coroutines; keep `threading.Lock` for sync code and never hold it across an `await`."
+  },
+  "PY-COR-60": {
+   "title": "Process-local cache invalidated only in the worker that wrote",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Gunicorn docs, \"Design\" (a pre-fork worker model: separate processes); Python docs, `functools.lru_cache`",
+   "fix": "a shared cache (Redis) with a version key or TTL, or no cache on mutable data."
+  },
+  "PY-COR-61": {
+   "title": "Check-then-use on the filesystem",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "CWE-367; Python docs Glossary, \"EAFP\"",
+   "fix": "attempt the operation and handle the exception (EAFP); `O_EXCL` for exclusive creation; `tempfile` for temporary files."
+  },
+  "PY-DIFF-01": {
+   "title": "Debug output or debugger left in",
+   "levels": [
+    "major",
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "CWE-532; CWE-489 (active debug code)",
+   "fix": "delete it, or use the project logger at `debug` level with no secrets."
+  },
+  "PY-ERR-01": {
+   "title": "Swallowed exception",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "CWE-390; CWE-396",
+   "fix": "catch the specific error; log with context; re-raise or return an explicit failure type the caller must handle."
+  },
+  "PY-ERR-02": {
+   "title": "Over-broad catch or try body",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PEP 8, \"Programming Recommendations\" (limit the `try` clause; avoid bare `except`)",
+   "fix": "one risky call per `try`; catch the specific class; re-raise the rest; never catch `BaseException` without re-raising `CancelledError`."
+  },
+  "PY-ERR-03": {
+   "title": "Lost cause and stack",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PEP 3134 (exception chaining); Python docs, `logging.exception`",
+   "fix": "`logging.exception` / `exc_info=True`; `raise … from err`; `new Error(msg, { cause })`; log the error object under the logger's `err` key."
+  },
+  "PY-ERR-04": {
+   "title": "Unchecked I/O result, no timeout",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "WHATWG Fetch Standard (the promise rejects only on network errors); MDN, `Response.ok` and `AbortSignal.timeout()`",
+   "fix": "a timeout on every outbound call; check the status; validate the body at the boundary; decide what the caller sees on each failure."
+  },
+  "PY-ERR-05": {
+   "title": "Wrong status code or error shape",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "RFC 9457 (problem details); RFC 9110 §15 (4xx client errors, 5xx server errors)",
+   "fix": "validate at the boundary and return 400/422; map domain errors to 4xx in one handler; use one problem shape across routes."
+  },
+  "PY-ERR-06": {
+   "title": "Cleanup missing on the error path",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "Python docs, \"The with statement\" and `contextlib`; node-postgres docs, \"Pooling\" (a checked-out client must be released)",
+   "fix": "`with` / `try … finally`; `pipeline()` for streams; `contextlib.closing` for objects without a context manager; roll back in the error path."
+  },
+  "PY-ERR-07": {
+   "title": "Multi-step write with no transaction",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PostgreSQL docs, \"Transactions\"; SQLAlchemy docs, \"Session Basics\" (transactions)",
+   "fix": "one transaction for the writes; record intent before the external call and the result after; an outbox for events; make the sequence resumable and idempotent."
+  },
+  "PY-ERR-08": {
+   "title": "Background failure never observed",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "Python docs, `asyncio.create_task` and \"Developing with asyncio\" (task exceptions never retrieved); Node.js docs, `process` \"unhandledRejection\" (default `throw` since v15)",
+   "fix": "keep the task reference and log failures in a done callback; wrap async handlers (or use Express 5 / Fastify, which handle them); attach `.catch` at every event-emitter boundary."
+  },
+  "PY-ERR-09": {
+   "title": "`assert` used for runtime validation",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "Python docs, \"The assert statement\" (removed when optimization is requested); Bandit B101",
+   "fix": "raise a real exception; keep `assert` for invariants and tests."
+  },
+  "PY-ERR-10": {
+   "title": "Retry without bound, backoff or filter",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "AWS Builders' Library, \"Timeouts, retries, and backoff with jitter\"; Google SRE Book, \"Addressing Cascading Failures\"",
+   "fix": "a maximum attempt count, exponential backoff with jitter, retry only transient errors, raise after the last attempt; use the library's retry policy (tenacity, p-retry) once."
+  },
+  "PY-ERR-51": {
+   "title": "`return`, `break` or `continue` inside `finally`",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 765 (disallow return, break and continue that exit a `finally` block); Python docs, \"The try statement\"",
+   "fix": "keep `finally` for cleanup only; return after the `try`."
+  },
+  "PY-MAINT-01": {
+   "title": "Unused import, variable or parameter",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 8, \"Imports\"; ruff docs, `F401`",
+   "fix": "`ruff check --fix`; remove the parameter and update the callers."
+  },
+  "PY-MAINT-02": {
+   "title": "Name that misleads",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Naming\" (a name should say what the thing is or does); Martin, *Clean Code* ch. 2 (names)",
+   "fix": "rename (or split) so the name states the effect and the unit; a rename is cheap now and costly after merge."
+  },
+  "PY-MAINT-03": {
+   "title": "Dead or unreachable code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "CWE-561 (dead code); CWE-570 and CWE-571 (always false, always true)",
+   "fix": "delete it; version control keeps the history."
+  },
+  "PY-MAINT-04": {
+   "title": "Duplicated rule that will drift",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Hunt and Thomas, *The Pragmatic Programmer* (DRY: every piece of knowledge has a single authoritative representation); Metz, \"The Wrong Abstraction\"",
+   "fix": "call the existing function or extract one; leave similar-looking but unrelated code alone. Do not merge incidental duplicates: the wrong abstraction costs more than the copy."
+  },
+  "PY-MAINT-05": {
+   "title": "Layering leak",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Design\"; import-linter docs, \"Contract types\"",
+   "fix": "pass values in, not the request; move the query to the repository or the data hook; enforce the boundary with a lint rule rather than a review comment."
+  },
+  "PY-MAINT-06": {
+   "title": "Magic value",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Martin, *Clean Code* G25 (replace magic numbers with named constants); CWE-1106 (insufficient use of symbolic constants)",
+   "fix": "named constants (or an enum) with the unit in the name; config for values that change per environment."
+  },
+  "PY-MAINT-07": {
+   "title": "Over-complex changed function",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "McCabe, \"A Complexity Measure\" (IEEE Trans. Software Eng., 1976); Google Engineering Practices, \"Complexity\"",
+   "fix": "extract named steps; replace flag arguments with an options object or separate functions; use a lookup table for branching on a value."
+  },
+  "PY-MAINT-08": {
+   "title": "Types erased at a boundary",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 484; mypy docs, \"Error codes\" (`ignore-without-code`)",
+   "fix": "annotate the public surface; replace ignores with fixes; parse external data into a type at the boundary instead of asserting it."
+  },
+  "PY-MAINT-09": {
+   "title": "Comment or docstring contradicts the code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 257 (docstring conventions); Google Engineering Practices, \"Comments\"",
+   "fix": "change the code or the comment so they agree; prefer deleting a comment that restates the code."
+  },
+  "PY-MAINT-51": {
+   "title": "Import of another module's private name, or a star import",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 8, \"Public and Internal Interfaces\"; PEP 8, \"Imports\" (wildcard imports should be avoided)",
+   "fix": "promote the name to the public surface and import it by name."
+  },
+  "PY-MAINT-52": {
+   "title": "Autofixable style and legacy syntax (nit bucket)",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 585; PEP 604",
+   "fix": "`ruff check --fix`."
+  },
+  "PY-MAINT-53": {
+   "title": "Type-checker or linter strictness weakened",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "mypy docs, \"The mypy configuration file\" (per-module overrides); ruff docs, \"Error suppression\"",
+   "fix": "keep the global setting; scope an exception to the module and say why."
+  },
+  "PY-MAINT-54": {
+   "title": "Type-dispatch ladder grown by this diff",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, `functools.singledispatch`; PEP 634 (structural pattern matching)",
+   "fix": "a method on each type, `functools.singledispatch`, or `match` with a final `assert_never`."
+  },
+  "PY-MAINT-55": {
+   "title": "`async def` that never awaits",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, \"Coroutines and Tasks\"; ruff docs, `RUF029`",
+   "fix": "make it a plain `def`, or use an async API inside."
+  },
+  "PY-MAINT-56": {
+   "title": "Side effects at import time",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, \"`__main__` — Top-level code environment\"; Google Python Style Guide, \"Main\"",
+   "fix": "move work into functions or application start-up; guard script code with `if __name__ == \"__main__\":`."
+  },
+  "PY-MAINT-57": {
+   "title": "Public function whose contract is not recoverable from its signature",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "PEP 257, \"What is a Docstring?\"; Google Python Style Guide, \"Comments and Docstrings\"",
+   "fix": "state units, errors and side effects in one or two lines."
+  },
+  "PY-MAINT-58": {
+   "title": "Log call formats its message instead of passing arguments",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, Logging HOWTO (\"Optimization\": formatting is deferred until needed); ruff docs, `G001`-`G004`",
+   "fix": "`%s` arguments or `extra={...}` structured fields."
+  },
+  "PY-MAINT-59": {
+   "title": "Library code configures logging",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, Logging HOWTO (\"Configuring Logging for a Library\")",
+   "fix": "a module logger with `NullHandler`; configuration in the application entry point."
+  },
+  "PY-OPS-01": {
+   "title": "Container runs as root",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Docker docs, \"Dockerfile best practices\" (`USER`); OWASP Docker Security Cheat Sheet, Rule #2 (set a user)",
+   "fix": "create a user and switch with `USER` before `CMD`."
+  },
+  "PY-OPS-02": {
+   "title": "Mutable base image or unpinned install",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Docker docs, \"Dockerfile best practices\" (pin base image versions); OWASP Docker Security Cheat Sheet",
+   "fix": "pin the image tag (or digest) and the dependencies; verify downloaded scripts."
+  },
+  "PY-OPS-03": {
+   "title": "Build leftovers in the runtime image",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Docker docs, \"Dockerfile best practices\" (leverage the build cache; multi-stage builds)",
+   "fix": "copy the manifest, install, then copy the source; use a multi-stage build for compilers."
+  },
+  "PY-OPS-04": {
+   "title": "Health endpoint that lies",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Kubernetes docs, \"Configure Liveness, Readiness and Startup Probes\"",
+   "fix": "liveness checks the process only; readiness checks required dependencies and returns 503."
+  },
+  "PY-OPS-05": {
+   "title": "SIGTERM handler exits without draining",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Kubernetes docs, \"Pod Lifecycle\" (termination: SIGTERM, grace period, SIGKILL)",
+   "fix": "set a flag, finish in-flight work, close connections, then exit. Web servers (Gunicorn, Uvicorn) already drain; do not override them."
+  },
+  "PY-OPS-06": {
+   "title": "Unsafe schema change in the deploy path",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Alembic docs, \"Tutorial\" and \"Cookbook\"; SQLAlchemy docs, `MetaData.create_all` (does not alter existing tables)",
+   "fix": "run migrations as one step before the new version starts; split destructive changes into a later release."
+  },
+  "PY-PERF-01": {
+   "title": "Query or remote call per item (N+1)",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-1073; Django docs, \"Database access optimization\"",
+   "fix": "`select_related` (to-one) / `prefetch_related` (to-many) / `selectinload` / `include`; `WHERE id IN (…)`; a DataLoader per request in GraphQL; a batch endpoint for the browser."
+  },
+  "PY-PERF-02": {
+   "title": "Blocking call in async or request code",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "Node.js docs, \"Don't Block the Event Loop (or the Worker Pool)\"; Python docs, `asyncio` \"Running blocking code\" and `asyncio.to_thread`",
+   "fix": "the async API of the same library; `asyncio.to_thread` / `run_in_executor`; worker threads for CPU work in Node."
+  },
+  "PY-PERF-03": {
+   "title": "Sequential awaits of independent calls",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "MDN, `Promise.all`; Python docs, `asyncio.TaskGroup`",
+   "fix": "`Promise.all` / `Promise.allSettled`; `asyncio.gather` / `TaskGroup` (3.11+)."
+  },
+  "PY-PERF-04": {
+   "title": "Unbounded concurrency",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-770 (allocation of resources without limits); CWE-400",
+   "fix": "a concurrency limit (`p-limit`, `Semaphore`), batches, a queue; cap the input size."
+  },
+  "PY-PERF-05": {
+   "title": "Unbounded memory",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-770; CWE-400",
+   "fix": "stream; paginate with a hard cap; `maxsize` and TTL on caches; limit body size at the framework."
+  },
+  "PY-PERF-06": {
+   "title": "Quadratic loops",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-407 (inefficient algorithmic complexity); Python Wiki, \"TimeComplexity\"",
+   "fix": "build a `set` / `dict` / `Map` once; `collections.deque` for queues; push into one accumulator instead of copying."
+  },
+  "PY-PERF-07": {
+   "title": "Query shape: scan, deep offset, over-fetch",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "PostgreSQL docs, \"Indexes\" (Index Types, Indexes on Expressions, Indexes and ORDER BY); Django docs, `QuerySet.exists()`",
+   "fix": "add the index in the same change; `.exists()` / `EXISTS`; keyset pagination; select only the columns the view uses; `pg_trgm` for substring search."
+  },
+  "PY-PERF-08": {
+   "title": "Client or connection created per request",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "node-postgres docs, \"Pooling\"; SQLAlchemy docs, \"Engine Configuration\" (one engine per database URL per process)",
+   "fix": "build the client at module or application scope and inject it; close it on shutdown."
+  },
+  "PY-PERF-11": {
+   "title": "Catastrophic regex backtracking",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-1333; OWASP, \"Regular expression Denial of Service (ReDoS)\"",
+   "fix": "rewrite so each character can match one way; cap the input length first; use RE2 (`google-re2`, `re2`) for user-supplied patterns or when the pattern cannot be simplified."
+  },
+  "PY-PERF-51": {
+   "title": "Hand-rolled O(n) idiom where a builtin is direct",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python Wiki, \"TimeComplexity\"; Python docs, `min`, `sum`, `str.join`",
+   "fix": "the builtin; `\"\".join(parts)` for strings."
+  },
+  "PY-PERF-53": {
+   "title": "Heavy optional import at module top level",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, command line `-X importtime`; PEP 8, \"Imports\" (top of file, with the stated exception for such cases)",
+   "fix": "import inside the branch that needs it; measure with `python -X importtime`."
+  },
+  "PY-PERF-55": {
+   "title": "Unbounded metric label cardinality",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Prometheus docs, \"Instrumentation\" and \"Metric and label naming\" (do not use labels with high cardinality); CWE-770",
+   "fix": "use the route template; keep labels to a small closed set; put ids in logs or traces."
+  },
+  "PY-SEC-01": {
+   "title": "SQL text built from request input",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-89; OWASP A03:2021 Injection",
+   "fix": "bound parameters (`?`, `%s`, `$1`, `:name`) or the ORM query builder; allowlist identifiers."
+  },
+  "PY-SEC-02": {
+   "title": "Secret literal in source or in the client bundle",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-798; CWE-200 (client bundle)",
+   "fix": "environment or secret manager, fail fast when missing; browser calls go through an own backend route; **rotate** the leaked value (removing it from the code does not un-leak it)."
+  },
+  "PY-SEC-03": {
+   "title": "Request-controlled path reaches the filesystem",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-22; OWASP A01:2021 Broken Access Control",
+   "fix": "Flask `send_from_directory`, Werkzeug `secure_filename`; `resolve()` plus `is_relative_to` / `startsWith(base + path.sep)`; `tarfile` extraction filters; server-generated storage names."
+  },
+  "PY-SEC-04": {
+   "title": "Object read or changed by a client-supplied ID without an ownership check",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-639; CWE-862",
+   "fix": "scope every query by the owner or tenant taken from the session; return 404 on a miss; keep the rule in one policy helper."
+  },
+  "PY-SEC-05": {
+   "title": "Redirect target taken from the request",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-601; OWASP A01:2021 Broken Access Control",
+   "fix": "allowlist, or parse with a real URL parser against the own origin and compare origins; Django `url_has_allowed_host_and_scheme`; the same in Node with `new URL(next, base)`."
+  },
+  "PY-SEC-06": {
+   "title": "State change reachable cross-site with cookie authentication (CSRF)",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-352; OWASP A01:2021 Broken Access Control",
+   "fix": "state changes only on unsafe methods; a synchronizer or signed double-submit token (Flask-WTF `CSRFProtect`, Django `CsrfViewMiddleware`, `@fastify/csrf-protection`); `SameSite` as defense in depth, n"
+  },
+  "PY-SEC-07": {
+   "title": "Non-cryptographic random used for a security value",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-338; CWE-330",
+   "fix": "Python `secrets`; Node `crypto.randomBytes` / `randomUUID`; browser `crypto.getRandomValues` / `crypto.randomUUID`."
+  },
+  "PY-SEC-08": {
+   "title": "Password stored with a fast, unsalted or reversible hash",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-916; CWE-759",
+   "fix": "Argon2id, scrypt, bcrypt or PBKDF2 with the parameters in the OWASP Password Storage Cheat Sheet; rehash on next login."
+  },
+  "PY-SEC-09": {
+   "title": "CORS reflects any origin with credentials",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-942; OWASP A05:2021 Security Misconfiguration",
+   "fix": "exact-match allowlist of origins; credentials only for those."
+  },
+  "PY-SEC-10": {
+   "title": "Secret or MAC compared with a non-constant-time operator",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-208; OWASP A02:2021 Cryptographic Failures",
+   "fix": "`hmac.compare_digest`; `crypto.timingSafeEqual` on equal-length buffers (hash both sides first, since it throws on a length mismatch)."
+  },
+  "PY-SEC-11": {
+   "title": "JWT accepted without signature, algorithm or expiry verification",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-347; CWE-613 (no expiry)",
+   "fix": "verify with a fixed algorithm allowlist, issuer and audience; require `exp`; never branch on decoded-but-unverified claims on the server."
+  },
+  "PY-SEC-12": {
+   "title": "TLS certificate verification disabled",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-295; CWE-297",
+   "fix": "trust the private CA explicitly instead of disabling verification."
+  },
+  "PY-SEC-13": {
+   "title": "NoSQL operator injection",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-943; OWASP A03:2021 Injection",
+   "fix": "schema-validate scalar types; `$eq` for user values; Mongoose `sanitizeFilter`."
+  },
+  "PY-SEC-14": {
+   "title": "Shell command built from input",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-78; CWE-88",
+   "fix": "argument list without a shell; `--` before user operands; validate scheme and format (`https://` only)."
+  },
+  "PY-SEC-15": {
+   "title": "Input evaluated as code",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-95; CWE-94",
+   "fix": "`ast.literal_eval`, a parser with an operator allowlist, or a `Map` of permitted operations; never `vm` for untrusted code."
+  },
+  "PY-SEC-16": {
+   "title": "User-controlled text rendered as HTML",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-79; CWE-1336 (template injection)",
+   "fix": "render as text; sanitize with DOMPurify when HTML is required; autoescaping templates with user data as context, never as template source."
+  },
+  "PY-SEC-17": {
+   "title": "Price, amount or entitlement taken from the client",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-602; CWE-472",
+   "fix": "take only identifiers and quantities from the client; look up prices and entitlements on the server; bound quantities."
+  },
+  "PY-SEC-18": {
+   "title": "Debug mode or internal error detail exposed",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-209; CWE-489",
+   "fix": "log the detail server-side with a request ID; return a generic problem response."
+  },
+  "PY-SEC-19": {
+   "title": "Auth cookie set without `HttpOnly` or `Secure`",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-1004; CWE-614",
+   "fix": "`HttpOnly`, `Secure`, `SameSite=Lax` (or `Strict`) on every auth cookie; scope the path of refresh cookies."
+  },
+  "PY-SEC-20": {
+   "title": "Authentication or authorization check not awaited",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-287; CWE-285",
+   "fix": "`await` the check; enable `no-misused-promises` (type-aware) and mypy `truthy-bool`; treat \"coroutine … was never awaited\" warnings as errors in tests."
+  },
+  "PY-SEC-21": {
+   "title": "Untrusted data deserialized into objects or code",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-502; OWASP A08:2021 Software and Data Integrity Failures",
+   "fix": "JSON plus schema validation; `yaml.safe_load`; `weights_only=True`; sign data that must round-trip and still avoid pickle."
+  },
+  "PY-SEC-22": {
+   "title": "Request body written to a model wholesale (mass assignment)",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-915; CWE-1321 (prototype pollution)",
+   "fix": "an input schema that lists writable fields; copy fields explicitly; no deep merge of request data into shared objects (use `Object.create(null)` or `Map` when merging is needed)."
+  },
+  "PY-SEC-23": {
+   "title": "Secrets or personal data written to logs or telemetry",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-532; OWASP A09:2021 Security Logging and Monitoring Failures",
+   "fix": "log identifiers, not values; configure redaction (Pino `redact`); allowlist the properties sent to telemetry."
+  },
+  "PY-SEC-24": {
+   "title": "Security check fails open or its failure leaves no record",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-636 (failing open); CWE-778",
+   "fix": "deny inside the handler of a failed check; log security failures at `warning` with the event name and source, never the secret."
+  },
+  "PY-SEC-25": {
+   "title": "Server fetches a URL the caller controls",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-918; OWASP A10:2021 Server-Side Request Forgery",
+   "fix": "host allowlist; when arbitrary hosts are a feature (webhooks), resolve and block private ranges at connect time or use an egress proxy; disable redirects; do not return the raw response."
+  },
+  "PY-SEC-51": {
+   "title": "User-controlled format string",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "CWE-134; Python docs, \"Format String Syntax\" (attribute and index access in replacement fields) and `string.Template`",
+   "fix": "`string.Template` for user-written templates, a sandboxed template engine, or pass only plain strings."
+  },
+  "PY-SEC-52": {
+   "title": "Untrusted text interpolated into an LLM prompt",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "OWASP Top 10 for LLM Applications 2025, LLM01 Prompt Injection; CWE-77",
+   "fix": "keep untrusted text out of the system prompt; delimit it; give the call no privileged tools; validate model output before acting on it."
+  },
+  "PY-TEST-01": {
+   "title": "New or changed logic with no test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Engineering Practices, \"Code Review Developer Guide\" (\"Tests\": tests should be included in the same change); pytest docs, \"How to parametrize fixtures and test functions\"",
+   "fix": "name the cases the test must cover (each branch, one boundary, one failure); suggest the test, do not write the whole suite."
+  },
+  "PY-TEST-02": {
+   "title": "Vacuous test: asserts nothing real",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"Asserting with the `assert` statement\" and \"Assertions about expected exceptions\"; Jest docs, `.resolves` / `.rejects` (return or await the assertion)",
+   "fix": "assert the specific value, status or message; await promise matchers; assert on the outcome the user cares about."
+  },
+  "PY-TEST-03": {
+   "title": "Self-confirming expected value",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Test Behavior, Not Implementation\"; Jest docs, \"Snapshot Testing\" (snapshots are reviewed as code)",
+   "fix": "hard-code expected values taken from the spec or a worked example; review snapshots line by line."
+  },
+  "PY-TEST-04": {
+   "title": "Over-mocking",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Don't Overuse Mocks\"; Martin Fowler, \"Mocks Aren't Stubs\"",
+   "fix": "mock at the system boundary (network, clock, third-party SDK), use fakes or an in-memory database for your own layers, add `autospec` / typed mocks, and patch where the name is looked up."
+  },
+  "PY-TEST-05": {
+   "title": "Flaky patterns",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Martin Fowler, \"Eradicating Non-Determinism in Tests\"; Google Testing Blog, \"Flaky Tests at Google and How We Mitigate Them\"",
+   "fix": "wait on a condition (`findBy*`, events), inject or freeze the clock, seed randomness, sort before comparing, fake the network."
+  },
+  "PY-TEST-06": {
+   "title": "Disabled, focused or weakened test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Jest docs, `test.only` and `test.skip`; Vitest docs, `allowOnly`",
+   "fix": "remove `.only`; give each skip a reason and an owner; restore or replace deleted assertions."
+  },
+  "PY-TEST-07": {
+   "title": "Missing edge, negative or regression case",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "ISTQB Foundation syllabus, boundary value analysis; Jest docs, `test.each`",
+   "fix": "add the boundary values (0, 1, max, empty, duplicate), the denied role and the failing input as table rows; for a bug fix, a test that fails on the old code; for a fixed-grant mock, `vi.mocked(db.memb"
+  },
+  "PY-TEST-08": {
+   "title": "Shared state and leaked side effects",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"How to monkeypatch/mock modules and environments\" and `tmp_path`; Jest docs, `restoreMocks` and `jest.restoreAllMocks`",
+   "fix": "fixtures with teardown, `tmp_path`, `monkeypatch`, per-test transactions rolled back, `afterEach(() => jest.restoreAllMocks())`."
+  },
+  "PY-TEST-51": {
+   "title": "Assertion on a tuple",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/python-checklist.md",
+   "cite": "Python docs, \"The assert statement\"; CPython emits `SyntaxWarning: assertion is always true`",
+   "fix": "remove the parentheses."
+  },
+  "TS-ACC-01": {
+   "title": "Click handler on an element that is not interactive",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 2.1.1 Keyboard (A); WAI-ARIA APG, \"Button pattern\"",
+   "fix": "a native `<button>` or `<a href>`."
+  },
+  "TS-ACC-02": {
+   "title": "Form control without an accessible name or linked error",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 1.3.1 Info and Relationships (A), 3.3.1 Error Identification (A), 3.3.2 Labels or Instructions (A), 4.1.2 Name, Role, Value (A)",
+   "fix": "a visible `<label>`; link and announce the error."
+  },
+  "TS-ACC-03": {
+   "title": "Image without a text alternative",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 1.1.1 Non-text Content (A); W3C WAI, \"Images tutorial\"",
+   "fix": "meaningful `alt`; `alt=\"\"` for decoration; an accessible name for icon controls."
+  },
+  "TS-ACC-04": {
+   "title": "Dialog without focus management",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 2.1.2 No Keyboard Trap (A), 2.4.3 Focus Order (A); WAI-ARIA APG, \"Dialog (Modal) Pattern\"",
+   "fix": "use a tested primitive; otherwise manage focus, Escape and `aria-modal` explicitly."
+  },
+  "TS-ACC-05": {
+   "title": "Focus indicator removed",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 2.4.7 Focus Visible (AA) and 2.4.13 Focus Appearance",
+   "fix": "style `:focus-visible`; never remove the outline without a replacement."
+  },
+  "TS-ACC-06": {
+   "title": "Status or error message not announced",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 4.1.3 Status Messages (AA); WAI-ARIA APG, \"Alert pattern\"",
+   "fix": "a live region that is mounted before the message appears."
+  },
+  "TS-ACC-07": {
+   "title": "Contrast below the threshold, or colour as the only signal",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 1.4.3 Contrast (Minimum) (AA), 1.4.1 Use of Color (A), 1.4.11 Non-text Contrast (AA)",
+   "fix": "darker colour or token; add an icon or text to colour-coded states."
+  },
+  "TS-ACC-08": {
+   "title": "Positive `tabIndex` or keyboard trap",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WCAG 2.2 SC 2.4.3 Focus Order (A); WAI-ARIA APG, \"Developing a Keyboard Interface\"",
+   "fix": "use `0` or `-1` only, and fix the DOM order instead."
+  },
+  "TS-ACC-09": {
+   "title": "ARIA misuse",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "WAI-ARIA 1.2 (naming prohibited on `generic`); WAI-ARIA APG, \"No ARIA is better than bad ARIA\"",
+   "fix": "native elements first; ARIA only for what HTML cannot express."
+  },
+  "TS-COR-01": {
+   "title": "Module-level mutable state shared across requests or users",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "TanStack Query docs, \"Advanced Server Rendering\" (create the `QueryClient` per request to avoid sharing data between users); Zustand docs, \"Setup with Next.js\" (no global store on the server)",
+   "fix": "create the client or store inside the request (or in a provider's `useState` on the client); never keep per-user data in module scope on the server."
+  },
+  "TS-COR-02": {
+   "title": "Duplicable external effect without an idempotency key",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-837; IETF `draft-ietf-httpapi-idempotency-key-header`",
+   "fix": "an `Idempotency-Key` derived from the business object (not random per attempt); record the attempt before calling; a unique constraint or processed-events table; disable the button while pending."
+  },
+  "TS-COR-03": {
+   "title": "In-place mutation and aliasing of caller-owned data",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `list.sort` (sorts in place, returns `None`); Python Programming FAQ, \"How do I create a multidimensional list?\"",
+   "fix": "`sorted()` / `toSorted()` / spread / `structuredClone` for nested data; build rows with a comprehension; filter into a new list instead of removing while iterating."
+  },
+  "TS-COR-04": {
+   "title": "Absent value dereferenced",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `re.match` (returns `None` when no match); MDN, `Array.prototype.find` (returns `undefined`)",
+   "fix": "check and return 404/422, or `next(it, default)`; enable `noUncheckedIndexedAccess`; replace `!` with a real check."
+  },
+  "TS-COR-05": {
+   "title": "Falsy value treated as missing",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Truth Value Testing\"; MDN, \"Nullish coalescing operator (??)\" and \"Logical OR (||)\"",
+   "fix": "compare to `None` / `undefined`; use `??`; parse flags explicitly."
+  },
+  "TS-COR-06": {
+   "title": "Boundary and pagination off-by-one",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "CWE-193 (off-by-one error); Python docs, \"Common Sequence Operations\" (slicing)",
+   "fix": "iterate over elements, not indexes; half-open ranges; fetch `size + 1` rows to detect a next page."
+  },
+  "TS-COR-07": {
+   "title": "Time zones and date arithmetic",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `datetime` (\"Aware and Naive Objects\") and \"What's New in Python 3.12\" (`utcnow` deprecation); PEP 615 (`zoneinfo`)",
+   "fix": "store and compare aware UTC instants; convert to the user's zone only for display (`zoneinfo`, `Intl.DateTimeFormat`); add calendar units with a library; `monotonic()` for durations."
+  },
+  "TS-COR-08": {
+   "title": "Floating point money",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, \"Floating Point Arithmetic: Issues and Limitations\" and `decimal`; ECMA-262, Number type (IEEE 754 binary64)",
+   "fix": "integer minor units end to end, or `Decimal` built from strings with an explicit quantize and rounding mode; a decimal column in the database."
+  },
+  "TS-COR-10": {
+   "title": "Async work not awaited",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "Python docs, `asyncio.create_task` (save a reference to avoid a task disappearing mid-execution); Python docs, \"Coroutines and Tasks\"",
+   "fix": "`await` it, `Promise.all` it, or keep the task reference and attach a done callback that logs; `for … of` with `await` when order matters."
+  },
+  "TS-COR-11": {
+   "title": "Stale closure and effect dependencies",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "React docs, \"Synchronizing with Effects\", \"Removing Effect Dependencies\", \"Queueing a Series of State Updates\"",
+   "fix": "list every reactive value; use the functional updater; move non-reactive values out of the component; let the lint rule drive the list and remove disables."
+  },
+  "TS-COR-12": {
+   "title": "Out-of-order responses and effect cleanup",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "React docs, \"Synchronizing with Effects\" (fetching data, cleanup, Strict Mode); MDN, `AbortController`",
+   "fix": "`AbortController` or an `ignore` flag; a cleanup function for everything the effect starts; prefer a data library (TanStack Query) that handles cancellation and caching."
+  },
+  "TS-COR-13": {
+   "title": "Redundant state and wrong list keys",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "React docs, \"Rendering Lists\" (keys), \"Choosing the State Structure\", \"You Might Not Need an Effect\"",
+   "fix": "derive in render; reset with `key`; use stable ids from the data."
+  },
+  "TS-COR-14": {
+   "title": "Comparison semantics",
+   "levels": [
+    "blocker",
+    "major",
+    "minor"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "MDN, `Array.prototype.sort` (default order is by UTF-16 string); ECMA-262, `IsLooselyEqual`",
+   "fix": "numeric comparator; test membership in a collection; `==` for values, `is` only for `None` and singletons."
+  },
+  "TS-COR-16": {
+   "title": "Cache key missing a dimension",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/correctness.md",
+   "cite": "TanStack Query docs, \"Query Keys\"; RFC 9111 §4.1 (`Vary`) and §5.2.2.7 (`private`)",
+   "fix": "include every input in the key; do not cache per-user responses in shared caches; `Cache-Control: private` plus `Vary` for HTTP; call `invalidateQueries` after mutations."
+  },
+  "TS-COR-72": {
+   "title": "Number or string on the left of `&&` in JSX",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "React docs, \"Conditional Rendering\" (do not put numbers on the left side of `&&`)",
+   "fix": "make the condition a boolean (`> 0`, `Boolean(x)`, `!!x`), or use a ternary."
+  },
+  "TS-COR-73": {
+   "title": "Hook called conditionally, or a hook not named `use*`",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "React docs, \"Rules of Hooks\"; React docs, \"Reusing Logic with Custom Hooks\" (names starting with `use`)",
+   "fix": "call hooks unconditionally at the top level; rename wrappers to `use*`."
+  },
+  "TS-COR-74": {
+   "title": "Server-only module reachable from client code",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "Next.js docs, \"Server and Client Components: Keeping server-only code out of the client environment\" (the `server-only` package)",
+   "fix": "add `import 'server-only'` to server modules; pass data to client components as props; call a Server Action or API route from the client."
+  },
+  "TS-COR-75": {
+   "title": "Effect used to run the logic of a user action",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "React docs, \"You Might Not Need an Effect\" (sending a POST request on user action); React docs, \"Synchronizing with Effects\" (Strict Mode re-runs effects in development)",
+   "fix": "put the logic in the event handler (or a mutation); keep effects for synchronization."
+  },
+  "TS-COR-76": {
+   "title": "Query runs with a missing parameter",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "TanStack Query docs, \"Dependent Queries\" (the `enabled` option)",
+   "fix": "`enabled`, or `skipToken`; never call the hook conditionally."
+  },
+  "TS-COR-77": {
+   "title": "Client environment variable read dynamically",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "Next.js docs, \"Environment Variables: Bundling Environment Variables for the Browser\" (dynamic lookups are not inlined)",
+   "fix": "reference each variable by its full literal name; validate once in a module."
+  },
+  "TS-COR-78": {
+   "title": "Path alias declared in one place only",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "TypeScript handbook, \"Modules - Reference: `paths`\" (`paths` does not change emitted specifiers); Vite docs, `resolve.alias`",
+   "fix": "mirror the alias in every tool that resolves imports (bundler, test runner, linter resolver), or use a plugin that reads `tsconfig.json`."
+  },
+  "TS-DIFF-01": {
+   "title": "Debug output or debugger left in",
+   "levels": [
+    "major",
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "CWE-532; CWE-489 (active debug code)",
+   "fix": "delete it, or use the project logger at `debug` level with no secrets."
+  },
+  "TS-ERR-01": {
+   "title": "Swallowed exception",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "CWE-390; CWE-396",
+   "fix": "catch the specific error; log with context; re-raise or return an explicit failure type the caller must handle."
+  },
+  "TS-ERR-03": {
+   "title": "Lost cause and stack",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "PEP 3134 (exception chaining); Python docs, `logging.exception`",
+   "fix": "`logging.exception` / `exc_info=True`; `raise … from err`; `new Error(msg, { cause })`; log the error object under the logger's `err` key."
+  },
+  "TS-ERR-04": {
+   "title": "Unchecked I/O result, no timeout",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "WHATWG Fetch Standard (the promise rejects only on network errors); MDN, `Response.ok` and `AbortSignal.timeout()`",
+   "fix": "a timeout on every outbound call; check the status; validate the body at the boundary; decide what the caller sees on each failure."
+  },
+  "TS-ERR-10": {
+   "title": "Retry without bound, backoff or filter",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "AWS Builders' Library, \"Timeouts, retries, and backoff with jitter\"; Google SRE Book, \"Addressing Cascading Failures\"",
+   "fix": "a maximum attempt count, exponential backoff with jitter, retry only transient errors, raise after the last attempt; use the library's retry policy (tenacity, p-retry) once."
+  },
+  "TS-ERR-11": {
+   "title": "UI error and loading state",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/error-handling.md",
+   "cite": "React docs, \"Catching rendering errors with an error boundary\" (boundaries do not catch event-handler or async errors); TanStack Query docs, \"Queries\" (`isError`, `error`)",
+   "fix": "`try / catch / finally`; render an error state; use the query library's `isError`; add error boundaries and `error.tsx` for render and route failures."
+  },
+  "TS-ERR-52": {
+   "title": "`schema.parse()` of a network response outside error handling",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "Zod docs, \"Basic usage\" (`parse` throws, `safeParse` returns a result)",
+   "fix": "`safeParse` and a defined failure path, or `parse` inside the `queryFn` so the query's error state shows it."
+  },
+  "TS-ERR-55": {
+   "title": "Optimistic update without rollback or settle",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "TanStack Query docs, \"Optimistic Updates\"",
+   "fix": "snapshot in `onMutate`, restore in `onError`, invalidate in `onSettled`."
+  },
+  "TS-MAINT-01": {
+   "title": "Unused import, variable or parameter",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 8, \"Imports\"; ruff docs, `F401`",
+   "fix": "`ruff check --fix`; remove the parameter and update the callers."
+  },
+  "TS-MAINT-02": {
+   "title": "Name that misleads",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Naming\" (a name should say what the thing is or does); Martin, *Clean Code* ch. 2 (names)",
+   "fix": "rename (or split) so the name states the effect and the unit; a rename is cheap now and costly after merge."
+  },
+  "TS-MAINT-03": {
+   "title": "Dead or unreachable code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "CWE-561 (dead code); CWE-570 and CWE-571 (always false, always true)",
+   "fix": "delete it; version control keeps the history."
+  },
+  "TS-MAINT-04": {
+   "title": "Duplicated rule that will drift",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Hunt and Thomas, *The Pragmatic Programmer* (DRY: every piece of knowledge has a single authoritative representation); Metz, \"The Wrong Abstraction\"",
+   "fix": "call the existing function or extract one; leave similar-looking but unrelated code alone. Do not merge incidental duplicates: the wrong abstraction costs more than the copy."
+  },
+  "TS-MAINT-05": {
+   "title": "Layering leak",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Google Engineering Practices, \"Design\"; import-linter docs, \"Contract types\"",
+   "fix": "pass values in, not the request; move the query to the repository or the data hook; enforce the boundary with a lint rule rather than a review comment."
+  },
+  "TS-MAINT-06": {
+   "title": "Magic value",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "Martin, *Clean Code* G25 (replace magic numbers with named constants); CWE-1106 (insufficient use of symbolic constants)",
+   "fix": "named constants (or an enum) with the unit in the name; config for values that change per environment."
+  },
+  "TS-MAINT-07": {
+   "title": "Over-complex changed function",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "McCabe, \"A Complexity Measure\" (IEEE Trans. Software Eng., 1976); Google Engineering Practices, \"Complexity\"",
+   "fix": "extract named steps; replace flag arguments with an options object or separate functions; use a lookup table for branching on a value."
+  },
+  "TS-MAINT-08": {
+   "title": "Types erased at a boundary",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 484; mypy docs, \"Error codes\" (`ignore-without-code`)",
+   "fix": "annotate the public surface; replace ignores with fixes; parse external data into a type at the boundary instead of asserting it."
+  },
+  "TS-MAINT-09": {
+   "title": "Comment or docstring contradicts the code",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/maintainability.md",
+   "cite": "PEP 257 (docstring conventions); Google Engineering Practices, \"Comments\"",
+   "fix": "change the code or the comment so they agree; prefer deleting a comment that restates the code."
+  },
+  "TS-MAINT-53": {
+   "title": "Compiler or linter strictness weakened",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "TypeScript docs, \"TSConfig Reference: strict\"; typescript-eslint, `ban-ts-comment`",
+   "fix": "keep the flag on and fix the errors; scope a necessary exception to one file with the reason."
+  },
+  "TS-MAINT-60": {
+   "title": "Hard-coded design value where the project has tokens",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "Tailwind docs, \"Theme configuration\"; W3C Design Tokens Community Group, \"Design Tokens Format Module\"",
+   "fix": "use the token; add one if the value is genuinely new."
+  },
+  "TS-MAINT-61": {
+   "title": "Cloned design carries the source's brand",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "17 U.S.C. §102(b) (copyright protects expression, not ideas or systems); USPTO, \"Trademark basics\"",
+   "fix": "neutral placeholders for logos, names and copy; substitute open fonts for commercial ones."
+  },
+  "TS-PERF-01": {
+   "title": "Query or remote call per item (N+1)",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-1073; Django docs, \"Database access optimization\"",
+   "fix": "`select_related` (to-one) / `prefetch_related` (to-many) / `selectinload` / `include`; `WHERE id IN (…)`; a DataLoader per request in GraphQL; a batch endpoint for the browser."
+  },
+  "TS-PERF-03": {
+   "title": "Sequential awaits of independent calls",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "MDN, `Promise.all`; Python docs, `asyncio.TaskGroup`",
+   "fix": "`Promise.all` / `Promise.allSettled`; `asyncio.gather` / `TaskGroup` (3.11+)."
+  },
+  "TS-PERF-04": {
+   "title": "Unbounded concurrency",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-770 (allocation of resources without limits); CWE-400",
+   "fix": "a concurrency limit (`p-limit`, `Semaphore`), batches, a queue; cap the input size."
+  },
+  "TS-PERF-06": {
+   "title": "Quadratic loops",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "CWE-407 (inefficient algorithmic complexity); Python Wiki, \"TimeComplexity\"",
+   "fix": "build a `set` / `dict` / `Map` once; `collections.deque` for queues; push into one accumulator instead of copying."
+  },
+  "TS-PERF-09": {
+   "title": "Re-render cost and long lists",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "React docs, `memo`, `useMemo` (\"only rely on `useMemo` as a performance optimization\"), `useCallback`; web.dev, \"Virtualize large lists with react-window\"",
+   "fix": "hoist components and constants; `useMemo` / `useCallback` only where a memoized child or a measured computation needs it; move state down; paginate or virtualize (`react-window`)."
+  },
+  "TS-PERF-10": {
+   "title": "Import cost and bundle size",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/performance.md",
+   "cite": "web.dev, \"Reduce JavaScript payloads with code splitting\"; Next.js docs, \"Lazy Loading\"",
+   "fix": "per-function imports from an ES-module build; dynamic import for heavy, rarely used components; keep `'use client'` at leaf components."
+  },
+  "TS-PERF-52": {
+   "title": "Layout-shifting or render-blocking assets",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "web.dev, \"Optimize Cumulative Layout Shift\" and \"Efficiently load third-party JavaScript\"; Next.js docs, \"Image\" and \"Script\"",
+   "fix": "sized images, `loading=\"lazy\"` below the fold, `next/script` strategies, `font-display: swap`."
+  },
+  "TS-PERF-56": {
+   "title": "Whole-store or whole-form subscription",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "Zustand docs, \"Selecting multiple state slices\" and \"Prevent rerenders\"; React Hook Form docs, `watch` versus `useWatch` (performance)",
+   "fix": "narrow selectors; `useWatch` in the child that needs the value."
+  },
+  "TS-SEC-02": {
+   "title": "Secret literal in source or in the client bundle",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-798; CWE-200 (client bundle)",
+   "fix": "environment or secret manager, fail fast when missing; browser calls go through an own backend route; **rotate** the leaked value (removing it from the code does not un-leak it)."
+  },
+  "TS-SEC-04": {
+   "title": "Object read or changed by a client-supplied ID without an ownership check",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-639; CWE-862",
+   "fix": "scope every query by the owner or tenant taken from the session; return 404 on a miss; keep the rule in one policy helper."
+  },
+  "TS-SEC-05": {
+   "title": "Redirect target taken from the request",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-601; OWASP A01:2021 Broken Access Control",
+   "fix": "allowlist, or parse with a real URL parser against the own origin and compare origins; Django `url_has_allowed_host_and_scheme`; the same in Node with `new URL(next, base)`."
+  },
+  "TS-SEC-07": {
+   "title": "Non-cryptographic random used for a security value",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-338; CWE-330",
+   "fix": "Python `secrets`; Node `crypto.randomBytes` / `randomUUID`; browser `crypto.getRandomValues` / `crypto.randomUUID`."
+  },
+  "TS-SEC-15": {
+   "title": "Input evaluated as code in the browser",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/lang/typescript-react-checklist.md",
+   "cite": "CWE-95; OWASP A03:2021 Injection",
+   "fix": "no string-to-code APIs; look values up from an allowlist; pass a function to timers."
+  },
+  "TS-SEC-16": {
+   "title": "User-controlled text rendered as HTML",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-79; CWE-1336 (template injection)",
+   "fix": "render as text; sanitize with DOMPurify when HTML is required; autoescaping templates with user data as context, never as template source."
+  },
+  "TS-SEC-17": {
+   "title": "Price, amount or entitlement taken from the client",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-602; CWE-472",
+   "fix": "take only identifiers and quantities from the client; look up prices and entitlements on the server; bound quantities."
+  },
+  "TS-SEC-20": {
+   "title": "Authentication or authorization check not awaited",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-287; CWE-285",
+   "fix": "`await` the check; enable `no-misused-promises` (type-aware) and mypy `truthy-bool`; treat \"coroutine … was never awaited\" warnings as errors in tests."
+  },
+  "TS-SEC-22": {
+   "title": "Request body written to a model wholesale (mass assignment)",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-915; CWE-1321 (prototype pollution)",
+   "fix": "an input schema that lists writable fields; copy fields explicitly; no deep merge of request data into shared objects (use `Object.create(null)` or `Map` when merging is needed)."
+  },
+  "TS-SEC-23": {
+   "title": "Secrets or personal data written to logs or telemetry",
+   "levels": [
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-532; OWASP A09:2021 Security Logging and Monitoring Failures",
+   "fix": "log identifiers, not values; configure redaction (Pino `redact`); allowlist the properties sent to telemetry."
+  },
+  "TS-SEC-25": {
+   "title": "Server fetches a URL the caller controls",
+   "levels": [
+    "blocker",
+    "major"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-918; OWASP A10:2021 Server-Side Request Forgery",
+   "fix": "host allowlist; when arbitrary hosts are a feature (webhooks), resolve and block private ranges at connect time or use an egress proxy; disable redirects; do not return the raw response."
+  },
+  "TS-SEC-26": {
+   "title": "User-controlled URL in `href`, `src` or navigation",
+   "levels": [
+    "blocker"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-79; OWASP A03:2021 Injection",
+   "fix": "parse with `new URL` and allow only `http:`/`https:` (plus `mailto:` where needed)."
+  },
+  "TS-SEC-27": {
+   "title": "Session or refresh token kept in Web Storage",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-922; CWE-1004",
+   "fix": "HttpOnly cookies for refresh tokens; access tokens in memory."
+  },
+  "TS-TEST-01": {
+   "title": "New or changed logic with no test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Engineering Practices, \"Code Review Developer Guide\" (\"Tests\": tests should be included in the same change); pytest docs, \"How to parametrize fixtures and test functions\"",
+   "fix": "name the cases the test must cover (each branch, one boundary, one failure); suggest the test, do not write the whole suite."
+  },
+  "TS-TEST-02": {
+   "title": "Vacuous test: asserts nothing real",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"Asserting with the `assert` statement\" and \"Assertions about expected exceptions\"; Jest docs, `.resolves` / `.rejects` (return or await the assertion)",
+   "fix": "assert the specific value, status or message; await promise matchers; assert on the outcome the user cares about."
+  },
+  "TS-TEST-03": {
+   "title": "Self-confirming expected value",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Test Behavior, Not Implementation\"; Jest docs, \"Snapshot Testing\" (snapshots are reviewed as code)",
+   "fix": "hard-code expected values taken from the spec or a worked example; review snapshots line by line."
+  },
+  "TS-TEST-04": {
+   "title": "Over-mocking",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Google Testing Blog, \"Testing on the Toilet: Don't Overuse Mocks\"; Martin Fowler, \"Mocks Aren't Stubs\"",
+   "fix": "mock at the system boundary (network, clock, third-party SDK), use fakes or an in-memory database for your own layers, add `autospec` / typed mocks, and patch where the name is looked up."
+  },
+  "TS-TEST-05": {
+   "title": "Flaky patterns",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Martin Fowler, \"Eradicating Non-Determinism in Tests\"; Google Testing Blog, \"Flaky Tests at Google and How We Mitigate Them\"",
+   "fix": "wait on a condition (`findBy*`, events), inject or freeze the clock, seed randomness, sort before comparing, fake the network."
+  },
+  "TS-TEST-06": {
+   "title": "Disabled, focused or weakened test",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Jest docs, `test.only` and `test.skip`; Vitest docs, `allowOnly`",
+   "fix": "remove `.only`; give each skip a reason and an owner; restore or replace deleted assertions."
+  },
+  "TS-TEST-07": {
+   "title": "Missing edge, negative or regression case",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "ISTQB Foundation syllabus, boundary value analysis; Jest docs, `test.each`",
+   "fix": "add the boundary values (0, 1, max, empty, duplicate), the denied role and the failing input as table rows; for a bug fix, a test that fails on the old code; for a fixed-grant mock, `vi.mocked(db.memb"
+  },
+  "TS-TEST-08": {
+   "title": "Shared state and leaked side effects",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "pytest docs, \"How to monkeypatch/mock modules and environments\" and `tmp_path`; Jest docs, `restoreMocks` and `jest.restoreAllMocks`",
+   "fix": "fixtures with teardown, `tmp_path`, `monkeypatch`, per-test transactions rolled back, `afterEach(() => jest.restoreAllMocks())`."
+  },
+  "TS-TEST-09": {
+   "title": "Implementation-coupled UI tests",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/tests.md",
+   "cite": "Testing Library docs, \"Guiding Principles\" and \"About Queries\" (priority: `getByRole` first); user-event docs, \"Introduction\" (`setup()` and awaited calls)",
+   "fix": "query by role, label or text in that order of preference; `await user.*`; assert what the user sees."
+  },
+  "X-DIFF-02": {
+   "title": "Commented-out code",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "Martin, *Clean Code* ch. 4, \"Commented-Out Code\"; SonarSource rule S125",
+   "fix": "delete it; if it records a decision, replace it with one sentence saying why."
+  },
+  "X-DIFF-03": {
+   "title": "Unrelated changes in the diff",
+   "levels": [
+    "minor"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "Google Engineering Practices, *CL Author's Guide*, \"Small CLs\" and \"Separate refactorings from feature changes\"",
+   "fix": "split into separate changes; submit refactors on their own."
+  },
+  "X-DIFF-04": {
+   "title": "Lockfile or manifest churn",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "npm docs, `package-lock.json` (commit it) and `npm ci` (exits with an error when the lockfile and `package.json` disagree); Poetry docs, \"Commit your `poetry.lock` file\"",
+   "fix": "regenerate the lockfile with the project's package-manager version and commit both; revert unrelated lockfile movement."
+  },
+  "X-DIFF-05": {
+   "title": "TODO without owner or ticket",
+   "levels": [
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "Google Style Guides (Python, C++), \"TODO Comments\" (name or bug ID in parentheses)",
+   "fix": "add an owner and a ticket, or do it now, or delete the note."
+  },
+  "X-DIFF-06": {
+   "title": "Committed artifact or local file",
+   "levels": [
+    "blocker",
+    "minor"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "Git docs, `gitignore`; GitHub docs, \"Removing sensitive data from a repository\"",
+   "fix": "remove the file from the index (`git rm --cached`), add a `.gitignore` entry, commit an `.example` file; rotate any exposed secret."
+  },
+  "X-DIFF-07": {
+   "title": "Formatting churn hiding the change",
+   "levels": [
+    "minor",
+    "nit"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "Git docs, `git-diff` (`-w`) and `git-blame` (`--ignore-revs-file`); Google Engineering Practices, \"Small CLs\"",
+   "fix": "separate the formatting commit, or revert the formatting hunks; add the formatting commit to `.git-blame-ignore-revs`."
+  },
+  "X-DIFF-08": {
+   "title": "Local-environment leftover",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/diff-hygiene.md",
+   "cite": "The Twelve-Factor App, III \"Config\"; CWE-489",
+   "fix": "read configuration from the environment and fail fast when it is missing; remove temporary bypasses."
+  },
+  "X-SEC-01": {
+   "title": "Dependency change that adds known or unverifiable risk",
+   "levels": [
+    "major",
+    "minor"
+   ],
+   "ref": "refs/security.md",
+   "cite": "CWE-1104; CWE-1395",
+   "fix": "pin published versions and commit the lockfile; one index that proxies the public one; hash-checking mode; replace unmaintained packages."
+  }
+ },
+ "codes": {
+  "eslint": {
+   "@next/next/no-img-element": [
+    "TS-PERF-52"
+   ],
+   "@next/next/no-sync-scripts": [
+    "TS-PERF-52"
+   ],
+   "@tanstack/query/exhaustive-deps": [
+    "NODE-COR-16",
+    "TS-COR-16"
+   ],
+   "@typescript-eslint/ban-ts-comment": [
+    "NODE-MAINT-08",
+    "TS-MAINT-08",
+    "NODE-MAINT-53",
+    "TS-MAINT-53"
+   ],
+   "@typescript-eslint/consistent-type-imports": [
+    "NODE-MAINT-52"
+   ],
+   "@typescript-eslint/no-explicit-any": [
+    "NODE-MAINT-08",
+    "TS-MAINT-08"
+   ],
+   "@typescript-eslint/no-floating-promises": [
+    "NODE-COR-10",
+    "TS-COR-10",
+    "NODE-SEC-20",
+    "TS-SEC-20",
+    "NODE-ERR-04",
+    "TS-ERR-04",
+    "NODE-ERR-08",
+    "TS-ERR-11"
+   ],
+   "@typescript-eslint/no-misused-promises": [
+    "NODE-COR-10",
+    "TS-COR-10",
+    "NODE-SEC-20",
+    "TS-SEC-20",
+    "NODE-ERR-08",
+    "TS-ERR-11"
+   ],
+   "@typescript-eslint/no-non-null-assertion": [
+    "NODE-MAINT-08",
+    "TS-MAINT-08",
+    "NODE-COR-04",
+    "TS-COR-04",
+    "TS-COR-76"
+   ],
+   "@typescript-eslint/no-unnecessary-condition": [
+    "NODE-COR-04",
+    "TS-COR-04"
+   ],
+   "@typescript-eslint/no-unsafe-assignment": [
+    "NODE-MAINT-08",
+    "TS-MAINT-08"
+   ],
+   "@typescript-eslint/prefer-enum-initializers": [
+    "NODE-COR-64"
+   ],
+   "@typescript-eslint/prefer-nullish-coalescing": [
+    "NODE-COR-05",
+    "TS-COR-05"
+   ],
+   "@typescript-eslint/return-await": [
+    "NODE-COR-10",
+    "TS-COR-10"
+   ],
+   "complexity": [
+    "NODE-MAINT-07",
+    "TS-MAINT-07"
+   ],
+   "eqeqeq": [
+    "NODE-COR-14",
+    "TS-COR-14"
+   ],
+   "import/extensions": [
+    "NODE-COR-62"
+   ],
+   "import/no-commonjs": [
+    "NODE-COR-63"
+   ],
+   "import/order": [
+    "NODE-MAINT-52"
+   ],
+   "jest/expect-expect": [
+    "NODE-TEST-02",
+    "TS-TEST-02"
+   ],
+   "jest/no-commented-out-tests": [
+    "NODE-TEST-06",
+    "TS-TEST-06"
+   ],
+   "jest/no-conditional-expect": [
+    "NODE-TEST-02",
+    "TS-TEST-02"
+   ],
+   "jest/no-disabled-tests": [
+    "NODE-TEST-06",
+    "TS-TEST-06"
+   ],
+   "jest/no-done-callback": [
+    "NODE-TEST-52"
+   ],
+   "jest/no-focused-tests": [
+    "NODE-TEST-06",
+    "TS-TEST-06"
+   ],
+   "jest/no-standalone-expect": [
+    "NODE-TEST-02",
+    "TS-TEST-02"
+   ],
+   "jest/valid-expect": [
+    "NODE-TEST-02",
+    "TS-TEST-02"
+   ],
+   "jsdoc/check-param-names": [
+    "NODE-MAINT-09",
+    "TS-MAINT-09"
+   ],
+   "max-depth": [
+    "NODE-MAINT-07",
+    "TS-MAINT-07"
+   ],
+   "max-lines-per-function": [
+    "NODE-MAINT-07",
+    "TS-MAINT-07"
+   ],
+   "max-params": [
+    "NODE-MAINT-07",
+    "TS-MAINT-07"
+   ],
+   "n/no-sync": [
+    "NODE-PERF-02"
+   ],
+   "n/no-unsupported-features/es-builtins": [
+    "NODE-COR-53"
+   ],
+   "n/no-unsupported-features/node-builtins": [
+    "NODE-COR-53"
+   ],
+   "no-async-promise-executor": [
+    "NODE-COR-10",
+    "TS-COR-10"
+   ],
+   "no-await-in-loop": [
+    "NODE-PERF-01",
+    "TS-PERF-01"
+   ],
+   "no-compare-neg-zero": [
+    "NODE-COR-14",
+    "TS-COR-14"
+   ],
+   "no-console": [
+    "NODE-DIFF-01",
+    "TS-DIFF-01",
+    "NODE-SEC-23",
+    "TS-SEC-23"
+   ],
+   "no-constant-condition": [
+    "NODE-MAINT-03",
+    "TS-MAINT-03"
+   ],
+   "no-debugger": [
+    "NODE-DIFF-01",
+    "TS-DIFF-01"
+   ],
+   "no-empty": [
+    "NODE-ERR-01",
+    "TS-ERR-01"
+   ],
+   "no-eval": [
+    "NODE-SEC-15",
+    "TS-SEC-15"
+   ],
+   "no-implied-eval": [
+    "NODE-SEC-15",
+    "TS-SEC-15"
+   ],
+   "no-magic-numbers": [
+    "NODE-MAINT-06",
+    "TS-MAINT-06"
+   ],
+   "no-new-func": [
+    "NODE-SEC-15",
+    "TS-SEC-15"
+   ],
+   "no-param-reassign": [
+    "NODE-COR-03",
+    "TS-COR-03"
+   ],
+   "no-restricted-imports": [
+    "TS-PERF-10"
+   ],
+   "no-undef": [
+    "NODE-COR-63"
+   ],
+   "no-unreachable": [
+    "NODE-MAINT-03",
+    "TS-MAINT-03"
+   ],
+   "no-unused-vars": [
+    "NODE-MAINT-01",
+    "TS-MAINT-01"
+   ],
+   "no-warning-comments": [
+    "X-DIFF-05"
+   ],
+   "preserve-caught-error": [
+    "NODE-ERR-03",
+    "TS-ERR-03"
+   ],
+   "react-hooks/exhaustive-deps": [
+    "TS-COR-11"
+   ],
+   "react-hooks/rules-of-hooks": [
+    "TS-COR-73"
+   ],
+   "react/jsx-key": [
+    "TS-COR-13"
+   ],
+   "react/jsx-no-constructed-context-values": [
+    "TS-PERF-09"
+   ],
+   "react/jsx-no-leaked-render": [
+    "TS-COR-72"
+   ],
+   "react/jsx-no-script-url": [
+    "TS-SEC-26"
+   ],
+   "react/no-array-index-key": [
+    "TS-COR-13"
+   ],
+   "react/no-danger": [
+    "NODE-SEC-16",
+    "TS-SEC-16"
+   ],
+   "react/no-direct-mutation-state": [
+    "NODE-COR-03",
+    "TS-COR-03"
+   ],
+   "react/no-unstable-nested-components": [
+    "TS-PERF-09"
+   ],
+   "require-atomic-updates": [
+    "NODE-COR-09"
+   ],
+   "security/detect-child-process": [
+    "NODE-SEC-14"
+   ],
+   "security/detect-eval-with-expression": [
+    "NODE-SEC-15"
+   ],
+   "security/detect-non-literal-fs-filename": [
+    "NODE-SEC-03"
+   ],
+   "security/detect-possible-timing-attacks": [
+    "NODE-SEC-10"
+   ],
+   "security/detect-unsafe-regex": [
+    "NODE-PERF-11"
+   ],
+   "sort-imports": [
+    "NODE-MAINT-52"
+   ],
+   "tailwindcss/no-arbitrary-value": [
+    "TS-MAINT-60"
+   ],
+   "testing-library/await-async-queries": [
+    "TS-TEST-09"
+   ],
+   "testing-library/no-container": [
+    "TS-TEST-09"
+   ],
+   "testing-library/no-debugging-utils": [
+    "NODE-DIFF-01",
+    "TS-DIFF-01"
+   ],
+   "testing-library/no-node-access": [
+    "TS-TEST-09"
+   ],
+   "testing-library/no-wait-for-multiple-assertions": [
+    "NODE-TEST-05",
+    "TS-TEST-05"
+   ],
+   "testing-library/no-wait-for-side-effects": [
+    "NODE-TEST-05",
+    "TS-TEST-05"
+   ],
+   "testing-library/prefer-find-by": [
+    "NODE-TEST-05",
+    "TS-TEST-05",
+    "TS-TEST-09"
+   ],
+   "testing-library/prefer-screen-queries": [
+    "TS-TEST-09"
+   ],
+   "use-isnan": [
+    "NODE-COR-14",
+    "TS-COR-14"
+   ]
+  },
+  "mypy": {
+   "assignment": [
+    "PY-COR-52"
+   ],
+   "ignore-without-code": [
+    "PY-MAINT-53"
+   ],
+   "index": [
+    "PY-COR-04"
+   ],
+   "return": [
+    "PY-COR-52"
+   ],
+   "return-value": [
+    "PY-COR-52"
+   ],
+   "truthy-bool": [
+    "PY-SEC-20"
+   ],
+   "union-attr": [
+    "PY-COR-04"
+   ],
+   "unused-coroutine": [
+    "PY-COR-10"
+   ]
+  },
+  "ruff": {
+   "A001": [
+    "PY-COR-51"
+   ],
+   "A002": [
+    "PY-COR-51"
+   ],
+   "ANN001": [
+    "PY-MAINT-08"
+   ],
+   "ANN201": [
+    "PY-MAINT-08"
+   ],
+   "ANN401": [
+    "PY-MAINT-08"
+   ],
+   "ARG001": [
+    "PY-MAINT-01"
+   ],
+   "ASYNC210": [
+    "PY-PERF-02"
+   ],
+   "ASYNC230": [
+    "PY-PERF-02"
+   ],
+   "ASYNC251": [
+    "PY-PERF-02"
+   ],
+   "B006": [
+    "PY-COR-01"
+   ],
+   "B012": [
+    "PY-ERR-51"
+   ],
+   "B015": [
+    "PY-TEST-02"
+   ],
+   "B017": [
+    "PY-TEST-02"
+   ],
+   "B019": [
+    "PY-PERF-05"
+   ],
+   "B904": [
+    "PY-ERR-03"
+   ],
+   "BLE001": [
+    "PY-ERR-02",
+    "PY-SEC-24",
+    "PY-ERR-01"
+   ],
+   "C416": [
+    "PY-PERF-51"
+   ],
+   "C901": [
+    "PY-MAINT-07"
+   ],
+   "D100": [
+    "PY-MAINT-57"
+   ],
+   "D101": [
+    "PY-MAINT-57"
+   ],
+   "D102": [
+    "PY-MAINT-57"
+   ],
+   "D103": [
+    "PY-MAINT-57"
+   ],
+   "D417": [
+    "PY-MAINT-09",
+    "PY-MAINT-57"
+   ],
+   "DTZ001": [
+    "PY-COR-07"
+   ],
+   "DTZ003": [
+    "PY-COR-07"
+   ],
+   "DTZ005": [
+    "PY-COR-07"
+   ],
+   "DTZ011": [
+    "PY-COR-07"
+   ],
+   "E711": [
+    "PY-COR-14"
+   ],
+   "E712": [
+    "PY-COR-14"
+   ],
+   "E722": [
+    "PY-ERR-02",
+    "PY-ERR-01"
+   ],
+   "ERA001": [
+    "X-DIFF-02"
+   ],
+   "F401": [
+    "PY-MAINT-01"
+   ],
+   "F403": [
+    "PY-MAINT-51"
+   ],
+   "F405": [
+    "PY-MAINT-51"
+   ],
+   "F631": [
+    "PY-TEST-51"
+   ],
+   "F632": [
+    "PY-COR-14"
+   ],
+   "F841": [
+    "PY-MAINT-01"
+   ],
+   "FBT001": [
+    "PY-MAINT-07"
+   ],
+   "FBT002": [
+    "PY-MAINT-07"
+   ],
+   "FIX001": [
+    "X-DIFF-05"
+   ],
+   "FIX002": [
+    "X-DIFF-05"
+   ],
+   "G001": [
+    "PY-MAINT-58"
+   ],
+   "G002": [
+    "PY-MAINT-58"
+   ],
+   "G003": [
+    "PY-MAINT-58"
+   ],
+   "G004": [
+    "PY-MAINT-58"
+   ],
+   "I001": [
+    "PY-MAINT-52"
+   ],
+   "LOG015": [
+    "PY-MAINT-59"
+   ],
+   "N801": [
+    "PY-MAINT-52"
+   ],
+   "N802": [
+    "PY-MAINT-52"
+   ],
+   "N806": [
+    "PY-MAINT-52"
+   ],
+   "PERF401": [
+    "PY-PERF-51"
+   ],
+   "PERF402": [
+    "PY-PERF-51"
+   ],
+   "PERF403": [
+    "PY-PERF-51"
+   ],
+   "PGH003": [
+    "PY-MAINT-08",
+    "PY-MAINT-53"
+   ],
+   "PGH004": [
+    "PY-MAINT-53"
+   ],
+   "PT011": [
+    "PY-TEST-02"
+   ],
+   "PT012": [
+    "PY-TEST-02"
+   ],
+   "PT015": [
+    "PY-TEST-02"
+   ],
+   "RUF006": [
+    "PY-COR-10",
+    "PY-ERR-08"
+   ],
+   "RUF008": [
+    "PY-COR-54"
+   ],
+   "RUF009": [
+    "PY-COR-54"
+   ],
+   "RUF012": [
+    "PY-COR-01"
+   ],
+   "RUF029": [
+    "PY-MAINT-55"
+   ],
+   "S101": [
+    "PY-ERR-09"
+   ],
+   "S102": [
+    "PY-SEC-15"
+   ],
+   "S105": [
+    "PY-SEC-02"
+   ],
+   "S106": [
+    "PY-SEC-02"
+   ],
+   "S107": [
+    "PY-SEC-02"
+   ],
+   "S110": [
+    "PY-ERR-01",
+    "PY-SEC-24",
+    "PY-ERR-10"
+   ],
+   "S112": [
+    "PY-ERR-01",
+    "PY-ERR-10"
+   ],
+   "S113": [
+    "PY-ERR-04"
+   ],
+   "S201": [
+    "PY-SEC-18"
+   ],
+   "S202": [
+    "PY-SEC-03"
+   ],
+   "S301": [
+    "PY-SEC-21"
+   ],
+   "S307": [
+    "PY-SEC-15"
+   ],
+   "S310": [
+    "PY-SEC-25"
+   ],
+   "S311": [
+    "PY-SEC-07"
+   ],
+   "S323": [
+    "PY-SEC-12"
+   ],
+   "S324": [
+    "PY-SEC-08"
+   ],
+   "S501": [
+    "PY-SEC-12",
+    "X-DIFF-08"
+   ],
+   "S506": [
+    "PY-SEC-21"
+   ],
+   "S602": [
+    "PY-SEC-14"
+   ],
+   "S604": [
+    "PY-SEC-14"
+   ],
+   "S605": [
+    "PY-SEC-14"
+   ],
+   "S608": [
+    "PY-SEC-01"
+   ],
+   "S701": [
+    "PY-SEC-16"
+   ],
+   "S704": [
+    "PY-SEC-16"
+   ],
+   "SIM115": [
+    "PY-ERR-06"
+   ],
+   "SIM118": [
+    "PY-PERF-51"
+   ],
+   "T100": [
+    "PY-DIFF-01"
+   ],
+   "T201": [
+    "PY-DIFF-01",
+    "PY-SEC-23"
+   ],
+   "T203": [
+    "PY-DIFF-01"
+   ],
+   "TD002": [
+    "X-DIFF-05"
+   ],
+   "TD003": [
+    "X-DIFF-05"
+   ],
+   "TRY201": [
+    "PY-ERR-03"
+   ],
+   "TRY400": [
+    "PY-ERR-03"
+   ],
+   "UP006": [
+    "PY-MAINT-52"
+   ],
+   "UP007": [
+    "PY-MAINT-52"
+   ],
+   "UP035": [
+    "PY-MAINT-52"
+   ],
+   "UP045": [
+    "PY-MAINT-52"
+   ]
+  },
+  "tsc": {
+   "TS18048": [
+    "NODE-COR-04",
+    "TS-COR-04"
+   ],
+   "TS2532": [
+    "NODE-COR-04",
+    "TS-COR-04"
+   ],
+   "TS2835": [
+    "NODE-COR-62"
+   ],
+   "TS6133": [
+    "NODE-MAINT-01",
+    "TS-MAINT-01"
+   ],
+   "TS7027": [
+    "NODE-MAINT-03",
+    "TS-MAINT-03"
+   ]
+  }
+ },
+ "advisory": {
+  "ruff": [
+   "PLC0415"
+  ]
+ }
+}

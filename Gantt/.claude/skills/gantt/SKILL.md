@@ -55,13 +55,13 @@ Determine the command arguments:
 
 ### 4 — Run the generator
 ```bash
-python /workspaces/Prj_utils/Agent_dev/Skill_dev/Gantt/gantt_generator.py \
+python /workspaces/Prj_utils/Dev_Tools/Dev_Skills/Gantt/gantt_generator.py \
   <config> [--template <path>] [--output <path>]
 ```
 
 Activate the project venv first if needed:
 ```bash
-source /workspaces/Prj_utils/Agent_dev/.venv/bin/activate
+source /workspaces/Prj_utils/Dev_Tools/Dev_Agents/.venv/bin/activate
 ```
 
 ### 5 — Report the result

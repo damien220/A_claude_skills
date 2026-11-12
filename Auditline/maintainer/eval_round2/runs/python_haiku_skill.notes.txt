@@ -1,0 +1,26 @@
+Skill reference files read, per file (core refs read for every file: refs/review-process.md, refs/severity-and-output-format.md; language checklist read for every file: refs/lang/python-checklist.md)
+
+module_a.py
+  refs/security.md (section 1; PY-SEC-01, PY-SEC-02, PY-SEC-03, PY-SEC-04)
+  refs/correctness.md (section 1; PY-COR-02, PY-COR-07, PY-COR-08, PY-COR-09, PY-COR-16)
+  refs/error-handling.md (section 1; PY-ERR-01)
+
+module_b.py
+  refs/security.md (section 1; PY-SEC-01, PY-SEC-02, PY-SEC-03, PY-SEC-04)
+  refs/correctness.md (section 1; PY-COR-02, PY-COR-07, PY-COR-08, PY-COR-09, PY-COR-16)
+  refs/error-handling.md (section 1; PY-ERR-01)
+  The print at line 175 was triaged with the X-SEV-07 anchor in refs/severity-and-output-format.md; refs/diff-hygiene.md was not read (budget of three topic refs).
+
+module_c.py
+  refs/security.md (section 1; PY-SEC-01, PY-SEC-02, PY-SEC-03, PY-SEC-04)
+  refs/correctness.md (section 1; PY-COR-01 via X-SEV-01, PY-COR-02, PY-COR-07, PY-COR-08, PY-COR-09, PY-COR-16)
+  refs/error-handling.md (section 1; PY-ERR-01)
+
+module_e.py
+  refs/security.md (section 1; PY-SEC-01, PY-SEC-02, PY-SEC-03, PY-SEC-04)
+  refs/correctness.md (section 1; PY-COR-02, PY-COR-07, PY-COR-08, PY-COR-09, PY-COR-16)
+  refs/error-handling.md (section 1; PY-ERR-01)
+  PY-ERR-51 from refs/lang/python-checklist.md.
+
+test_module_e.py
+  refs/tests.md (section 1; PY-TEST-02, PY-TEST-04, PY-TEST-06)

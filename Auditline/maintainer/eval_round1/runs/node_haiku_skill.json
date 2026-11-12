@@ -1,0 +1,307 @@
+{
+  "verdict": "request changes",
+  "mode": "full",
+  "scope": {
+    "kind": "file",
+    "files": [
+      "module_a.mjs",
+      "module_b.mjs",
+      "module_c.mjs",
+      "module_e.mjs",
+      "module_e.test.mjs"
+    ],
+    "languages": [
+      "node"
+    ]
+  },
+  "tools": [
+    {
+      "name": "eslint",
+      "status": "ran",
+      "note": "bundled fallback config; 4 results dropped with reasons: module_b.mjs:114 no-await-in-loop (intentional sequential purge batches), module_b.mjs:139 es-builtins (no engines field in scope), module_b.mjs:149 and module_e.mjs:170 no-unused-vars on _next (Express error middleware is identified by arity)"
+    },
+    {
+      "name": "tsc",
+      "status": "skipped",
+      "note": "no tsconfig.json"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 10,
+      "rule_id": "NODE-SEC-02",
+      "title": "Hardcoded JWT signing secret in source",
+      "evidence": "const JWT_SECRET = 'c0mmunity-jwt-s1gning-k3y-2024';",
+      "why": "The signing key is committed to the repository. Anyone who reads it can mint a token with any `sub` and `role`, including admin, and authenticate() and issueToken() both accept it. Reachable by anyone who can read the code, and the key is already leaked at commit, so reachability does not lower it. Rotate the key after the fix.",
+      "fix": "const JWT_SECRET = requireEnv('JWT_SECRET');   // set from the environment or secret manager, then rotate the leaked key",
+      "cite": "CWE-798; OWASP A07:2021 Identification and Authentication Failures",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 85,
+      "rule_id": "NODE-SEC-20",
+      "title": "bcrypt.compare not awaited: login accepts any password",
+      "evidence": "const valid = bcrypt.compare(password, user.password_hash);",
+      "why": "bcrypt.compare returns a Promise, which is always truthy, so `!valid` is false and the password is never checked. Any existing account logs in with any password that passes the schema. Signup is open, so the reach is anonymous (R1).",
+      "fix": "const valid = await bcrypt.compare(password, user.password_hash);",
+      "cite": "CWE-287; CWE-285; OWASP A07:2021 Identification and Authentication Failures; ECMA-262 ToBoolean (a Promise is truthy)",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 104,
+      "rule_id": "NODE-SEC-01",
+      "title": "Member search query concatenated into SQL",
+      "evidence": "WHERE status = 'active' AND display_name ILIKE '%${q}%'",
+      "why": "The request value q is interpolated into the SQL text on GET /members/search. Signup is open, so any anonymous caller who can sign up reaches it (R1). A crafted q such as `%' OR '1'='1` or a UNION reads other rows or tables.",
+      "fix": "const pattern = `%${q.replace(/[\\\\%_]/g, '\\\\$&')}%`;  // escape as module_a does, then: WHERE ... display_name ILIKE $1 ... LIMIT $2, with [pattern, limit]",
+      "cite": "CWE-89; OWASP A03:2021 Injection",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 84,
+      "rule_id": "NODE-SEC-04",
+      "title": "Team usage route registered before the auth and admin middleware",
+      "evidence": "app.get('/api/admin/teams/:teamId/usage', asyncHandler(async (req, res) => {",
+      "why": "Express runs middleware in registration order. app.use('/api', authenticate) (line 92) and app.use('/api/admin', requireRole('admin')) (line 93) come after this route, so GET /api/admin/teams/:teamId/usage answers with no token and returns the usage of any team (R1). The admin-role test at module_e.test.mjs:47-51 would fail on this route.",
+      "fix": "Register this route after app.use('/api/admin', requireRole('admin')) (line 93), or move it into an admin router that has both middlewares attached.",
+      "cite": "CWE-862; OWASP A01:2021 Broken Access Control; Express docs, 'Using middleware' (order of loading matters)",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "blocker",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 122,
+      "rule_id": "NODE-SEC-04",
+      "title": "Document delete does not check the caller owns or shares the document",
+      "evidence": "app.delete('/api/documents/:id', asyncHandler(async (req, res) => {\n  const { rowCount } = await pool.query('DELETE FROM documents WHERE id = $1', [req.params.id]);",
+      "why": "The delete is keyed on the id alone. authenticate (line 92) only proves a valid token, so any authenticated caller can delete any document in any team by its UUID. UUIDs are not authorization. Assumes any token holder can obtain a token (issuance is outside this file), which is why reachability is R1.",
+      "fix": "await pool.query('DELETE FROM documents WHERE id = $1 AND owner_id = $2', [req.params.id, req.user.sub]); then return 404 when rowCount is 0 (add the share rule if editors may delete).",
+      "cite": "CWE-639; CWE-862; OWASP A01:2021 Broken Access Control; OWASP Insecure Direct Object Reference Prevention Cheat Sheet",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 60,
+      "rule_id": "NODE-PERF-02",
+      "title": "Blocking bcrypt call inside the signup handler",
+      "evidence": "const passwordHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);",
+      "why": "At 12 rounds the hash takes on the order of 250 ms of CPU. The sync call holds the event loop, so every concurrent request waits for each signup (C2, R1).",
+      "fix": "const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);",
+      "cite": "Node.js docs, \"Don't Block the Event Loop (or the Worker Pool)\"",
+      "source": "eslint",
+      "pre_existing": false,
+      "tool_code": "n/no-sync"
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 71,
+      "rule_id": "NODE-SEC-18",
+      "title": "Stack trace and internal error message returned to anonymous callers",
+      "evidence": "return reply.code(500).send({ error: err.message, stack: err.stack });",
+      "why": "Any signup failure, including database errors that name tables and columns, sends the stack trace to any anonymous caller (C2 information exposure, R1). The error is not logged here at all.",
+      "fix": "req.log.error({ err }, 'signup failed'); return reply.code(500).type('application/problem+json').send({ type: 'about:blank', title: 'internal server error', status: 500 });",
+      "cite": "CWE-209; OWASP A05:2021 Security Misconfiguration; RFC 9457",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 49,
+      "rule_id": "NODE-COR-09",
+      "title": "Read-modify-write race in invoice subtotal",
+      "evidence": "subtotalCents += await meterChargeCents(teamId, meter, start, end);",
+      "why": "The left side of += is read before the await. All three meter callbacks read subtotalCents as 0, so only the last meter to resolve is kept. With 1000 cents per meter the subtotal is 1000, not 3000, and amount_due and the stored invoice are wrong (money, C1). Reachability is R2 because the invoice route sits behind requireRole('admin') visible in code (D1). The one test that runs (module_e.test.mjs:55) expects 3000 and would catch it.",
+      "fix": "const parts = await Promise.all(METERS.map((meter) => meterChargeCents(teamId, meter, start, end)));\n  const subtotalCents = parts.reduce((a, b) => a + b, 0);",
+      "cite": "CWE-362; CWE-367",
+      "source": "eslint",
+      "pre_existing": false,
+      "tool_code": "require-atomic-updates"
+    },
+    {
+      "severity": "major",
+      "confidence": "medium",
+      "file": "module_e.mjs",
+      "line": 52,
+      "rule_id": "NODE-COR-08",
+      "title": "Tax rounded through binary floats before the stored invoice total",
+      "evidence": "const amountDue = Math.round((subtotalCents / 100) * (1 + TAX_RATE) * 100) / 100;",
+      "why": "The tax is computed as a float product and then Math.round(x * 100) / 100. An exact half-cent result can land on either side of the .5 boundary after float error, so amount_due (persisted at line 146) can differ by one cent from the exact value. Money written to the invoice table (C1), on an admin-gated route (R2). Medium confidence: the specific inputs that round wrong are not proven here; the assumption is that half-cent subtotals occur.",
+      "fix": "Compute in integer cents: const taxCents = Math.round((subtotalCents * 825) / 10000); amountDue cents = subtotalCents + taxCents, with the rate held as basis points (825 = 8.25%).",
+      "cite": "CWE-682; CWE-1339; Python docs, 'Floating Point Arithmetic' (same binary-float issue); Stripe API docs, 'Currencies' (amounts in the smallest unit)",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 114,
+      "rule_id": "NODE-ERR-06",
+      "title": "Search connection not released when the query fails",
+      "evidence": "} catch (err) {\n  if (err.code === '57014') {\n    return res.status(503).json({ error: 'search timed out, try a narrower query' });\n  }\n  return next(err);",
+      "why": "client.release() runs only on the success path (line 112). On the 503 timeout path and on every error passed to next(err), the checked-out client is never released. Timeouts are the expected failure for a large team (the query is capped at 2 s), so each one keeps a pool connection. After about pool-size timeouts the pool drains and every database request in the API waits. The statement_timeout set on line 103 also stays on the released connection because RESET is skipped (C2 availability, R1 for any authenticated user).",
+      "fix": "Move client.release() into a finally block and run RESET statement_timeout there as well.",
+      "cite": "node-postgres docs, 'Pooling' (a checked-out client must be released); CWE-772; CWE-404",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.test.mjs",
+      "line": 40,
+      "rule_id": "NODE-TEST-02",
+      "title": "Signature test passes whatever the server returns",
+      "evidence": "try {\n  await fetch(`${BASE_URL}/api/documents/${DOC_ID}`, { method: 'DELETE', headers });\n} catch (err) {\n  expect(err.status).toBe(401);\n}",
+      "why": "fetch resolves on a 401 and does not throw, so the expect in catch never runs and the test passes whatever the server does. It is the only test of token signature verification, so the auth gate has no working test (major: false confidence on auth logic).",
+      "fix": "const response = await fetch(`${BASE_URL}/api/documents/${DOC_ID}`, { method: 'DELETE', headers }); expect(response.status).toBe(401);",
+      "cite": "Jest docs, async matchers and expect (assertions must run and be awaited)",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.test.mjs",
+      "line": 55,
+      "rule_id": "NODE-TEST-06",
+      "title": "it.only narrows the suite to one test",
+      "evidence": "it.only('adds up every meter before tax', async () => {",
+      "why": "Jest runs only this test in the file. The authentication, admin-role, rounding, database-failure and quota-warning tests are skipped silently, including the admin-role test that fails on module_e.mjs:84 and the signature test. The suite stays green while checking much less.",
+      "fix": "Remove .only.",
+      "cite": "Jest docs, test.only and test.skip",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "major",
+      "confidence": "high",
+      "file": "module_e.test.mjs",
+      "line": 63,
+      "rule_id": "NODE-TEST-02",
+      "title": "Rounding test never awaits its assertion",
+      "evidence": "expect(computeInvoice(TEAM_ID, ...PERIOD)).resolves.toMatchObject({ amountDue: 64.95 });",
+      "why": "The .resolves assertion is neither returned nor awaited, so the test ends before the check runs and cannot fail. It is the only test of the tax rounding (money), so major.",
+      "fix": "await expect(computeInvoice(TEAM_ID, ...PERIOD)).resolves.toMatchObject({ amountDue: 64.95 });",
+      "cite": "Jest docs, .resolves / .rejects (return or await the assertion)",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 89,
+      "rule_id": "NODE-DIFF-01",
+      "title": "console.log left in the login handler",
+      "evidence": "console.log('login user', user.id, user.status);",
+      "why": "Bypasses the Fastify logger and runs on every login, which is a request path (X-SEV-07: minor). Logs no secret, so not major.",
+      "fix": "Delete it, or use request.log.debug({ userId: user.id }, 'login user').",
+      "cite": "CWE-532; OWASP Logging Cheat Sheet",
+      "source": "eslint",
+      "pre_existing": false,
+      "tool_code": "no-console"
+    },
+    {
+      "severity": "minor",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 66,
+      "rule_id": "NODE-COR-10",
+      "title": "Mailer promise returned inside try without await, so catch never runs",
+      "evidence": "try {\n  return mailer.sendMail({",
+      "why": "return without await inside try does not catch a rejected send. The warning is not logged and null is not returned, so the admin quota route at line 166 turns a mail failure into a 500. The test at module_e.test.mjs:73-76 expects null and would fail. Consequence C2 on an admin-gated route (R2), so minor.",
+      "fix": "return await mailer.sendMail({",
+      "cite": "ECMA-262, async function semantics (a returned rejected promise bypasses try/catch); CWE-252",
+      "source": "model",
+      "pre_existing": false
+    },
+    {
+      "severity": "nit",
+      "confidence": "high",
+      "file": "module_c.mjs",
+      "line": 90,
+      "rule_id": "NODE-COR-14",
+      "title": "Loose equality on a string status column",
+      "evidence": "if (user.status == 'disabled') {",
+      "why": "status is a text column that is always a string or null, so == and === give the same result here (X-SEV-08). Reader cost only. Re-rated from the linter's minor.",
+      "fix": "if (user.status === 'disabled') {",
+      "cite": "ECMA-262 IsLooselyEqual; ESLint eqeqeq",
+      "source": "eslint",
+      "pre_existing": false,
+      "tool_code": "eqeqeq"
+    },
+    {
+      "severity": "nit",
+      "confidence": "high",
+      "file": "module_e.mjs",
+      "line": 7,
+      "rule_id": "NODE-MAINT-01",
+      "title": "Unused import randomUUID",
+      "evidence": "import { randomUUID } from 'node:crypto';",
+      "why": "Never used. Reader cost only.",
+      "fix": "Delete the import line.",
+      "cite": "ESLint docs, no-unused-vars",
+      "source": "eslint",
+      "pre_existing": false,
+      "tool_code": "no-unused-vars"
+    }
+  ],
+  "questions": [
+    {
+      "file": "module_a.mjs",
+      "line": 105,
+      "question": "Is POST /login rate-limited at a gateway or by a plugin that is not in this file? If not, it is open to credential stuffing (OWASP ASVS V2.2.1)."
+    },
+    {
+      "file": "module_b.mjs",
+      "line": 98,
+      "question": "If a payment webhook can arrive before the order row is committed, the event id is stored and committed at line 98 with no order applied, and every retry then returns 'duplicate', so paid_at is never set. Can an event reach the handler before its order exists?"
+    },
+    {
+      "file": "module_c.mjs",
+      "line": 52,
+      "question": "jwt.verify has no algorithms option. With jsonwebtoken v9 and a string secret HS256 is enforced by default, so confirm the installed version (RFC 8725 §3.1)."
+    },
+    {
+      "file": "module_c.mjs",
+      "line": 75,
+      "question": "Is POST /login rate-limited at a gateway or elsewhere? Nothing in this file applies a limit (OWASP ASVS V2.2.1)."
+    },
+    {
+      "file": "module_c.mjs",
+      "line": 82,
+      "question": "The early return for an unknown email skips bcrypt, so response time reveals whether the account exists (CWE-208). Confirm whether this is acceptable for this login flow."
+    }
+  ],
+  "summary": {
+    "blocker": 5,
+    "major": 8,
+    "minor": 2,
+    "nit": 2
+  }
+}

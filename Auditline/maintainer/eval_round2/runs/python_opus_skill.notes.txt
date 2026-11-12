@@ -1,0 +1,20 @@
+Skill reference files read, per file (python_opus_skill run)
+
+Read once for the whole review (shared by all five files):
+  SKILL.md
+  refs/review-process.md                 (core; tools first, file scope)
+  refs/severity-and-output-format.md     (core; rubric, anchors, output format)
+  refs/lang/python-checklist.md          (language checklist, all .py files)
+  tooling/python-review-checklist.md     (flat index, header + rule-ID lookup only, last pass)
+  tooling/report-template.md, tooling/finding.schema.json (output)
+  tooling/run_linters.py (run, --help only), verification/validate_report.py (run; lines 120-216 read to format the Markdown)
+
+Topic refs chosen per file (cap of three per file):
+  module_a.py       refs/security.md, refs/correctness.md, refs/error-handling.md
+  module_b.py       refs/security.md, refs/correctness.md, refs/error-handling.md
+  module_c.py       refs/security.md, refs/error-handling.md, refs/performance.md
+                    (mutable default rated with X-SEV-01 in the core severity ref)
+  module_e.py       refs/security.md, refs/correctness.md, refs/error-handling.md
+  test_module_e.py  refs/tests.md
+
+Not read: refs/maintainability.md, refs/diff-hygiene.md, node and typescript checklists.

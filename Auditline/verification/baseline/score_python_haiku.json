@@ -1,0 +1,39 @@
+{
+  "defects": 8,
+  "matched": 7,
+  "recall_all": 0.875,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 0.7142857142857143,
+  "unmatched_findings": 3,
+  "precision_matched_only": 0.7,
+  "control_blocker_major": 1,
+  "missed": [
+    {
+      "file": "sample_bad_1.py",
+      "id": "D1",
+      "line": 10,
+      "severity": "nit",
+      "title": "Unused import"
+    }
+  ],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.py",
+      "line": 145,
+      "severity": "major",
+      "title": "Charge is made without an idempotency key; a failed mark_billed lets a retry charge the customer again"
+    },
+    {
+      "file": "sample_bad_1.py",
+      "line": 115,
+      "severity": "nit",
+      "title": "CSV file opened without explicit encoding (platform-dependent output)"
+    },
+    {
+      "file": "sample_good_1.py",
+      "line": 164,
+      "severity": "major",
+      "title": "CSV export written after the charge and DB commit; a write failure returns 500 with no export and no retry path"
+    }
+  ]
+}

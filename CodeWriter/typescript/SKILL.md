@@ -1,13 +1,13 @@
 ---
 name: typescript-frontend-best-style
-description: Use when writing, editing, refactoring, or reviewing React/TypeScript frontend
+description: Use when writing, editing, or refactoring React/TypeScript frontend
   code to produce idiomatic, performant, accessible, and secure UIs. Enforces strict TypeScript,
   React hooks discipline, TanStack Query for server state, Zod API boundary validation, React
   Hook Form + Zod for forms, React Testing Library tests, jsx-a11y accessibility rules, and
   Next.js App Router / RSC best practices. Also handles cloning the look and feel of a reference
   website from a URL or screenshot into a token-driven design implementation. Triggers on
   .tsx/.jsx files, "write a React component", "refactor this hook", "add a form", "best
-  practice", "make this idiomatic", "clone the design of <url>", or "make it look like <url>".
+  practice", "make this idiomatic", "clone the design of <url>", or "make it look like <url>". Does not review existing code: review requests go to the auditline skill.
 ---
 
 # TypeScript Frontend Best Style

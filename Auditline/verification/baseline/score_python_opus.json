@@ -1,0 +1,25 @@
+{
+  "defects": 8,
+  "matched": 8,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "severity_exact": 0.625,
+  "unmatched_findings": 2,
+  "precision_matched_only": 0.8,
+  "control_blocker_major": 0,
+  "missed": [],
+  "unmatched": [
+    {
+      "file": "sample_bad_1.py",
+      "line": 91,
+      "severity": "major",
+      "title": "Charge request sent without an idempotency key; retries or concurrent runs can double-charge the customer"
+    },
+    {
+      "file": "sample_bad_1.py",
+      "line": 115,
+      "severity": "nit",
+      "title": "File opened without explicit encoding; output depends on platform locale"
+    }
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "files": {
+    "sample_bad_1.py": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 10,
+          "category": "maintainability",
+          "severity": "nit",
+          "title": "Unused import",
+          "evidence": "import json",
+          "cwe_or_cite": "ruff F401; PEP 8",
+          "rationale": "X-SEV-08 (h): unused import, no runtime effect, autofixable (ruff F401): nit.",
+          "tier": "standard",
+          "rule_id": "PY-MAINT-01"
+        },
+        {
+          "id": "D2",
+          "line": 29,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Hardcoded live payment API key committed in source",
+          "evidence": "CHARGE_API_KEY = \"pk_live_7Hq2LxW9pR4tN8vZ3mK6sJ1dQ5yB0cF\"",
+          "cwe_or_cite": "CWE-798; OWASP A07:2021",
+          "rationale": "X-SEV-04 (d): live production credential in source; the leak happens at commit, so reachability cannot lower it: blocker.",
+          "tier": "standard",
+          "rule_id": "PY-SEC-02"
+        },
+        {
+          "id": "D3",
+          "line": 61,
+          "category": "security",
+          "severity": "blocker",
+          "title": "SQL injection: request email interpolated into SQL with an f-string",
+          "evidence": "query = f\"SELECT id, name, email FROM customers WHERE email = '{email}'\"",
+          "cwe_or_cite": "CWE-89; OWASP A03:2021; ruff S608",
+          "rationale": "X-SEV-04 (d): request JSON 'email' (line 127) reaches the SQL text via find_customer (line 132); the only check is an '@' in the string, so any caller of POST /billing/run can inject: blocker.",
+          "tier": "standard",
+          "rule_id": "PY-SEC-01"
+        },
+        {
+          "id": "D4",
+          "line": 68,
+          "category": "correctness",
+          "severity": "blocker",
+          "title": "Mutable default argument is shared across calls; Invoice.items aliases it, so line items accumulate across billing runs and customers are overcharged",
+          "evidence": "adjustments: list[LineItem] = [],",
+          "cwe_or_cite": "Python docs: Programming FAQ 'Why are default values shared between objects?'; ruff B006",
+          "rationale": "X-SEV-01 (a): run_billing calls build_invoice without adjustments (line 136), Invoice.items aliases the shared default (line 70) and line 83 appends to it, so each billing run carries every earlier run's line items and customers are overcharged on the default path: data corruption across billing runs, blocker.",
+          "tier": "standard",
+          "rule_id": "PY-COR-01"
+        },
+        {
+          "id": "D5",
+          "line": 77,
+          "category": "performance",
+          "severity": "major",
+          "title": "N+1 query: one order_items SELECT per order inside the loop instead of a JOIN",
+          "evidence": "rows = conn.execute(",
+          "cwe_or_cite": "CWE-1073",
+          "rationale": "X-SEV-02 (b): one order_items query per unbilled order on the POST /billing/run request path; the number of orders per customer is unbounded: major.",
+          "tier": "standard",
+          "rule_id": "PY-PERF-01"
+        },
+        {
+          "id": "D6",
+          "line": 102,
+          "category": "error-handling",
+          "severity": "major",
+          "title": "Broad exception swallowed with pass: charge failures (including a succeeded charge with a malformed response) are silently turned into None with no log",
+          "evidence": "except Exception:",
+          "cwe_or_cite": "CWE-390; CWE-396; ruff S110, BLE001",
+          "rationale": "X-SEV-05 (e) with U1: money path; a failed charge, or a charge that succeeded but returned an unexpected body, becomes None with no log, and the caller cannot tell them apart: major.",
+          "tier": "standard",
+          "rule_id": "PY-ERR-01"
+        },
+        {
+          "id": "D7",
+          "line": 137,
+          "category": "diff-hygiene",
+          "severity": "minor",
+          "title": "Leftover debug print dumps invoice contents to stdout instead of using the logger",
+          "evidence": "print(\"DEBUG invoice\", invoice)",
+          "cwe_or_cite": "ruff T201; PEP 282 (logging)",
+          "rationale": "X-SEV-07 (g): debug print on a request path (run_billing); it prints SKUs, quantities, prices and an internal customer id, not secrets or PII, so U4 does not apply: minor.",
+          "tier": "standard",
+          "rule_id": "PY-DIFF-01"
+        },
+        {
+          "id": "D8",
+          "line": 160,
+          "category": "security",
+          "severity": "blocker",
+          "title": "Path traversal: user-supplied ?file= joined to EXPORT_DIR without containment check (../ or absolute paths escape); use send_from_directory or resolve()+is_relative_to",
+          "evidence": "return send_file(os.path.join(EXPORT_DIR, name), mimetype=\"text/csv\")",
+          "cwe_or_cite": "CWE-22; OWASP A01:2021",
+          "rationale": "X-SEV-03 (c): ?file= is caller-controlled and only checked for a .csv suffix, so '../' or an absolute path escapes EXPORT_DIR (CWE-22). The module docstring says the admin app authenticates requests, but no authorization gate is visible as code in the file, and a docstring is not a gate (D1 does not apply): blocker.",
+          "tier": "standard",
+          "rule_id": "PY-SEC-03"
+        },
+        {
+          "id": "D9",
+          "line": 91,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "standard",
+          "title": "Charge POST carries no idempotency key; a timed-out success is retried by the next run and charges the customer twice",
+          "evidence": "response = requests.post(",
+          "trigger": "The provider takes the charge but the response exceeds the 10 s timeout: charge_invoice returns None, the run answers 502 and the orders stay unbilled, so the next billing run charges the same customer again.",
+          "cwe_or_cite": "CWE-837 (Improper Enforcement of a Single, Unique Action); IETF draft-ietf-httpapi-idempotency-key-header",
+          "rationale": "C1 (customer charged twice, money moved) x R2 (needs a timeout after a successful charge, then a rerun): major. sample_good_1.py shows the fix: a key derived from customer and orders.",
+          "rule_id": "PY-COR-02"
+        }
+      ],
+      "decoys": []
+    },
+    "sample_good_1.py": {
+      "defects": [],
+      "decoys": []
+    },
+    "sample_bad_2.py": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 11,
+          "category": "maintainability",
+          "severity": "nit",
+          "tier": "hard",
+          "title": "Unused import of uuid",
+          "evidence": "import uuid",
+          "trigger": "Static: uuid is never referenced in the module.",
+          "cwe_or_cite": "ruff F401; PEP 8 (imports)",
+          "rationale": "C4 (unused name, no runtime effect) x R1; D4 applies (ruff F401 autofixes it): nit.",
+          "rule_id": "PY-MAINT-01"
+        },
+        {
+          "id": "D2",
+          "line": 52,
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "Process-wide stock cache is keyed by SKU only, not by tenant, so one tenant is served another tenant's cached warehouse stock levels",
+          "evidence": "cached = _stock_cache.get(sku)",
+          "trigger": "A tenant-10 user GETs /inventory/stock/BOLT-M8 (result cached for 30 s under 'BOLT-M8'); within 30 s a tenant-20 user GETs /inventory/stock/BOLT-M8 and receives tenant 10's warehouse ids and on-hand counts (200 instead of 404 if tenant 20 does not stock it).",
+          "cwe_or_cite": "CWE-668 (Exposure of Resource to Wrong Sphere); CWE-524; OWASP A01:2021",
+          "rationale": "C1 (another tenant's inventory data is exposed; U2, state shared across requests and tenants) x R1 (any authenticated user of any tenant, default path, needs only a SKU code another tenant uses): blocker.",
+          "rule_id": "PY-SEC-04"
+        },
+        {
+          "id": "D3",
+          "line": 55,
+          "category": "error-handling",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "Connection in stock_levels is closed only on the success path; if the query raises, conn.close() is skipped and the connection leaks (the rest of the module uses get_connection/closing)",
+          "evidence": "conn = sqlite3.connect(DB_PATH, timeout=DB_TIMEOUT_SECONDS)",
+          "trigger": "The SELECT raises sqlite3.OperationalError (e.g. 'database is locked' after the 5 s busy timeout while purchase orders write, or a missing table during a migration): the exception propagates past conn.close(), leaving the connection and its file handle open until garbage collection (Python 3.13 emits ResourceWarning for it).",
+          "cwe_or_cite": "CWE-772 (Missing Release of Resource after Effective Lifetime); CWE-404; Python docs sqlite3 (contextlib.closing / Connection.close)",
+          "rationale": "C2 (unhandled failure at an I/O boundary leaks a connection) x R2 (only when the query raises; read path, so U1 does not apply): minor.",
+          "rule_id": "PY-ERR-06"
+        },
+        {
+          "id": "D4",
+          "line": 96,
+          "span": [
+            85,
+            96
+          ],
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Check-then-act race: on_hand is read, compared and then overwritten with an absolute value computed in Python, so concurrent reservations oversell and lose updates",
+          "evidence": "\"UPDATE stock SET on_hand = ? WHERE tenant_id = ? AND warehouse_id = ? AND sku = ?\",",
+          "trigger": "on_hand = 5; two POST /inventory/reservations for quantity 5 arrive together. Both run the SELECT (outside any transaction: sqlite3 opens the implicit transaction only at the UPDATE), both see 5, both pass the check and both write on_hand = 0, so 10 units are held against 5 in stock. With quantities 3 and 4 the second write overwrites the first (lost update).",
+          "cwe_or_cite": "CWE-362 (Race Condition); CWE-367 (TOCTOU); SQLite docs 'Transaction' (deferred BEGIN)",
+          "rationale": "C1 (stock oversold and the on_hand count corrupted; U2, state shared across requests) x R2 (needs two reservations for the same sku and warehouse to interleave between the SELECT and the UPDATE): major.",
+          "rule_id": "PY-COR-09"
+        },
+        {
+          "id": "D5",
+          "line": 103,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Reservation expiry is built from naive local time while created_at and the expiry sweeper use UTC, so holds expire hours early or late on any host not running in UTC",
+          "evidence": "(datetime.now() + RESERVATION_TTL).strftime(TS_FORMAT)),",
+          "trigger": "Host TZ=America/New_York (UTC-4): a reservation made at 14:00 UTC stores created_at '... 14:00:00' and expires_at '... 10:15:00'; the next expire_stale_reservations run compares expires_at < _utc_now() ('... 14:01:00'), expires the hold after about a minute and returns the stock. On a UTC+2 host holds last 2 h 15 min instead of 15 min.",
+          "cwe_or_cite": "Python docs: datetime 'Aware and Naive Objects' and datetime.now(tz=timezone.utc)",
+          "rationale": "C2 (wrong expiry under a specific condition: host time zone not UTC) x R1 (every reservation on the default path): major.",
+          "rule_id": "PY-COR-07"
+        },
+        {
+          "id": "D6",
+          "line": 121,
+          "category": "error-handling",
+          "severity": "minor",
+          "tier": "hard",
+          "title": "return inside finally swallows any exception from the reservations query and reports an empty list with 200, with nothing logged",
+          "evidence": "return jsonify({\"reservations\": [dict(row) for row in rows]})",
+          "trigger": "The SELECT raises sqlite3.OperationalError (database locked) or the sort column is missing after a migration: the return in finally discards the exception and the client gets 200 {\"reservations\": []}, indistinguishable from 'no reservations'.",
+          "cwe_or_cite": "CWE-584 (Return Inside Finally Block); PEP 765; ruff B012",
+          "rationale": "C2 (failure at an I/O boundary reported as an empty success) x R2 (only when the query fails; read-only path, so U1 does not apply): minor.",
+          "rule_id": "PY-ERR-51"
+        },
+        {
+          "id": "D7",
+          "line": 128,
+          "category": "security",
+          "severity": "blocker",
+          "tier": "hard",
+          "title": "IDOR: cancel looks up the reservation by id only, with no user or tenant filter, although g.user is available, so any user can cancel anyone's reservation",
+          "evidence": "\"UPDATE reservations SET status = 'cancelled' WHERE id = ? AND status = 'held'\"",
+          "trigger": "User 2 of tenant 20 sends POST /inventory/reservations/1/cancel where reservation 1 belongs to user 1 of tenant 10: 200, the hold is cancelled and its stock released. Integer ids make every reservation enumerable.",
+          "cwe_or_cite": "CWE-639 (Authorization Bypass Through User-Controlled Key); OWASP A01:2021",
+          "rationale": "C1 (authorization bypass: cross-tenant state change) x R1 (any authenticated user, default path); X-SEV-04 class, never downgraded: blocker.",
+          "rule_id": "PY-SEC-04"
+        },
+        {
+          "id": "D8",
+          "line": 168,
+          "category": "correctness",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Purchase-order total is computed in binary floats and truncated to cents with int(), so the stored total is a cent short for common prices",
+          "evidence": "total_cents = int(unit_cost * quantity * 100)",
+          "trigger": "POST /inventory/purchase-orders as an inventory_admin with {\"sku\": \"BOLT-M8\", \"warehouse_id\": 1, \"quantity\": 3, \"unit_cost\": 0.29}: 0.29 * 3 * 100 = 86.99999999999999, int() gives 86, so 86 cents is persisted and returned instead of 87.",
+          "cwe_or_cite": "CWE-681 (Incorrect Conversion between Numeric Types); CWE-1339; Python docs 'Floating Point Arithmetic: Issues and Limitations' and decimal module",
+          "rationale": "C1 (persisted money amount wrong) x R2 (only users passing the explicit inventory_admin role check visible in the handler): major.",
+          "rule_id": "PY-COR-08"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 43,
+          "evidence": "return datetime.now(timezone.utc).strftime(TS_FORMAT)",
+          "why_fine": "Aware UTC timestamp; this is the correct pattern, used for created_at, received_at and the sweeper cutoff."
+        },
+        {
+          "line": 61,
+          "evidence": "{\"warehouse_id\": wid, \"on_hand\": on_hand, \"utilisation\": round(on_hand / capacity, 3) if capacity else 0.0}",
+          "why_fine": "Float used for a display ratio, not money; division by zero guarded."
+        },
+        {
+          "line": 93,
+          "evidence": "total_cents = item[\"unit_price_cents\"] * quantity",
+          "why_fine": "Integer cents times integer quantity; exact money arithmetic."
+        },
+        {
+          "line": 117,
+          "evidence": "f\" WHERE user_id = ? ORDER BY {order_by} LIMIT 100\",",
+          "why_fine": "order_by always comes from the constant SORT_COLUMNS allowlist (unknown keys fall back to the default); the user id is a bound parameter."
+        },
+        {
+          "line": 140,
+          "evidence": "\"UPDATE stock SET on_hand = on_hand + ? WHERE tenant_id = ? AND warehouse_id = ? AND sku = ?\",",
+          "why_fine": "Atomic relative increment inside the caller's transaction; no read-modify-write race (the occurrence in _return_to_stock, used by cancel and the sweeper)."
+        }
+      ]
+    },
+    "sample_bad_3_tests.py": {
+      "defects": [
+        {
+          "id": "D1",
+          "line": 61,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Always-true assertion: len() of a list is never negative, so the test cannot fail whatever the listing returns",
+          "evidence": "assert len(response.get_json()[\"reservations\"]) >= 0",
+          "trigger": "Make GET /inventory/reservations return an empty list (e.g. the swallowed error in sample_bad_2.py D6, or a wrong user_id filter): the test still passes.",
+          "cwe_or_cite": "CWE-571 (Expression is Always True); pytest docs 'Assertions'",
+          "rationale": "C2 (the listing behaviour ships without an effective test) x R1 (reachability of the production endpoint the test is meant to guard, which every user calls); D3 is not applied because the consequence is on the untested production path: major.",
+          "rule_id": "PY-TEST-02"
+        },
+        {
+          "id": "D2",
+          "line": 67,
+          "category": "tests",
+          "severity": "major",
+          "tier": "standard",
+          "title": "Vacuous assertion: any HTTP status code is truthy, so the cross-tenant cancel test passes even when the cancel succeeds",
+          "evidence": "assert response.status_code",
+          "trigger": "Bob (tenant 20) cancels Alice's reservation; sample_bad_2.py returns 200 (its D7 IDOR) and the test passes; it would also pass on 500.",
+          "cwe_or_cite": "pytest docs 'Assertions'; CWE-571",
+          "rationale": "C2 (the cancel authorization check has no effective test, masking the IDOR) x R1 (production cancel endpoint is open to every user): major.",
+          "rule_id": "PY-TEST-02"
+        },
+        {
+          "id": "D3",
+          "line": 81,
+          "category": "tests",
+          "severity": "major",
+          "tier": "hard",
+          "title": "Test patches the function it claims to test: stock_levels is replaced by a fake that filters by tenant, so the real cache keyed only by SKU never runs",
+          "evidence": "with mock.patch.object(sample_bad_2, \"stock_levels\", side_effect=lambda t, _: levels if t == 10 else []):",
+          "trigger": "Run against sample_bad_2.py as is: the test passes although stock_levels serves tenant 10's cached levels to tenant 20 (sample_bad_2.py D2).",
+          "cwe_or_cite": "unittest.mock docs 'Where to patch'; Software Engineering at Google, ch. 13 'Test Doubles' (do not mock the system under test)",
+          "rationale": "C2 (tenant isolation of the stock cache has no effective test) x R1 (the production stock endpoint is open to every user): major.",
+          "rule_id": "PY-TEST-04"
+        },
+        {
+          "id": "D4",
+          "line": 86,
+          "category": "tests",
+          "severity": "minor",
+          "tier": "standard",
+          "title": "Purchase-order total test is skipped with no reason, so the new receiving endpoint is untested and the skip has no tracking or exit condition",
+          "evidence": "@pytest.mark.skip",
+          "trigger": "The test never runs; enabled, it fails (total_cents 86, not 87, sample_bad_2.py D8).",
+          "cwe_or_cite": "pytest docs 'How to use skip and xfail' (reason argument)",
+          "rationale": "C2 (new logic without a running test) x R2 (the endpoint it covers is behind the visible inventory_admin role check): minor.",
+          "rule_id": "PY-TEST-06"
+        }
+      ],
+      "decoys": [
+        {
+          "line": 30,
+          "evidence": "monkeypatch.setattr(sample_bad_2, \"DB_PATH\", str(db_path))",
+          "why_fine": "Patches configuration (the database path), not the code under test."
+        },
+        {
+          "line": 31,
+          "evidence": "monkeypatch.setattr(sample_bad_2, \"_stock_cache\", {})",
+          "why_fine": "Resets module state between tests so cached results do not leak across tests; the real stock_levels still runs."
+        },
+        {
+          "line": 70,
+          "evidence": "@pytest.mark.skipif(sqlite3.sqlite_version_info < (3, 35), reason=\"UPDATE ... RETURNING needs SQLite 3.35\")",
+          "why_fine": "Conditional skip with a concrete, checkable reason (RETURNING support), unlike an unconditional skip."
+        }
+      ]
+    },
+    "sample_good_2.py": {
+      "defects": [],
+      "decoys": [
+        {
+          "line": 31,
+          "evidence": "SIGNING_KEY_ID = \"exp-hmac-2026-10\"  # published, lets the gateway pick the key during rotation",
+          "why_fine": "Public key identifier sent in a header; the secret key itself is read from the environment (line above)."
+        },
+        {
+          "line": 68,
+          "evidence": "candidate = datetime.combine(local_day, local_time, tzinfo=tz)",
+          "why_fine": "Aware datetime in the tenant's zone, compared and stored in UTC; DST handled by zoneinfo."
+        },
+        {
+          "line": 92,
+          "evidence": "\" next_run_at) SELECT ?, ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM export_schedules\"",
+          "why_fine": "Looks like check-then-act, but the cap check and insert are one statement inside a BEGIN IMMEDIATE transaction, so concurrent requests cannot exceed the cap."
+        },
+        {
+          "line": 106,
+          "evidence": "\"UPDATE export_schedules SET leased_until = ? WHERE id IN (SELECT id FROM export_schedules\"",
+          "why_fine": "Due rows are claimed by a single UPDATE ... RETURNING under BEGIN IMMEDIATE, so two workers never claim the same schedule."
+        },
+        {
+          "line": 122,
+          "evidence": "f\"SELECT {', '.join(columns)} FROM daily_usage WHERE tenant_id = ? AND day >= ? ORDER BY day\",",
+          "why_fine": "Column names come from the REPORT_COLUMNS constant (report validated against it at creation); values are bound parameters; rows bounded by REPORT_DAYS."
+        },
+        {
+          "line": 148,
+          "evidence": "for schedule in claim_due(conn, now):",
+          "why_fine": "Network call per iteration, but the batch is capped at CLAIM_BATCH_SIZE, each call has a timeout, and sequential sending is deliberate (gateway rate limit)."
+        },
+        {
+          "line": 171,
+          "evidence": "except Exception:",
+          "why_fine": "Top-level CLI boundary: logs with stack trace and re-raises, so cron sees a non-zero exit."
+        },
+        {
+          "line": 174,
+          "evidence": "success_rate = delivered / (delivered + failed) if delivered + failed else 1.0",
+          "why_fine": "Float ratio for a summary line, not money; zero division guarded."
+        },
+        {
+          "line": 175,
+          "evidence": "print(f\"delivered={delivered} failed={failed} success_rate={success_rate:.2f}\")",
+          "why_fine": "CLI entry point whose stdout summary is the product (captured by cron); not debug output."
+        }
+      ]
+    }
+  }
+}

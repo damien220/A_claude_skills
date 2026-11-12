@@ -1,0 +1,2099 @@
+[
+ {
+  "lang": "python",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.7368421052631579,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.9473684210526315,
+  "findings": 20,
+  "extras": 1,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.95,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.py",
+    "id": "D3",
+    "line": 55,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Connection in stock_levels is closed only on the success path; if the query raises, conn.close() is skipped and the connection leaks (the rest of the module uses get_connection/closing)"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 93,
+    "severity": "major",
+    "title": "Charge sent without an Idempotency-Key",
+    "rule_id": "PY-COR-02"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": false,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.8,
+  "n_findings": 20,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.8235294117647058,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/",
+   "refs/correctness.md",
+   "refs/error-handling.md",
+   "refs/lang/",
+   "refs/lang/python-checklist.md",
+   "refs/review-process.md",
+   "refs/security.md",
+   "refs/severity-and-output-format.md",
+   "refs/tests.md",
+   "tooling/",
+   "tooling/python-review-checklist.md"
+  ],
+  "tokens": 120611,
+  "tool_calls": 50,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "python",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 16,
+  "recall_all": 0.8,
+  "recall_blocker_major": 0.8571428571428571,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9375,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 8,
+  "decoy_false_positives": 2,
+  "precision_matched_only": 0.6666666666666666,
+  "control_blocker_major": 3,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.py",
+    "id": "D1",
+    "line": 10,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import"
+   },
+   {
+    "file": "sample_bad_1.py",
+    "id": "D5",
+    "line": 77,
+    "severity": "major",
+    "tier": "standard",
+    "title": "N+1 query: one order_items SELECT per order inside the loop instead of a JOIN"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D4",
+    "line": 96,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Check-then-act race: on_hand is read, compared and then overwritten with an absolute value computed in Python, so concurrent reservations oversell and lose updates"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 93,
+    "severity": "major",
+    "title": "Charge request has no idempotency key, so a retry can double-charge the customer",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.py",
+    "line": 145,
+    "severity": "major",
+    "title": "Failure to record the charge after a successful payment leaves orders unbilled in the database",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "nit",
+    "title": "File opened without an explicit encoding",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 161,
+    "severity": "major",
+    "title": "Database write failure after a successful charge leaves orders unbilled",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 164,
+    "severity": "major",
+    "title": "CSV export I/O failure after the charge is committed returns a 500 for a billed customer",
+    "rule_id": null
+   },
+   {
+    "file": "module_a.py",
+    "line": 156,
+    "severity": "minor",
+    "title": "Database connection is held open across a network call with up to a 10 second timeout",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.py",
+    "line": 150,
+    "severity": "major",
+    "title": "Only RequestException is caught, so a database or CSV error aborts the whole scheduled run",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.py",
+    "line": 91,
+    "severity": "major",
+    "title": "Stock is read, checked and written in separate statements, a race that can oversell",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.py",
+    "line": 150,
+    "severity": "major",
+    "title": "Only RequestException is caught, so a database or CSV error aborts the whole scheduled run"
+   },
+   {
+    "file": "module_e.py",
+    "line": 91,
+    "severity": "major",
+    "title": "Stock is read, checked and written in separate statements, a race that can oversell"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": false,
+   "severity_exact": true,
+   "control_blocker_major": false,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 29916,
+  "tool_calls": 13,
+  "leaks": [],
+  "missed_unrouted": 4
+ },
+ {
+  "lang": "python",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 0.9285714285714286,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.8421052631578947,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 21,
+  "extras": 2,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.9047619047619048,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.py",
+    "id": "D4",
+    "line": 96,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Check-then-act race: on_hand is read, compared and then overwritten with an absolute value computed in Python, so concurrent reservations oversell and lose updates"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.py",
+    "line": 91,
+    "severity": "blocker",
+    "title": "Stock checked and then overwritten with a value computed in Python (lost update, oversell)",
+    "rule_id": "PY-COR-09"
+   },
+   {
+    "file": "module_c.py",
+    "line": 93,
+    "severity": "major",
+    "title": "Charge POST sent without an idempotency key while timeouts are reported as failures",
+    "rule_id": "PY-COR-02"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.py",
+    "line": 91,
+    "severity": "blocker",
+    "title": "Stock checked and then overwritten with a value computed in Python (lost update, oversell)"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.0,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/review-process.md",
+   "refs/severity-and-output-format.md",
+   "tooling/python-review-checklist.md"
+  ],
+  "tokens": 59269,
+  "tool_calls": 24,
+  "leaks": [],
+  "missed_unrouted": 1
+ },
+ {
+  "lang": "python",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 18,
+  "recall_all": 0.9,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.8888888888888888,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 21,
+  "extras": 3,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.8571428571428571,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.py",
+    "id": "D1",
+    "line": 10,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import"
+   },
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 91,
+    "severity": "major",
+    "title": "Charge request has no idempotency key, so a retry after a timeout or failed mark_billed can double-charge the customer.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "minor",
+    "title": "File opened for text writing without an explicit encoding.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.py",
+    "line": 65,
+    "severity": "minor",
+    "title": "Cache is unbounded and never evicted, and stays stale for 30s after reservations or receipts change on_hand.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 13358,
+  "tool_calls": 15,
+  "leaks": [],
+  "missed_unrouted": 2
+ },
+ {
+  "lang": "python",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 20,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.85,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 22,
+  "extras": 2,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9090909090909091,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 91,
+    "severity": "major",
+    "title": "Charge POST sent without an idempotency key, so a timed-out or retried run charges twice",
+    "rule_id": "PY-COR-02"
+   },
+   {
+    "file": "module_b.py",
+    "line": 175,
+    "severity": "nit",
+    "title": "print used for the cron run summary instead of the configured logger",
+    "rule_id": "PY-DIFF-01"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 22,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.8235294117647058,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/correctness.md",
+   "refs/error-handling.md",
+   "refs/lang/python-checklist.md",
+   "refs/review-process.md",
+   "refs/security.md",
+   "refs/severity-and-output-format.md",
+   "refs/tests.md",
+   "tooling/finding.schema.json",
+   "tooling/python-review-checklist.md",
+   "tooling/report-template.md"
+  ],
+  "tokens": 69236,
+  "tool_calls": 55,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "python",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.7894736842105263,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 21,
+  "extras": 2,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.9047619047619048,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.py",
+    "id": "D1",
+    "line": 11,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import of uuid"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.py",
+    "line": 93,
+    "severity": "major",
+    "title": "Charge request has no idempotency key, so a retry after a timeout or failed mark_billed double-charges the customer.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.py",
+    "line": 115,
+    "severity": "minor",
+    "title": "CSV file opened without an explicit encoding, so output depends on the platform locale.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 21,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 18205,
+  "tool_calls": 14,
+  "leaks": [],
+  "missed_unrouted": 1
+ },
+ {
+  "lang": "node",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 16,
+  "recall_all": 0.8,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 1.0,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 17,
+  "extras": 1,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.9411764705882353,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D7",
+    "line": 93,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Commented-out code left in the diff"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D6",
+    "line": 141,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Due date computed with setUTCMonth(month + 1) overflows at month end, so invoices issued on the 29th-31st get a due date in the following month"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D3",
+    "line": 43,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Assertion sits in a catch that never runs: fetch resolves for 4xx responses, so the forged-token test passes whatever status the API returns"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "Signature test passes whatever the server returns",
+    "rule_id": "NODE-TEST-02"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "Signature test passes whatever the server returns"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 17,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.0,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/lang/node-checklist.md",
+   "refs/review-process.md",
+   "refs/severity-and-output-format.md",
+   "tooling",
+   "tooling/run_linters.py"
+  ],
+  "tokens": 152249,
+  "tool_calls": 29,
+  "leaks": [],
+  "missed_unrouted": 4
+ },
+ {
+  "lang": "node",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 8,
+  "recall_all": 0.4,
+  "recall_blocker_major": 0.5,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 7,
+    "recall": 0.7
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 1,
+    "recall": 0.1
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.625,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 19,
+  "extras": 11,
+  "decoy_false_positives": 2,
+  "precision_matched_only": 0.42105263157894735,
+  "control_blocker_major": 5,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D1",
+    "line": 10,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "Hardcoded JWT signing secret committed in source; anyone with repo access can forge tokens"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D2",
+    "line": 60,
+    "severity": "major",
+    "tier": "standard",
+    "title": "Synchronous bcrypt hash (cost 12) in a request handler blocks the event loop for every sign-up; use await bcrypt.hash"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D3",
+    "line": 71,
+    "severity": "major",
+    "tier": "standard",
+    "title": "500 response leaks internal error message and stack trace to the client"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D4",
+    "line": 85,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "Missing await on bcrypt.compare: a Promise is always truthy, so any password logs in (authentication bypass)"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D5",
+    "line": 89,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Leftover console.log in a request path bypasses the structured Fastify/Pino logger"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D6",
+    "line": 90,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Loose equality (==) instead of strict equality (===)"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D7",
+    "line": 93,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Commented-out code left in the diff"
+   },
+   {
+    "file": "sample_bad_1.mjs",
+    "id": "D8",
+    "line": 104,
+    "severity": "blocker",
+    "tier": "standard",
+    "title": "SQL injection: query-string q interpolated into a template-literal SQL string (schema only checks length)"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D6",
+    "line": 141,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Due date computed with setUTCMonth(month + 1) overflows at month end, so invoices issued on the 29th-31st get a due date in the following month"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D7",
+    "line": 52,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Invoice total computed in floating-point dollars with Math.round(x * 100) / 100 and stored as a float, so half-cent totals round the wrong way"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_b.mjs",
+    "line": 10,
+    "severity": "blocker",
+    "title": "JWT signing secret is hardcoded in source",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 85,
+    "severity": "blocker",
+    "title": "bcrypt.compare is not awaited, so any password passes the login check",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 104,
+    "severity": "blocker",
+    "title": "Member search interpolates the query string into SQL",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 71,
+    "severity": "major",
+    "title": "500 response leaks the error message and stack trace to the client",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 60,
+    "severity": "major",
+    "title": "Synchronous bcrypt hash blocks the event loop on every sign-up",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown email returns before any bcrypt work, which leaks account existence by timing",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 52,
+    "severity": "minor",
+    "title": "jwt.verify does not pin the accepted algorithm",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 89,
+    "severity": "minor",
+    "title": "Login logs through console.log instead of the Fastify logger",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 90,
+    "severity": "nit",
+    "title": "Loose equality on the account status",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 93,
+    "severity": "nit",
+    "title": "Commented-out token code left in the handler",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 19,
+    "severity": "minor",
+    "title": "SMTP on port 587 does not require TLS, so credentials can be sent in plaintext",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown email returns before any bcrypt work, which leaks account existence by timing"
+   },
+   {
+    "file": "module_b.mjs",
+    "line": 52,
+    "severity": "minor",
+    "title": "jwt.verify does not pin the accepted algorithm"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": false,
+   "severity_exact": false,
+   "control_blocker_major": false,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.4,
+  "n_findings": 19,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 32178,
+  "tool_calls": 13,
+  "leaks": [],
+  "missed_unrouted": 12
+ },
+ {
+  "lang": "node",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.9473684210526315,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 20,
+  "extras": 1,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.95,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D3",
+    "line": 43,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Assertion sits in a catch that never runs: fetch resolves for 4xx responses, so the forged-token test passes whatever status the API returns"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "Wrong-key test asserts only inside a catch that fetch never reaches",
+    "rule_id": "NODE-TEST-02"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "Wrong-key test asserts only inside a catch that fetch never reaches"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 20,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.8888888888888888,
+  "refs_read": [
+   "SKILL.md",
+   "refs/",
+   "refs/correctness.md",
+   "refs/diff-hygiene.md",
+   "refs/error-handling.md",
+   "refs/lang/",
+   "refs/lang/node-checklist.md",
+   "refs/review-process.md",
+   "refs/security.md",
+   "refs/severity-and-output-format.md",
+   "refs/tests.md",
+   "tooling/",
+   "tooling/finding.schema.json",
+   "tooling/node-review-checklist.md",
+   "tooling/report-template.md"
+  ],
+  "tokens": 52759,
+  "tool_calls": 31,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "node",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 17,
+  "recall_all": 0.85,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   }
+  },
+  "category_mismatches": 3,
+  "severity_exact": 0.8235294117647058,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 7,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.7083333333333334,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D3",
+    "line": 84,
+    "severity": "blocker",
+    "tier": "hard",
+    "title": "Admin usage route is registered before app.use('/api', authenticate) and requireRole('admin'), so it answers anonymous requests for any team's usage"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D4",
+    "line": 21,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test server listens on fixed port 4100, which collides with other Jest workers or local processes"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.mjs",
+    "line": 52,
+    "severity": "major",
+    "title": "jwt.verify does not pin the allowed algorithms.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 40,
+    "severity": "minor",
+    "title": "jwt.sign does not set an explicit algorithm.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown-email path returns before any hash comparison, giving a timing oracle for account enumeration.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 9,
+    "severity": "minor",
+    "title": "DATABASE_URL is not validated at startup.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 14,
+    "severity": "minor",
+    "title": "Logger has no redaction of the authorization header.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 92,
+    "severity": "blocker",
+    "title": "The admin usage route is registered before authenticate/requireRole, so it is reachable without a token.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 153,
+    "severity": "minor",
+    "title": "The quota-warning, search, delete and invoice routes have no tests.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.8,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 7202,
+  "tool_calls": 4,
+  "leaks": [],
+  "missed_unrouted": 3
+ },
+ {
+  "lang": "node",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.6842105263157895,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 20,
+  "extras": 1,
+  "decoy_false_positives": 0,
+  "precision_matched_only": 0.95,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D4",
+    "line": 112,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Pooled client is released only on the success path; a timed-out or failed search leaks it, and the pool eventually blocks every query"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.mjs",
+    "line": 100,
+    "severity": "major",
+    "title": "Pooled client released only on success: every search error leaks a connection",
+    "rule_id": "NODE-ERR-06"
+   }
+  ],
+  "decoy_hits": [],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": false,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 20,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.9444444444444444,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/correctness.md",
+   "refs/diff-hygiene.md",
+   "refs/error-handling.md",
+   "refs/lang/node-checklist.md",
+   "refs/performance.md",
+   "refs/review-process.md",
+   "refs/security.md",
+   "refs/severity-and-output-format.md",
+   "refs/tests.md",
+   "tooling/finding.schema.json",
+   "tooling/node-review-checklist.md",
+   "tooling/report-template.md"
+  ],
+  "tokens": 62109,
+  "tool_calls": 66,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "node",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 17,
+  "recall_all": 0.85,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 7,
+    "recall": 0.7
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 3,
+  "severity_exact": 0.8823529411764706,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 25,
+  "extras": 8,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.68,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D4",
+    "line": 112,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Pooled client is released only on the success path; a timed-out or failed search leaks it, and the pool eventually blocks every query"
+   },
+   {
+    "file": "sample_bad_2.mjs",
+    "id": "D8",
+    "line": 7,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import randomUUID"
+   },
+   {
+    "file": "sample_bad_3_tests.mjs",
+    "id": "D3",
+    "line": 43,
+    "severity": "minor",
+    "tier": "hard",
+    "title": "Assertion sits in a catch that never runs: fetch resolves for 4xx responses, so the forged-token test passes whatever status the API returns"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.mjs",
+    "line": 52,
+    "severity": "major",
+    "title": "JWT verification does not pin the accepted algorithms.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 82,
+    "severity": "minor",
+    "title": "Unknown emails return before any bcrypt work, enabling account enumeration by timing.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 9,
+    "severity": "minor",
+    "title": "DATABASE_URL is used without checking it is set, so misconfiguration fails late.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 14,
+    "severity": "minor",
+    "title": "No security headers (helmet) and no log redaction of the authorization header.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.mjs",
+    "line": 114,
+    "severity": "minor",
+    "title": "No SIGINT/SIGTERM handler to close the server and pool gracefully.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 100,
+    "severity": "major",
+    "title": "Pooled client is released only on success; any error (including the timeout) leaks the connection with statement_timeout still set.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.mjs",
+    "line": 19,
+    "severity": "minor",
+    "title": "SMTP on port 587 does not require TLS, so credentials can be sent in clear if STARTTLS is stripped.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "fetch does not throw on 401, so the assertion in catch never runs and the test always passes.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.test.mjs",
+    "line": 40,
+    "severity": "major",
+    "title": "fetch does not throw on 401, so the assertion in catch never runs and the test always passes."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 25,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 12186,
+  "tool_calls": 4,
+  "leaks": [],
+  "missed_unrouted": 3
+ },
+ {
+  "lang": "typescript",
+  "model": "haiku",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.8421052631578947,
+  "severity_within_one": 1.0,
+  "rule_id_match": 1.0,
+  "findings": 22,
+  "extras": 3,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.8636363636363636,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.tsx",
+    "id": "D3",
+    "line": 51,
+    "severity": "major",
+    "tier": "standard",
+    "title": "No res.ok check and no try/catch around load(): a failed request rejects unhandled, loading stays true forever and the user sees an endless spinner"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 63,
+    "severity": "major",
+    "title": "load() started without a catch; a failed request leaves the list stuck on loading",
+    "rule_id": "TS-COR-10"
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "Possibly undefined maximumFractionDigits used in arithmetic (tsc TS18048)",
+    "rule_id": "TS-COR-04"
+   },
+   {
+    "file": "module_a.tsx",
+    "line": 115,
+    "severity": "nit",
+    "title": "aria-label on a span with no role is ignored",
+    "rule_id": "TS-ACC-09"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "Possibly undefined maximumFractionDigits used in arithmetic (tsc TS18048)"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 22,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.1875,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/lang/typescript-react-checklist.md",
+   "refs/review-process.md",
+   "refs/severity-and-output-format.md",
+   "tooling/finding.schema.json",
+   "tooling/report-template.md",
+   "tooling/typescript-review-checklist.md"
+  ],
+  "tokens": 138437,
+  "tool_calls": 25,
+  "leaks": [],
+  "missed_unrouted": 1
+ },
+ {
+  "lang": "typescript",
+  "model": "haiku",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 18,
+  "recall_all": 0.9,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   }
+  },
+  "category_mismatches": 4,
+  "severity_exact": 0.8333333333333334,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 24,
+  "extras": 6,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.75,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D2",
+    "line": 49,
+    "severity": "blocker",
+    "tier": "hard",
+    "title": "Module-level QueryClient used in a server component: its cache is shared by every request, and dehydrate(serverQueryClient) sends every project's cached tasks to whoever renders next"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D3",
+    "line": 53,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 69,
+    "severity": "major",
+    "title": "Translation cache is keyed by review id only, ignoring targetLanguage, so a previous language's text is shown",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId interpolated into the URL without encodeURIComponent",
+    "rule_id": null
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 44,
+    "severity": "minor",
+    "title": "Intl.NumberFormat is constructed on every call, once per table row",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 59,
+    "severity": "blocker",
+    "title": "Module-level shared QueryClient is dehydrated into every response, leaking cached tasks across users and projects",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 56,
+    "severity": "minor",
+    "title": "findMany silently truncates the board at 500 tasks with no pagination or indication",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 17,
+    "severity": "minor",
+    "title": "toTask spreads the full database row, so any extra columns are sent to the client",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 44,
+    "severity": "minor",
+    "title": "Intl.NumberFormat is constructed on every call, once per table row"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.75,
+  "n_findings": 24,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 37413,
+  "tool_calls": 13,
+  "leaks": [],
+  "missed_unrouted": 2
+ },
+ {
+  "lang": "typescript",
+  "model": "sonnet",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 20,
+  "recall_all": 1.0,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.9,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.95,
+  "findings": 26,
+  "extras": 6,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.7692307692307693,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 69,
+    "severity": "major",
+    "title": "Translation cache keyed by review id only, so a language change keeps showing the old language",
+    "rule_id": "TS-COR-16"
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 10,
+    "severity": "major",
+    "title": "Membership check is mocked to always allow and no test proves a rejection",
+    "rule_id": "TS-TEST-07"
+   },
+   {
+    "file": "module_a.tsx",
+    "line": 115,
+    "severity": "minor",
+    "title": "aria-label on a role-less span whose visible content is only star glyphs",
+    "rule_id": "TS-ACC-09"
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "resolvedOptions().maximumFractionDigits is number | undefined and is used in arithmetic",
+    "rule_id": "TS-COR-04"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "API responses cast with `as` instead of validated, at three boundaries",
+    "rule_id": "TS-MAINT-08"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 92,
+    "severity": "minor",
+    "title": "aria-label on a role-less span whose visible content is only star glyphs",
+    "rule_id": "TS-ACC-09"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "resolvedOptions().maximumFractionDigits is number | undefined and is used in arithmetic"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 26,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.0,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/review-process.md",
+   "refs/severity-and-output-format.md",
+   "tooling"
+  ],
+  "tokens": 64076,
+  "tool_calls": 26,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "typescript",
+  "model": "sonnet",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 17,
+  "recall_all": 0.85,
+  "recall_blocker_major": 1.0,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 8,
+    "recall": 0.8
+   }
+  },
+  "category_mismatches": 2,
+  "severity_exact": 0.7058823529411765,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 22,
+  "extras": 5,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.7727272727272727,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_1.tsx",
+    "id": "D1",
+    "line": 1,
+    "severity": "nit",
+    "tier": "standard",
+    "title": "Unused import useMemo"
+   },
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D8",
+    "line": 1,
+    "severity": "nit",
+    "tier": "hard",
+    "title": "Unused import useCallback"
+   },
+   {
+    "file": "sample_bad_3_tests.tsx",
+    "id": "D3",
+    "line": 53,
+    "severity": "minor",
+    "tier": "standard",
+    "title": "Test selects by CSS class through container.querySelectorAll, asserting an implementation detail instead of what the user sees"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId is interpolated into the URL path without encodeURIComponent.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 71,
+    "severity": "minor",
+    "title": "Translation failure message is stored as the review text and then rendered through innerHTML in place of the review body, replacing the original; also translated cache ignores targetLanguage changes.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 29,
+    "severity": "minor",
+    "title": "Server actions marked 'use server' live in the same module as client hooks and components, which Next.js does not allow for a 'use server' file and mixes server and client concerns.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before authorisation, so a non-member can distinguish existing from non-existing task ids by the error.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "No tests cover the server actions (updateTaskStatus, deleteTask) including authorization, delete flow, or error paths.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before authorisation, so a non-member can distinguish existing from non-existing task ids by the error."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": false,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 22,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 12240,
+  "tool_calls": 14,
+  "leaks": [],
+  "missed_unrouted": 5
+ },
+ {
+  "lang": "typescript",
+  "model": "opus",
+  "cond": "skill",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 1,
+  "severity_exact": 0.8421052631578947,
+  "severity_within_one": 1.0,
+  "rule_id_match": 0.8947368421052632,
+  "findings": 26,
+  "extras": 7,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.7307692307692307,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D1",
+    "line": 44,
+    "severity": "blocker",
+    "tier": "hard",
+    "title": "deleteTask server action deletes any task by id with no session or project-membership check (updateTaskStatus does check), so anyone can delete any project's tasks"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_e.tsx",
+    "line": 41,
+    "severity": "blocker",
+    "title": "deleteTask Server Action deletes any task by id with no session or membership check",
+    "rule_id": "TS-SEC-04"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 63,
+    "severity": "major",
+    "title": "Reviews load has no error path: a failed request leaves the spinner forever",
+    "rule_id": "TS-ERR-11"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 69,
+    "severity": "major",
+    "title": "Translations cached by review id only: changing targetLanguage shows the old language",
+    "rule_id": "TS-COR-16"
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 10,
+    "severity": "major",
+    "title": "Membership mock always returns a member; no test proves a non-member is rejected",
+    "rule_id": "TS-TEST-07"
+   },
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "maximumFractionDigits is possibly undefined under strict, so the project fails type-checking",
+    "rule_id": "TS-COR-04"
+   },
+   {
+    "file": "module_a.tsx",
+    "line": 115,
+    "severity": "nit",
+    "title": "aria-label on a role-less span is ignored by many screen readers",
+    "rule_id": "TS-ACC-09"
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 92,
+    "severity": "nit",
+    "title": "aria-label on a role-less span is ignored by many screen readers",
+    "rule_id": "TS-ACC-09"
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_b.tsx",
+    "line": 46,
+    "severity": "minor",
+    "title": "maximumFractionDigits is possibly undefined under strict, so the project fails type-checking"
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 0.75,
+  "n_findings": 26,
+  "with_rule_id": 1.0,
+  "with_cite": 1.0,
+  "report_errors": [],
+  "report_valid": true,
+  "routing_ref_read": 0.875,
+  "refs_read": [
+   "SKILL.md",
+   "refs",
+   "refs/correctness.md",
+   "refs/error-handling.md",
+   "refs/lang/typescript-react-checklist.md",
+   "refs/performance.md",
+   "refs/review-process.md",
+   "refs/security.md",
+   "refs/severity-and-output-format.md",
+   "refs/tests.md",
+   "tooling/finding.schema.json",
+   "tooling/report-template.md",
+   "tooling/typescript-review-checklist.md"
+  ],
+  "tokens": 115217,
+  "tool_calls": 69,
+  "leaks": [],
+  "missed_unrouted": 0
+ },
+ {
+  "lang": "typescript",
+  "model": "opus",
+  "cond": "plain",
+  "slice": "full",
+  "defects": 20,
+  "matched": 19,
+  "recall_all": 0.95,
+  "recall_blocker_major": 0.9166666666666666,
+  "recall_by_tier": {
+   "hard": {
+    "defects": 10,
+    "matched": 9,
+    "recall": 0.9
+   },
+   "standard": {
+    "defects": 10,
+    "matched": 10,
+    "recall": 1.0
+   }
+  },
+  "category_mismatches": 0,
+  "severity_exact": 0.7894736842105263,
+  "severity_within_one": 1.0,
+  "rule_id_match": null,
+  "findings": 31,
+  "extras": 12,
+  "decoy_false_positives": 1,
+  "precision_matched_only": 0.6129032258064516,
+  "control_blocker_major": 0,
+  "out_of_scope_reported": 0,
+  "missed": [
+   {
+    "file": "sample_bad_2.tsx",
+    "id": "D7",
+    "line": 138,
+    "severity": "major",
+    "tier": "hard",
+    "title": "Optimistic status update writes the cache in onMutate but keeps no snapshot and has no onError rollback (and no onSettled refetch), so a rejected move stays on screen"
+   }
+  ],
+  "extra_findings": [
+   {
+    "file": "module_c.tsx",
+    "line": 63,
+    "severity": "major",
+    "title": "Floating load() promise: any fetch or JSON failure is unhandled and leaves the component stuck on the loading state with no error UI.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 52,
+    "severity": "minor",
+    "title": "API response cast to Review[] with no runtime validation.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 51,
+    "severity": "minor",
+    "title": "productId (and authorId at line 55) interpolated into URL paths without encodeURIComponent, allowing path manipulation.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 69,
+    "severity": "minor",
+    "title": "Cached translation keyed only by review id, so a changed targetLanguage keeps showing the old language.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 70,
+    "severity": "minor",
+    "title": "Translation error swallowed and the error message replaces the review body instead of a separate alert; error is not logged.",
+    "rule_id": null
+   },
+   {
+    "file": "module_c.tsx",
+    "line": 39,
+    "severity": "minor",
+    "title": "Third-party translation response cast without validation before being injected into the DOM.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 6,
+    "severity": "major",
+    "title": "One module mixes server-only code (db, logger, next/cache, inline 'use server' actions) with hook-using client components and has no 'use client' boundary; it either fails in RSC or bundles server code for the client.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 142,
+    "severity": "major",
+    "title": "Optimistic status update has no rollback and refetches only on success, so a failed move stays shown as saved.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 81,
+    "severity": "minor",
+    "title": "Initial label depends on Date.now() during server render, causing hydration text mismatches.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before the membership check, so non-members can tell existing task ids from missing ones by the error.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.tsx",
+    "line": 125,
+    "severity": "minor",
+    "title": "Hard-coded element id gives duplicate ids if the component renders more than once; use useId.",
+    "rule_id": null
+   },
+   {
+    "file": "module_e.test.tsx",
+    "line": 33,
+    "severity": "major",
+    "title": "No test covers the server actions' authorization (deleteTask, membership check), delete, or failed-mutation paths.",
+    "rule_id": null
+   }
+  ],
+  "decoy_hits": [
+   {
+    "file": "module_e.tsx",
+    "line": 33,
+    "severity": "minor",
+    "title": "Task is looked up before the membership check, so non-members can tell existing task ids from missing ones by the error."
+   }
+  ],
+  "meets": {
+   "recall_blocker_major": true,
+   "severity_exact": true,
+   "control_blocker_major": true,
+   "out_of_scope_reported": true
+  },
+  "security_recall": 1.0,
+  "n_findings": 31,
+  "with_rule_id": 0.0,
+  "with_cite": 0.0,
+  "routing_ref_read": 0.0,
+  "refs_read": [],
+  "tokens": 17601,
+  "tool_calls": 6,
+  "leaks": [],
+  "missed_unrouted": 1
+ }
+]

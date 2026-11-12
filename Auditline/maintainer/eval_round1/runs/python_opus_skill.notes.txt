@@ -1,0 +1,24 @@
+Skill reference files read, per file (all paths relative to skill/auditline/)
+
+Read once for the whole run (core, not counted against the per-file budget):
+  SKILL.md
+  refs/review-process.md
+  refs/severity-and-output-format.md
+  tooling/report-template.md
+  tooling/finding.schema.json
+  tooling/python-review-checklist.md (index, used to pick refs and as the last pass)
+  refs/lang/python-checklist.md (sections 1-9 and 12-13: How to use, naming, typing, data modeling, async, performance, error handling, APIs and secrets, packaging, docs, testing, logging)
+
+module_a.py:       refs/lang/python-checklist.md, refs/security.md, refs/correctness.md, refs/error-handling.md
+module_b.py:       refs/lang/python-checklist.md, refs/security.md, refs/correctness.md, refs/error-handling.md
+module_c.py:       refs/lang/python-checklist.md, refs/security.md, refs/correctness.md, refs/error-handling.md
+                   (N+1 rated from X-SEV-02 in the core severity ref; performance.md not loaded)
+module_e.py:       refs/lang/python-checklist.md, refs/security.md, refs/correctness.md, refs/error-handling.md
+test_module_e.py:  refs/lang/python-checklist.md, refs/tests.md
+
+Sections of security.md read: 1-3 (incl. A01), 4 (A02), 5 (A03 up to PY-SEC-13), 6-9 (A04-A07 up to PY-SEC-02), 11-14.
+Sections of correctness.md read: 1-6, 8, 9 (React section 7 skipped).
+Sections of error-handling.md read: 1-6, 8 (frontend section 7 skipped).
+Not read: refs/performance.md, refs/maintainability.md, refs/diff-hygiene.md, node and typescript checklists.
+
+Linters: tooling/run_linters.py --root <inputs/python> --files <5 files> with ruff and mypy (both ran, bundled fallback config).

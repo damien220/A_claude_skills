@@ -1,0 +1,28 @@
+Skill reference files read (paths relative to skill/auditline). Each file was reviewed at file scope.
+Read once for the whole run (core, not counted against the topic-ref budget): SKILL.md, refs/review-process.md, refs/severity-and-output-format.md, tooling/report-template.md, tooling/finding.schema.json, tooling/python-review-checklist.md (flat rule index), refs/lang/python-checklist.md (How-to-use section and PY-ERR-51).
+
+module_a.py:
+  tooling/python-review-checklist.md, refs/lang/python-checklist.md
+  topic refs (3): refs/security.md (PY-SEC-01, -02, -03, -04, Do-not-flag table), refs/error-handling.md (PY-ERR-01, -07, Do-not-flag), refs/correctness.md (PY-COR-02, -07, Do-not-flag)
+  result: no findings; ruff clean; mypy results discarded (missing stubs, abort() narrowing).
+
+module_b.py:
+  tooling/python-review-checklist.md, refs/lang/python-checklist.md
+  topic refs (3): refs/security.md (PY-SEC-01 allowlisted-identifier rule, PY-SEC-02, Do-not-flag), refs/correctness.md (PY-COR-02, -07, -09, Do-not-flag), refs/error-handling.md (PY-ERR-01, -07, Do-not-flag)
+  result: no findings; ruff S608 and T201 discarded with reasons (see tools[].note).
+
+module_c.py:
+  tooling/python-review-checklist.md, refs/lang/python-checklist.md
+  topic refs (3): refs/security.md (PY-SEC-01, -02, -03), refs/error-handling.md (PY-ERR-01), refs/performance.md (PY-PERF-01)
+  mutable default (PY-COR-01) and the idempotency key (PY-COR-02) were settled from refs/correctness.md PY-COR-01/-02 and X-SEV-01/-05 in the severity ref, read in the shared pass above (the three-ref cap was applied to the topic refs listed per file; correctness was loaded for module_a/b/e).
+
+module_e.py:
+  tooling/python-review-checklist.md, refs/lang/python-checklist.md (PY-ERR-51)
+  topic refs (3): refs/security.md (PY-SEC-04), refs/correctness.md (PY-COR-07, -08, -09, -16 overlap rule), refs/error-handling.md (PY-ERR-01, PY-ERR-06 via checklist line)
+  PY-ERR-06 was assigned from the checklist index line only (detail section of error-handling.md not re-read).
+
+test_module_e.py:
+  tooling/python-review-checklist.md
+  topic ref (1): refs/tests.md (PY-TEST-01, -02, -04, -06, Do-not-flag)
+
+Not read at any point: refs/maintainability.md, refs/diff-hygiene.md, refs/lang/node-checklist.md, refs/lang/typescript-react-checklist.md, node/typescript review checklists.

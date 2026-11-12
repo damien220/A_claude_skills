@@ -1,11 +1,11 @@
 ---
 name: node-web-best-style
-description: Use when writing, editing, refactoring, or reviewing Node.js or TypeScript web
+description: Use when writing, editing, or refactoring Node.js or TypeScript web
   code to produce idiomatic, performant, and secure web services. Enforces ESM modules, strict
   TypeScript, proper async patterns, Fastify/Express/Hono best practices, Zod input validation,
   Helmet security headers, RFC 9457 error responses, Pino structured logging, and safe secret
   management. Triggers on .js/.ts/.mjs/.mts files, "write a Node API", "refactor this route",
-  "write a Fastify handler", "make this idiomatic TypeScript", or "best practice".
+  "write a Fastify handler", "make this idiomatic TypeScript", or "best practice". Does not review existing code: review requests go to the auditline skill.
 ---
 
 # Node.js Web Best Style

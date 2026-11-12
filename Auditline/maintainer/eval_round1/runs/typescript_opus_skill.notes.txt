@@ -1,0 +1,34 @@
+Skill reference files read, per file (all reads under skill/auditline/).
+
+Shared by every file (read once, core or index, not counted against the topic-ref budget):
+  SKILL.md
+  refs/review-process.md            (core: file scope, running tools, dropping tool results)
+  refs/severity-and-output-format.md (core: rubric, anchors, output format, nit cap, verdict)
+  tooling/typescript-review-checklist.md (flat rule-ID index)
+  tooling/report-template.md
+  tooling/finding.schema.json
+  refs/lang/typescript-react-checklist.md (language checklist, .tsx; sections 1-14 read)
+
+module_a.tsx
+  topic refs: refs/security.md (sections 1-3, 5 TS-SEC-16/26, 9 TS-SEC-02, 13), refs/correctness.md (sections 1-2, 3 COR-16, 4, 7), refs/error-handling.md (sections 1-3, 4 ERR-04, 7, 8)
+
+module_b.tsx
+  topic refs: refs/correctness.md (sections 3 COR-16, 4 COR-04/05, 5 COR-07/08, 7), refs/error-handling.md (sections 1-3, 4 ERR-04, 7)
+  (TS-ERR-55 and TS-COR-72 from the language checklist)
+
+module_c.tsx
+  topic refs: refs/security.md (TS-SEC-02, TS-SEC-16, TS-SEC-23), refs/correctness.md (TS-COR-11, TS-COR-12, TS-COR-16), refs/performance.md (sections 1-3, TS-PERF-01)
+  (error handling TS-ERR-11 and debug output TS-DIFF-01 rated from the checklist index and X-SEV-07; refs/error-handling.md section 7 had been read for module_a)
+
+module_e.tsx
+  topic refs: refs/security.md (TS-SEC-04, TS-SEC-20), refs/correctness.md (TS-COR-10 to TS-COR-13), refs/error-handling.md (TS-ERR-11)
+  (TS-COR-01, TS-COR-72, TS-COR-74, TS-ERR-55 from the language checklist)
+
+module_e.test.tsx
+  topic refs: refs/tests.md (sections 1-7), refs/correctness.md (applied only where it changes what a test proves)
+
+Not read: refs/maintainability.md, refs/diff-hygiene.md, refs/lang/node-checklist.md, refs/lang/python-checklist.md.
+
+Tooling: python tooling/run_linters.py --root <inputs/typescript> --files module_a.tsx module_b.tsx module_c.tsx module_e.tsx module_e.test.tsx
+  (eslint ran with the bundled fallback config, tsc with the project tsconfig.json; also re-run with --max-unmapped 1000 to see the full unmapped list)
+Final gate: verification/validate_report.py passed on the first attempt (26 findings checked, 0 errors).
